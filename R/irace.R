@@ -924,6 +924,8 @@ irace_run <- function(scenario, parameters)
       # wasted.
       if (!scenario$elitist) timeUsed <- 0
 
+
+
       irace.note("Estimated execution time is ", boundEstimate, " based on ",
                  next_configuration - 1L, " configurations and ",
                  ninstances," instances. Used time: ", timeUsed,
@@ -1264,10 +1266,7 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog)
-    
-    irace.note("Parameters are", parameters, "\n")
-    irace.note("Configurations are", raceConfigurations, "\n")
-    irace.note("+++++++++++++++++++++++++++++++++++++++++++++++++\n")
+    clusterCategorical(raceResults$configurations, parameters)
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
