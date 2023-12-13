@@ -107,7 +107,7 @@ numeric.configurations.equal <- function(x, configurations, parameters, threshol
 similarConfigurations <- function(configurations, parameters, threshold)
 {
   debug.level <- getOption(".irace.debug.level", 0)
-  if (debug.level >= 1) irace.note ("Computing similarity of configurations .")
+  if (debug.level >= 1) irace.note ("Computing similarity of configurations \n.")
 
   # Create vectors of categorical and numerical
   p <- parameters$types %in% c("c","o")
@@ -138,9 +138,10 @@ similarConfigurations <- function(configurations, parameters, threshold)
     keepIdx <- c(similarIdx[1],
                  (similarIdx[-1] | similarIdx[-length(similarIdx)]),
                  similarIdx[length(similarIdx)])
-    
+    cat("Removing similar configs: ", keepIdx, "\n")
     ## filtering them out:
     configurations <- configurations [keepIdx, , drop=FALSE]
+
     ## filtering their strings out (to use them to define blocks):
     strings <- strings[keepIdx]
     
@@ -413,6 +414,7 @@ generateInstances <- function(scenario, n, instancesList = NULL)
 do.experiments <- function(configurations, ninstances, scenario, parameters)
 {
   instances <- seq_len(ninstances)
+  #applies function race.wrapper to each element of the list instances
   output <- lapply(instances, race.wrapper, configurations = configurations, 
                    bounds = rep(scenario$boundMax, nrow(configurations)),
                    which.alive = seq_nrow(configurations), which.exe = seq_nrow(configurations),
@@ -430,7 +432,8 @@ do.experiments <- function(configurations, ninstances, scenario, parameters)
   }
   if (scenario$capping)
     costs <- applyPAR(costs, boundMax = scenario$boundMax, boundPar = scenario$boundPar)
-
+  # creates a matrix of experiment results with rows 
+  # representing instances and columns representing configurations
   Results <- matrix(costs, nrow = ninstances, ncol = nrow(configurations),
                     byrow = TRUE,
                     dimnames = list(instances, as.character(configurations[[".ID."]])))
@@ -860,6 +863,8 @@ irace_run <- function(scenario, parameters)
         }
         # Execute tests
         # FIXME: Shouldn't we pass the bounds?
+
+        # Execute initial configurations only for estimating the time.
         output <- do.experiments(configurations = allConfigurations[next_configuration:nconfigurations, ],
                                  ninstances = ninstances, scenario = scenario, parameters = parameters)
         # FIXME: Here we should check if everything timed out and increase the bound dynamically.
@@ -1259,6 +1264,10 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog)
+    
+    irace.note("Parameters are", parameters, "\n")
+    irace.note("Configurations are", raceConfigurations, "\n")
+    irace.note("+++++++++++++++++++++++++++++++++++++++++++++++++\n")
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
