@@ -784,6 +784,7 @@ irace_run <- function(scenario, parameters)
     )
 
     iraceClusters <- list()
+    clustering.partition(parameters = parameters)
 
     blockSize <- scenario$blockSize
     model <- NULL
@@ -1269,7 +1270,7 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog)
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = parameters, configurations = raceConfigurations)
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = parameters, configurations = raceResults$configurations)
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
