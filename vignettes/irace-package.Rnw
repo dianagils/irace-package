@@ -21,6 +21,7 @@
 \usepackage{algorithm,algorithmic}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{lmodern}
 \usepackage{xspace}
 \usepackage{amsmath,amssymb}
 \usepackage{relsize}
