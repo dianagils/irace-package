@@ -790,7 +790,7 @@ irace_run <- function(scenario, parameters)
       cat("# No partitions\n")
     }
     partitions <- clustering.partition(parameters = parameters, num_partitions = scenario$nbPartitions)
-    
+    print(partitions)
 
     blockSize <- scenario$blockSize
     model <- NULL

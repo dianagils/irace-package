@@ -112,7 +112,8 @@ clusterCategorical <- function(parameters, configurations, existingClusters = NU
   printCluster(clusters, configurations)
   
   cat ("Starting numerical clustering.\n")
-  finalClusters <- vector("list", nrow(partitions))
+  #empty list of final clusters
+  finalClusters <- list()
   # for each cluster, apply the clustering numerical function
   for (i in 1:length(clusters)) {
     # create list of sub-clusters
@@ -189,7 +190,6 @@ clusterNumerical.boxes <- function(parameters, clusterConfigurations, combinatio
     currentConfiguration <- clusterConfigurations[i,]
     # get current configuration's numerical parameters
     currentNumericalParameters <- currentConfiguration[numericalParameters]
-    print(currentNumericalParameters)
     # for each partition
     for (j in 1:nrow(combinations)) {
       # get current partition
@@ -207,6 +207,7 @@ clusterNumerical.boxes <- function(parameters, clusterConfigurations, combinatio
         }
         # get current partition's interval
         currentInterval <- currentPartition[[currentParameter]][[1]]
+
         # check if value is inside interval
         if (!(currentParameterValue >= currentInterval[1] && currentParameterValue <= currentInterval[2]) && currentParameterValue != "NA") {
           inCluster <- FALSE
@@ -215,7 +216,6 @@ clusterNumerical.boxes <- function(parameters, clusterConfigurations, combinatio
       }
       # if all values are in the interval (or are NA), add config to cluster
       if (inCluster) {
-        print(j)
         cat ("Adding config ", currentConfiguration$.ID., " to cluster ", j, "\n")
         if (is.null(clusters[[j]])) {
           clusters[[j]] <- currentConfiguration
@@ -228,7 +228,6 @@ clusterNumerical.boxes <- function(parameters, clusterConfigurations, combinatio
   }
   #remove empty clusters
   clusters <- clusters[!sapply(clusters, is.null)]
-
   return(clusters)
 }
 
@@ -326,7 +325,7 @@ dynamic_partition <- function(interval, num_partitions) {
   partitions <- lapply(1:num_partitions, function(i) {
     lower <- lower_bound + (i - 1) * width
     upper <- lower_bound + i * width
-    return(list(c(lower, upper)))
+    return(c(lower, upper))
   })
   return(partitions)
 }
