@@ -1,34 +1,68 @@
-clustering <- function(clusters, configurations, parameters, partitions) {
-  # if clusters is empty, call clusterCatetgorical
-  if (length(clusters) == 0) {
-    return(clusterCategorical(parameters = parameters, configurations = configurations, partitions = partitions))
+clustering <- function(clusters, configurations, parameters, partitions, results) {
+  configurations <- addResultsToConfigurations(aliveConfigurations = configurations, results = results)
+  if (nrow(clusters) == 0) {
+    return(clusterConfigurations(parameters = parameters, configurations = configurations, partitions = partitions))
   } else {
-    updatedClusters <- updateClusters(clusters = clusters, aliveConfigurations = configurations)
-    return(clusterCategorical(parameters = parameters, configurations = configurations, existingClusters = updatedClusters, partitions = partitions))
+    # update clusters
+    result <- updateClusters(clusteredConfigs = clusters, aliveConfigurations = configurations)
+    return(clusterConfigurations(parameters = parameters, configurations = result$configurations, existingClusters = result$clusters, partitions = partitions))
   }
 }
 
-updateClusters <- function(clusters, aliveConfigurations) {
-  # clusters: list of clusters
-  # aliveConfigurations: list of alive configurations
-  # returns: list of clusters
-  # clusters: list of configurations
-  # for each cluster, check if it contains alive configurations
+addResultsToConfigurations <- function(aliveConfigurations, results) {
+  # configurations: data frame of configurations
+  # results: list of results
+  # returns: data frame of configurations with results
+  # add results to configurations
+  # columns are configurations, rows are instances and value is the result
+  # for each config, add a column with the average of the results
+  for (i in 1:nrow(aliveConfigurations)) {
+    currentID <- aliveConfigurations[i, ]$.ID.
+    currentResults <- results[[currentID]]
+    # add column to configurations
+    aliveConfigurations[i, ".RESULTS."] <- mean(currentResults)
+  }
+  return(aliveConfigurations)
+}
+
+filterClusteringParams <- function(parameters) {
+  # parameters: list of parameters
+  # returns: list of parameters
+  # remove parameter names that have clustering = FALSE
+  parameters$names <- parameters$names[parameters$clustering == TRUE]
+  parameters$types <- parameters$types[parameters$clustering == TRUE]
+  parameters$domain <- parameters$domain[parameters$clustering == TRUE]
+  parameters$conditions <- parameters$conditions[parameters$clustering == TRUE]
+  print(parameters)
+  return (parameters)
+}
+
+updateClusters <- function(clusteredConfigs, aliveConfigurations) {
   cat("Updating clusters.\n")
-  for (i in 1:length(clusters)) {
-    # get current cluster
-    currentCluster <- clusters[[i]]
-    # modify configurations that are not alive in .Alive. column and set as FALSE
-    currentCluster$.ALIVE.[!currentCluster$.ID. %in% aliveConfigurations$.ID.] <- FALSE
-    # update rank of alive configurations
-    currentCluster$.RANK.[currentCluster$.ID. %in% aliveConfigurations$.ID.] <- aliveConfigurations$.RANK.[aliveConfigurations$.ID. %in% currentCluster$.ID.]
-    # remove configurations from alive that are already in the cluster
-    aliveConfigurations <- aliveConfigurations[!aliveConfigurations$.ID. %in% currentCluster$.ID.,]
+  for (i in 1:nrow(aliveConfigurations)) {
+    currentID <- aliveConfigurations[i, ]$.ID.    # get index of config in clusteredConfigs with the same ID
+    index <- which(clusteredConfigs$.ID. == currentID)
+    # if there is no config with the same ID, skip
+    if (length(index) == 0) {
+      next
+    }
+    # update rank and alive
+    config <- clusteredConfigs[index, ]
+    config$.RANK. <- aliveConfigurations[i, ]$.RANK.
+    config$.ALIVE. <- aliveConfigurations[i, ]$.ALIVE.
+    config$.RESULTS. <- aliveConfigurations[i, ]$.RESULTS.
+
+    # update cluster
+    clusteredConfigs[index, ] <- config  # Use single brackets here
   }
-  return(clusters)
+  # remove from aliveConfigurations the configurations that are already in clusteredConfigs
+  aliveConfigurations <- aliveConfigurations[!aliveConfigurations$.ID. %in% clusteredConfigs$.ID., ]
+
+  return(list(clusters = clusteredConfigs, configurations = aliveConfigurations))
 }
 
-clusterCategorical <- function(parameters, configurations, existingClusters = NULL, partitions) {
+
+clusterConfigurations <- function(parameters, configurations, existingClusters = NULL, partitions) {
   # parameters: list of parameters
   # configurations: data frame of configurations
   # returns: list of clusters
@@ -38,252 +72,101 @@ clusterCategorical <- function(parameters, configurations, existingClusters = NU
 
   # Assuming 'categoricalParameters' is an atomic vector with names
   domains <- parameters$domain[parameters$names %in% categoricalParameters]
+  # Add NA value to conditional parameters when 
 
-  combinations <- expand.grid(domains)
-  # get number of clusters:
+  combinations <- createCategoricalParamGrid(parameters)
+
   nbClusters <- nrow(combinations)
 
-  # TODO : Check no conditional parameters case
-  # add clusters for adding conditional parameters
-  conditionalsNames <- getConditionalParameters(parameters, categoricalParameters)
-  # create df of conditionals with NA values
-  conditionals <- data.frame(matrix("NA", nrow = 1, ncol = length(conditionalsNames)))
-  names(conditionals) <- conditionalsNames
-  conditionalsCombination <- expand.grid(conditionals)
-
-  # add clusters for each conditional parameter and their values
-  nbClustersCat <- nbClusters + length(conditionalsCombination)
-
-  clusters <- vector("list", nbClustersCat)
-
-  # If existing clusters are provided, initialize with them
-  if (!is.null(existingClusters)) {
-    cat("Existing clusters are detected.\n")
-    clusters <- existingClusters
-  }
-
   no.configurations <- nrow(configurations)
+  # add .CLUSTER. column to configurations
+  configurations$.CLUSTER. <- NA
 
+  if (length(categoricalParameters) == 0) {
+    cat("No categorical parameters detected.\n")
+    nbClusters <- 1
+    # if there are no categorical parameters, add all configurations to the same cluster == 1
+    configurations$.CLUSTER. <- 1
+  } else {
   # check each configuration and assign it to the corresponding cluster
-  for (i in 1:no.configurations) {
-    # get current configuration
-    currentConfiguration <- configurations[i,]
-
-    # get current configuration's categorical parameters
-    currentCategoricalParameters <- currentConfiguration[categoricalParameters]
-    # change NA values to "NA" for comparison
-    currentCategoricalParameters[is.na(currentCategoricalParameters)] <- "NA"
-    # Check if it matches any existing cluster
-    matchedCluster <- NULL
-    for (j in seq_along(clusters)) {
-      #cat("Checking cluster ", j, "\n")
-      #print(clusters[[j]])
-      clusterConfigurations <- clusters[[j]]
+    for (i in 1:no.configurations) {
+      # get current configuration
+      currentConfiguration <- configurations[i,]
+      # get current configuration's categorical parameters
+      currentCategoricalParameters <- currentConfiguration[categoricalParameters]
       # change NA values to "NA" for comparison
-      clusterConfigurations[is.na(clusterConfigurations)] <- "NA"
-      #print(clusterConfigurations)
-      if (!is.null(clusters[[j]]) && all(apply(clusterConfigurations[categoricalParameters], 1, function(x) all(x == currentCategoricalParameters)))) {
-        matchedCluster <- j
-        break
-      }
-    }
+      currentCategoricalParameters[is.na(currentCategoricalParameters)] <- "NA"
+      # apply lapply to each row of combinations to check if it is equal to current configuration
+      currentCombination <- which(apply(combinations, 1, function(x) all(x == currentCategoricalParameters)))
 
-    if (is.null(matchedCluster)) {
-      # No match found, find the first empty cluster and add the current configuration to it
-      newClusterIndex <- which(sapply(clusters, is.null))[1]
-      # if there are no empty clusters, add a new cluster
-      if (is.null(newClusterIndex)) {
-        newClusterIndex <- length(clusters) + 1
-      }
-      # add the current configuration to the new cluster
-      print(currentConfiguration)
-      print(newClusterIndex)
-      clusters[[newClusterIndex]] <- currentConfiguration
-    } else {
-      # Add the current configuration to its matched cluster
-      clusters[[matchedCluster]] <- rbind(clusters[[matchedCluster]], currentConfiguration)
+      # if the combination is not found, check if it is a conditional parameter
+      if (length(currentCombination) == 0) {
+        currentCombination <- nbClusters + 1
+        }
+      # add cluster column to configuration
+      currentConfiguration$.CLUSTER. <- currentCombination
+      configurations[i,] <- currentConfiguration
     }
   }
-
-  # remove empty clusters
-  clusters <- clusters[!sapply(clusters, is.null)]
   cat ("Categorical clustering finished.\n")
 
-  printCluster(clusters, configurations)
-  
-  cat ("Starting numerical clustering.\n")
-  #empty list of final clusters
-  finalClusters <- list()
+  numericalParameters <- parameters$names[parameters$types == "i" | parameters$types == "r"]
+  if (length(numericalParameters) == 0) {
+    cat("No numerical parameters detected.\n")
+    printCluster(nbClusters, configurations)
+    return(configurations)
+
+  } else {
   # for each cluster, apply the clustering numerical function
-  for (i in 1:length(clusters)) {
-    # create list of sub-clusters
-    clusterConfigurations <- clusters[[i]]
-    cat ("Cluster ", i, "\n")
-    # apply clustering numerical function
-    numericalClusters <- clusterNumerical.boxes(parameters, clusterConfigurations, partitions)
-    # add sub-clusters to final clusters
-    finalClusters <- c(finalClusters, numericalClusters)
-  }
-  printCluster(finalClusters, configurations)
-  return(finalClusters)
-}
-
-clusterNumerical <- function(parameters, clusterConfigurations, configurations, threshold) {
-  # parameters: list of parameters
-  # configurations: data frame of configurations
-  # threshold: threshold for clustering
-  # returns: list of clusters
-  # clusters: list of configurations
-  # get numerical parameters
-  numericalParameters <- parameters$names[parameters$types == "i" | parameters$types == "r"]
-
-  # Assuming 'numericalParameters' is an atomic vector with names
-  domains <- parameters$domain[parameters$names %in% numericalParameters]
-
-  clusters <- vector("list", length(clusterConfigurations))
-  print(clusterConfigurations)
-
-  # pick initial config for comparison and add to first cluster
-  initialConfig <- clusterConfigurations[1,]
-
-  clusters[[1]] <- id
-
-  # check for each cluster if the configurations are similar, consider cluster with only one configuration
-  if (length(clusterConfigurations) == 1) {
-    return(clusters)
-  }
-
-  for (i in 2:length(clusterConfigurations)) {
-    # get current configuration
-    currentConfiguration <- clusterConfigurations[i,]
-    cat ("Current configuration: \n")
-    print(currentConfiguration)
-    # check if current configuration is similar to initial configuration
-    if (!checkConfigDifference(initialConfig, currentConfiguration, numericalParameters, threshold)) {
-      # add Id of config to new cluster
-      clusters[[i]] <- currentConfiguration
-      # set new initial configuration
-      initialConfig <- currentConfiguration
-    } else {
-      # add configuration to current cluster
-      clusters[[i]] <- rbind(clusters[[i]], currentConfiguration)
+  for (i in 1:nbClusters) {
+    cat("Clustering cluster ", i, "\n")
+        # Add subcluster column to configurations
+    configurations[configurations$.CLUSTER. == i, ".SUBCLUSTER."] <- NA
+    # Subset configurations for the current cluster
+    currentCluster <- configurations[configurations$.CLUSTER. == i,]
+    
+    # If there are no configs, skip
+    if (nrow(currentCluster) == 0) {
+      next
     }
+    
+    # Apply clustering function
+    updatedCluster <- clusterNumerical.boxes(numericalParameters, currentCluster, partitions)
+    print(updatedCluster)
+    
+    # Update configurations with the results
+    configurations[configurations$.CLUSTER. == i, ] <- updatedCluster
   }
-  #remove empty clusters
-  clusters <- clusters[!sapply(clusters, is.null)]
 
-  return(clusters)
+  cat ("Numerical clustering finished.\n")
+   if (!is.null(existingClusters)) {
+    #rbind existing clusters and new clusters
+    configurations <- rbind(existingClusters, configurations)
+  }
+  printCluster(nbClusters, configurations, nbSubClusters = nrow(partitions))
+  }
+  summarizeClusters(configurations)
+  return(configurations)
 }
-clusterNumerical.boxes <- function(parameters, clusterConfigurations, combinations) {
-  # parameters: list of parameters
-  # configurations: data frame of configurations
-  # partitions: list of partitions
-  # returns: list of clusters
-  # clusters: list of configurations
-  # get numerical parameters
-  numericalParameters <- parameters$names[parameters$types == "i" | parameters$types == "r"]
-  clusters <- vector("list", nrow(combinations))
 
+clusterNumerical.boxes <- function(numericalParameters, clusterConfigurations, combinations) {
+  # add column to clusterConfigurations
+  clusterConfigurations$.SUBCLUSTER. <- NA
+  nbSubClusters <- nrow(combinations)
+  
   # for each config
   for (i in 1:nrow(clusterConfigurations)) {
-    # get current configuration
     currentConfiguration <- clusterConfigurations[i,]
-    # get current configuration's numerical parameters
     currentNumericalParameters <- currentConfiguration[numericalParameters]
-    # for each partition
-    for (j in 1:nrow(combinations)) {
-      # get current partition
-      currentPartition <- combinations[j,]
-      inCluster <- TRUE  # Initialize outside of the loop
-      # check for each value in config if it is in the interval for its parameters
-      for (k in 1:length(numericalParameters)) {
-        # get current parameter
-        currentParameter <- numericalParameters[k]
-        # get current parameter's value
-        currentParameterValue <- currentNumericalParameters[[currentParameter]]
-        # replace NA values with "NA" for comparison
-        if (is.na(currentParameterValue)) {
-          currentParameterValue <- "NA"
-        }
-        # get current partition's interval
-        currentInterval <- currentPartition[[currentParameter]][[1]]
 
-        # check if value is inside interval
-        if (!(currentParameterValue >= currentInterval[1] && currentParameterValue <= currentInterval[2]) && currentParameterValue != "NA") {
-          inCluster <- FALSE
-          break
-        }
-      }
-      # if all values are in the interval (or are NA), add config to cluster
-      if (inCluster) {
-        cat ("Adding config ", currentConfiguration$.ID., " to cluster ", j, "\n")
-        if (is.null(clusters[[j]])) {
-          clusters[[j]] <- currentConfiguration
-        } else {
-          clusters[[j]] <- rbind(clusters[[j]], currentConfiguration)
-        }
-        break
-      }
-    }
+    subcluster <- find_partition(currentNumericalParameters, combinations, numericalParameters)
+    
+    cat("Adding config ", i ," to subcluster ", subcluster, "\n")
+    clusterConfigurations[i,]$.SUBCLUSTER. <- subcluster
   }
-  #remove empty clusters
-  clusters <- clusters[!sapply(clusters, is.null)]
-  return(clusters)
+  return(clusterConfigurations)
 }
 
-
-checkConfigDifference <- function(config1, config2, parameters, threshold) {
-  # config1: first configuration
-  # config2: second configuration
-  # parameters: list of parameters names
-  # threshold: threshold for clustering
-  # returns: boolean value, true if configurations are similar, false otherwise
-  cat ("Checking difference between configurations.\n")
-  cat ("Config 1: \n")
-  print(config1)
-  cat ("Config 2: \n")
-  print(config2)
-  if (any(is.na(config1)) || any(is.na(config2))) {
-    # get the NA values parameter names 
-    naParametersConfig1 <- names(config1)[is.na(config1)]
-    naParametersConfig2 <- names(config2)[is.na(config2)]
-    # check if names are equal
-    if (identical(naParametersConfig1, naParametersConfig2)) {
-     # if they are the same, remove names from parameters list
-      parameters <- parameters[!parameters %in% naParametersConfig1]
-    } else {
-      # if they are not the same, return false
-      return(FALSE)
-    }
-  }
-
-  # get vector of differences for each parameter
-  difference <- sapply(parameters, function(parameter) {
-    parameterValue1 <- config1[parameter]
-    # get parameter value from config2
-    parameterValue2 <- config2[parameter]
-    # check if parameter is categorical
-      # if parameter is numerical, check if values are equal
-      if (parameterValue1 == parameterValue2) {
-        return(0)
-      } else {
-        # if values are not equal, return the difference between them
-        return(abs(parameterValue1 - parameterValue2))
-    }
-  })
-  
-  # Check for missing values in the difference vector
-  if (any(is.na(difference))) {
-    return(FALSE)  # If there are missing values, consider the configurations different
-  }
-  
-  # If any of the differences is bigger than the threshold, then the configs are not similar. Add to a new cluster
-  if (any(difference > threshold)) {
-    return(FALSE)
-  } else {
-    return(TRUE)
-  }
-}
 
 # return number of parameters that are conditional 
 getConditionalParameters <- function(parameters, parameterType) {
@@ -295,21 +178,35 @@ getConditionalParameters <- function(parameters, parameterType) {
   return(names(filtered_conditions))
 }
 
-printCluster <- function(clusters, configurations) {
-  # clusters: list of clusters (containing IDs)
-  # configurations: data frame of configurations
-  # print clusters
-  for (i in 1:length(clusters)) {
-    # get IDs of configurations in the cluster
-    clusterConfigurations <- clusters[[i]]
 
-    # print cluster
-    cat("Cluster ", i, ": \n")
+printCluster <- function(nbClusters, configurations, nbSubClusters = NULL) {
+  # nbClusters: number of clusters
+  # configurations: data frame of configurations with .CLUSTER. column
+  # print the configurations in each cluster
+  cat("Printing clusters.\n")
+  
+  for (i in 1:nbClusters) {
+    cat("Cluster ", i, "\n")
+    configs <- configurations[configurations$.CLUSTER. == i,]
     
-    # print configurations with their IDs
-    print(clusterConfigurations)
+    if (!is.null(nbSubClusters)) {
+      # get .SUBCLUSTER. column
+      subclusters <- configs$.SUBCLUSTER.
+      # get unique subclusters
+      uniqueSubclusters <- unique(subclusters)
+      
+      for (j in 1:length(uniqueSubclusters)) {
+        cat("Subcluster ", uniqueSubclusters[j], "\n")
+        subclusterConfigs <- configs[configs$.SUBCLUSTER. == uniqueSubclusters[j],]
+        print(subclusterConfigs)
+      }
+    } else {
+      print(configs)
+    }
   }
 }
+
+
 
 dynamic_partition <- function(interval, num_partitions) {
   # interval: vector of length 2
@@ -330,6 +227,48 @@ dynamic_partition <- function(interval, num_partitions) {
   return(partitions)
 }
 
+find_partition <- function(configuration, partitions, parameters) {
+  # check las parameter
+  parameter <- parameters[length(parameters)]
+  parameter_value <- configuration[parameter][1,]
+  parameter_partition <- partitions[[parameter]]
+  # check first interval of last parameter definition
+  intervalFound <- FALSE
+  while (!intervalFound) {
+    interval <- parameter_partition[[1]]
+    if ((parameter_value >= interval[1] && parameter_value <= interval[2]) | (is.na(parameter_value))) {
+      intervalFound <- TRUE
+      if (length(parameters) == 1) {
+        # return index of interval
+        # remove all rows that do not match interval in current parameter from partitions
+        rows_to_remove <- sapply(partitions[[parameter]], function(x) x[1] != interval[1] | x[2] != interval[2])
+        partitions <- partitions[!rows_to_remove,, drop = FALSE]
+        row_index <- as.numeric(rownames(partitions))
+        return(row_index)
+      } else {
+        # remove all rows that do not match interval in current parameter from partitions
+        rows_to_remove <- sapply(partitions[[parameter]], function(x) x[1] != interval[1] | x[2] != interval[2])
+        partitions <- partitions[!rows_to_remove, , drop = FALSE]
+        parameter_partition <- partitions[[parameter]]
+      }
+    } else {
+      # remove all rows that match interval in current parameter from partitions
+      rows_to_remove <- sapply(partitions[[parameter]], function(x) x[1] == interval[1] & x[2] == interval[2])
+      partitions <- partitions[!rows_to_remove, , drop = FALSE]
+      parameter_partition <- partitions[[parameter]]
+      }
+    }
+  # remove last parameter from partitions
+  partitions <- partitions[!names(partitions) == parameter]
+  # remove last parameter from parameters
+  parameters <- parameters[parameters != parameter]
+  # remove last parameter from configuration
+  configuration <- configuration[!names(configuration) == parameter,]
+  # find partition for remaining parameters
+
+  return(find_partition(configuration, partitions, parameters))
+}
+
 clustering.partition <- function(parameters, num_partitions) {
   # parameters: list of parameters
   # returns: list of clusters
@@ -348,4 +287,61 @@ clustering.partition <- function(parameters, num_partitions) {
   ## combine partitions
   combinations <- expand.grid(partitions)
   return(combinations)
+}
+
+createCategoricalParamGrid <- function(parameters) {
+  # parameters: list of parameters
+  # domains: list of domains
+  # returns: list of combinations
+  # get categorical parameters
+  categoricalParameters <- parameters$names[parameters$types == "c" | parameters$types == "o" ]
+  # Assuming 'categoricalParameters' is an atomic vector with names
+  domains <- parameters$domain[parameters$names %in% categoricalParameters]
+  # get conditional parameters
+  conditions <- parameters$conditions[parameters$names %in% categoricalParameters]
+  # create param grid
+  combinations <- expand.grid(domains)
+  # check conditions for each combination
+  for (i in seq_len(nrow(combinations))) {
+    config <- as.data.frame(combinations[i, , drop = FALSE])
+    for (param in names(config)) {
+      if (!conditionsSatisfied(parameters, config, param)) {
+        combinations[i, param] <- "NA"
+      }
+    }
+  }
+  return(combinations)
+}
+
+summarizeClusters <- function(configurations) {
+  summary_df <- data.frame(cluster = integer(),
+                          subcluster = integer(),
+                          MeanPerformance = numeric(),
+                          StdDevPerformance = numeric())
+
+  # Iterate over unique clusters and subclusters
+  unique_clusters <- unique(configurations$.CLUSTER.)
+  unique_subclusters <- unique(configurations$.SUBCLUSTER.)
+
+  for (cluster in unique_clusters) {
+    for (subcluster in unique_subclusters) {
+      # Subset the configurations dataframe for the current cluster and subcluster
+      subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
+
+      # Remove NA from results, replace with 0
+      subset_df$.RESULTS.[is.na(subset_df$.RESULTS.)] <- 0
+
+      # Calculate mean and standard deviation of the RESULTS column
+      mean_performance <- mean(subset_df$.RESULTS.)
+      std_dev_performance <- sd(subset_df$.RESULTS.)
+
+      # Append the summary information to the summary dataframe
+      summary_df <- rbind(summary_df, data.frame(cluster = cluster,
+                                                subcluster = subcluster,
+                                                MeanPerformance = mean_performance,
+                                                StdDevPerformance = std_dev_performance))
+    }
+  }
+  print(summary_df)
+  return(summary_df)
 }

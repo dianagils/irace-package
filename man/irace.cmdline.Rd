@@ -281,6 +281,8 @@ List of command-line options:
                          sampled and evaluated at each iteration. Default: 5.
    --confidence          Confidence level for the elimination test. Default:
                          0.95.
+   --num-partitions      Number of partitions for domains used to cluster
+                         configurations Default: 3.
 }\if{html}{\out{</div>}}
 }
 \examples{
