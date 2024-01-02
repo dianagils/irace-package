@@ -782,14 +782,15 @@ irace_run <- function(scenario, parameters)
                               dimnames = list(NULL,
                                               c("iteration", "instance", "configuration", "time", "bound")))
     )
-
-    iraceClusters <- list()
+    # empty data frame 
+    iraceClusters <- data.frame(stringsAsFactors=FALSE)
+    clusterParameters <- filterClusteringParams(parameters)
     if (scenario$nbPartitions) {
       cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
     } else {
       cat("# No partitions\n")
     }
-    partitions <- clustering.partition(parameters = parameters, num_partitions = scenario$nbPartitions)
+    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = scenario$nbPartitions)
     print(partitions)
 
     blockSize <- scenario$blockSize
@@ -1276,7 +1277,8 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog)
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = parameters, configurations = raceResults$configurations, partitions = partitions)
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments ,partitions = partitions)
+    iraceResults$clusters <- iraceClusters
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.

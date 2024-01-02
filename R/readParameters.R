@@ -291,7 +291,8 @@ readParameters <- function (file, digits = 4L, debugLevel = 0L, text)
                      # FIXME: This has to be a list because we assign
                      # attributes to elements.
                      transform = list(),
-                     isDependent = logical(0))
+                     isDependent = logical(0),
+                     clustering = logical(0))
 
   conditions <- list()
   lines <- readLines(con = file)
@@ -437,12 +438,22 @@ readParameters <- function (file, digits = 4L, debugLevel = 0L, text)
       }
     }
 
+    # match clustering for TRUE 
+    result <- field.match (line, "TRUE", sep="")
+    line <- result$line
+    if (is.null(result$match)) {
+      param.clustering <- FALSE
+    } else {
+      param.clustering <- TRUE
+    }
+
     count <- count + 1
     parameters$names[count] <- param.name
     parameters$switches[count] <- param.switch
     parameters$types[count] <- param.type
     parameters$domain[[count]] <- param.value
     parameters$transform[[count]] <- param.transform
+    parameters$clustering[count] <- param.clustering
     
     parameters$isFixed[count] <- isFixed(type = param.type,
                                          domain = parameters$domain[[count]])
@@ -483,6 +494,7 @@ readParameters <- function (file, digits = 4L, debugLevel = 0L, text)
     } else {
       conditions[[param.name]] <- TRUE
     }
+
     # *****************************************************************
   } # end loop on lines
 
@@ -499,6 +511,7 @@ readParameters <- function (file, digits = 4L, debugLevel = 0L, text)
     names(parameters$switches) <- 
       names(parameters$domain) <- 
         names(parameters$isFixed) <-
+          names(parameters$clustering) <-
             names(parameters$transform) <- parameters$names
 
   parameters$isDependent <- sapply(parameters$domain, is.expression)
