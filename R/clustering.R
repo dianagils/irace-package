@@ -9,7 +9,6 @@ clustering <- function(clusters, configurations, parameters, partitions, results
   }
 }
 
-
 addResultsToConfigurations <- function(aliveConfigurations, results) {
   # configurations: data frame of configurations
   # results: list of results
@@ -157,9 +156,7 @@ clusterNumerical.boxes <- function(numericalParameters, clusterConfigurations, c
   
   # for each config
   for (i in 1:nrow(clusterConfigurations)) {
-    # get current configuration
     currentConfiguration <- clusterConfigurations[i,]
-    # get current configuration's numerical parameters
     currentNumericalParameters <- currentConfiguration[numericalParameters]
 
     subcluster <- find_partition(currentNumericalParameters, combinations, numericalParameters)
@@ -297,7 +294,6 @@ createCategoricalParamGrid <- function(parameters) {
   # domains: list of domains
   # returns: list of combinations
   # get categorical parameters
-
   categoricalParameters <- parameters$names[parameters$types == "c" | parameters$types == "o" ]
   # Assuming 'categoricalParameters' is an atomic vector with names
   domains <- parameters$domain[parameters$names %in% categoricalParameters]
@@ -348,133 +344,4 @@ summarizeClusters <- function(configurations) {
   }
   print(summary_df)
   return(summary_df)
-}
-
-
-createCategoricalParamGrid <- function(parameters) {
-  # parameters: list of parameters
-  # domains: list of domains
-  # returns: list of combinations
-  # get categorical parameters
-  categoricalParameters <- parameters$names[parameters$types == "c" | parameters$types == "o" ]
-  # Assuming 'categoricalParameters' is an atomic vector with names
-  domains <- parameters$domain[parameters$names %in% categoricalParameters]
-  # get conditional parameters
-  conditions <- parameters$conditions[parameters$names %in% categoricalParameters]
-  # create param grid
-  combinations <- expand.grid(domains)
-  # check conditions for each combination
-  for (i in seq_len(nrow(combinations))) {
-    config <- as.data.frame(combinations[i, , drop = FALSE])
-    for (param in names(config)) {
-      if (!conditionsSatisfied(parameters, config, param)) {
-        combinations[i, param] <- "NA"
-      }
-    }
-  }
-  return(combinations)
-}
-
-summarizeClusters <- function(configurations) {
-  summary_df <- data.frame(cluster = integer(),
-                          subcluster = integer(),
-                          MeanPerformance = numeric(),
-                          StdDevPerformance = numeric())
-
-  # Iterate over unique clusters and subclusters
-  unique_clusters <- unique(configurations$.CLUSTER.)
-  unique_subclusters <- unique(configurations$.SUBCLUSTER.)
-
-  for (cluster in unique_clusters) {
-    for (subcluster in unique_subclusters) {
-      # Subset the configurations dataframe for the current cluster and subcluster
-      subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
-
-      # Remove NA from results, replace with 0
-      subset_df$.RESULTS.[is.na(subset_df$.RESULTS.)] <- 0
-
-      # Calculate mean and standard deviation of the RESULTS column
-      mean_performance <- mean(subset_df$.RESULTS.)
-      std_dev_performance <- sd(subset_df$.RESULTS.)
-
-      # Append the summary information to the summary dataframe
-      summary_df <- rbind(summary_df, data.frame(cluster = cluster,
-                                                subcluster = subcluster,
-                                                MeanPerformance = mean_performance,
-                                                StdDevPerformance = std_dev_performance))
-    }
-  }
-  print(summary_df)
-  return(summary_df)
-}
-createCategoricalParamGrid <- function(parameters) {
-  # parameters: list of parameters
-  # domains: list of domains
-  # returns: list of combinations
-  # get categorical parameters
-  categoricalParameters <- parameters$names[parameters$types == "c" | parameters$types == "o" ]
-  # Assuming 'categoricalParameters' is an atomic vector with names
-  domains <- parameters$domain[parameters$names %in% categoricalParameters]
-  # get conditional parameters
-  conditions <- parameters$conditions[parameters$names %in% categoricalParameters]
-  # create param grid
-  combinations <- expand.grid(domains)
-  # check conditions for each combination
-  for (i in seq_len(nrow(combinations))) {
-    config <- as.data.frame(combinations[i, , drop = FALSE])
-    for (param in names(config)) {
-      if (!conditionsSatisfied(parameters, config, param)) {
-        combinations[i, param] <- "NA"
-      }
-    }
-  }
-  return(combinations)
-}
-
-summarizeClusters <- function(configurations) {
-  summary_df <- data.frame(cluster = integer(),
-                          subcluster = integer(),
-                          MeanPerformance = numeric(),
-                          StdDevPerformance = numeric())
-
-  # Iterate over unique clusters and subclusters
-  unique_clusters <- unique(configurations$.CLUSTER.)
-  unique_subclusters <- unique(configurations$.SUBCLUSTER.)
-
-  for (cluster in unique_clusters) {
-    for (subcluster in unique_subclusters) {
-      # Subset the configurations dataframe for the current cluster and subcluster
-      subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
-
-      # Remove NA from results, replace with 0
-      subset_df$.RESULTS.[is.na(subset_df$.RESULTS.)] <- 0
-
-      # Calculate mean and standard deviation of the RESULTS column
-      mean_performance <- mean(subset_df$.RESULTS.)
-      std_dev_performance <- sd(subset_df$.RESULTS.)
-
-      # Append the summary information to the summary dataframe
-      summary_df <- rbind(summary_df, data.frame(cluster = cluster,
-                                                subcluster = subcluster,
-                                                MeanPerformance = mean_performance,
-                                                StdDevPerformance = std_dev_performance))
-    }
-  }
-  print(summary_df)
-  return(summary_df)
-}
-
-chooseClusterRepresentative <- function(configurations, summary_df) {
-  # configurations: data frame of configurations
-  # summary_df: data frame of summary information
-  # returns: data frame of configurations with .REPRESENTATIVE. column
-  # add .REPRESENTATIVE. column to summary_df
-  configurations$.REPRESENTATIVE. <- NA
-
-  # Iterate over unique clusters
-  unique_clusters <- unique(configurations$.CLUSTER.)
-  for (cluster in unique_clusters) {
-   
-  }
-  return(configurations)
 }
