@@ -1198,6 +1198,8 @@ irace_run <- function(scenario, parameters)
       if (debugLevel >= 1) irace.note("Update model\n")
       model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
                            nbIterations, nbNewConfigurations, scenario)
+      # representativesModel <- updateModel(parameters, representativesConfigurations, representativesModel, indexIteration,
+                          #  nbIterations, nbNewConfigurations, scenario)
       if (debugLevel >= 2) printModel (model)
       if (debugLevel >= 1)
         irace.note("Sample ", nbNewConfigurations, " configurations from model\n")
@@ -1205,6 +1207,9 @@ irace_run <- function(scenario, parameters)
       newConfigurations <- sampleModel(parameters, eliteConfigurations,
                                        model, nbNewConfigurations,
                                        repair = scenario$repairConfiguration)
+      # newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
+                                          # model, nbNewConfigurations,
+                                          # repair = scenario$repairConfiguration)
 
       # Set ID of the new configurations.
       newConfigurations <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) +
@@ -1230,6 +1235,9 @@ irace_run <- function(scenario, parameters)
           newConfigurations <- sampleModel(parameters, eliteConfigurations,
                                            model, nbNewConfigurations,
                                            repair = scenario$repairConfiguration)
+          # newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
+                                              # model, nbNewConfigurations,
+                                              # repair = scenario$repairConfiguration)
           #cat("# ", format(Sys.time(), usetz=TRUE), " sampleModel() DONE\n")
           # Set ID of the new configurations.
           newConfigurations <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) + 
@@ -1277,8 +1285,6 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog)
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments ,partitions = partitions)
-    iraceResults$clusters <- iraceClusters
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
@@ -1291,6 +1297,12 @@ irace_run <- function(scenario, parameters)
     # Merge new results.
     iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                               raceResults$experiments)
+    # Cluster configurations
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions)
+    iraceResults$clusters <- iraceClusters
+    
+    # representativesConfigurations <- getClusterRepresentatives(nbRepresentatives =  min(raceResults$nbAlive, minSurvival), configurations = iraceClusters)
+    
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
@@ -1335,7 +1347,12 @@ irace_run <- function(scenario, parameters)
     if (firstRace) {
       if (debugLevel >= 1) irace.note("Initialise model\n")
       model <- initialiseModel(parameters, eliteConfigurations)
-      if (debugLevel >= 2) printModel (model)
+      # representativesModel <- initialiseModel(parameters, representativesConfigurations)
+      if (debugLevel >= 2) {
+        printModel (model)
+        # cat("Representatives model:\n")
+        # printModel (representativesModel)
+      }
       firstRace <- FALSE
     }
       
