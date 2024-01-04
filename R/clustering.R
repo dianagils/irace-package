@@ -10,17 +10,22 @@ clustering <- function(clusters, configurations, parameters, partitions, results
 }
 
 addResultsToConfigurations <- function(aliveConfigurations, results) {
+  cat("Adding results to configurations.\n")
   # configurations: data frame of configurations
-  # results: list of results
+  # results: matrix of results
   # returns: data frame of configurations with results
   # add results to configurations
   # columns are configurations, rows are instances and value is the result
   # for each config, add a column with the average of the results
   for (i in 1:nrow(aliveConfigurations)) {
     currentID <- aliveConfigurations[i, ]$.ID.
-    currentResults <- results[[currentID]]
-    # add column to configurations
-    aliveConfigurations[i, ".RESULTS."] <- mean(currentResults)
+    if (ncol(results) < currentID) {
+      aliveConfigurations[i, ".RESULTS."] <- NA
+    } else {
+      currentResults <- results[, currentID]
+      # add column to configurations
+      aliveConfigurations[i, ".RESULTS."] <- mean(currentResults)
+    }
   }
   return(aliveConfigurations)
 }
@@ -132,8 +137,7 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
     
     # Apply clustering function
     updatedCluster <- clusterNumerical.boxes(numericalParameters, currentCluster, partitions)
-    print(updatedCluster)
-    
+
     # Update configurations with the results
     configurations[configurations$.CLUSTER. == i, ] <- updatedCluster
   }
@@ -344,4 +348,57 @@ summarizeClusters <- function(configurations) {
   }
   print(summary_df)
   return(summary_df)
+}
+
+getClusterRepresentatives <- function(nbRepresentatives, configurations) {
+  # nbRepresentatives: number of representatives
+  # configurations: data frame containing configuration information, including cluster and subcluster details
+  # returns: data frame of representatives
+  
+  # Initialize an empty list to store representatives
+  representatives <- list()
+  
+  # Get unique clusters in the configurations data frame
+  unique_clusters <- unique(configurations$.CLUSTER.)
+  
+  # Function to get representatives for a cluster
+  getRepresentatives <- function(unique_clusters) {
+    cluster <- sample(unique_clusters, 1)  # Using sample for random selection
+    cluster_configs <- configurations[configurations$.CLUSTER. == cluster,]
+    
+    unique_subclusters <- unique(cluster_configs$.SUBCLUSTER.)
+    subcluster <- sample(unique_subclusters, 1)
+    
+    subcluster_configs <- cluster_configs[cluster_configs$.SUBCLUSTER. == subcluster,]
+    config <- subcluster_configs[which.min(subcluster_configs$.RANK.),]
+    return(config)
+  }
+
+  # Use lapply to generate nbRepresentatives representatives
+  representatives <- lapply(1:nbRepresentatives, function(i) {
+    getRepresentatives(unique_clusters)
+  })
+  
+  # Combine the list of representatives into a single data frame
+  representatives_df <- do.call(rbind, representatives)
+  
+  cat("Representatives: \n")
+  print(representatives_df)
+  
+  return(representatives_df)
+}
+
+
+roulette <- function(elements) {
+  # elements: list of elements
+  # returns: index of chosen element
+  # get sum of elements
+  sum_elements <- sum(elements)
+  # get random number between 0 and sum_elements
+  random_number <- runif(1, 0, sum_elements)
+  # get cumulative sum of elements
+  cumulative_sum <- cumsum(elements)
+  # get index of element that is greater than random_number
+  index <- which(cumulative_sum > random_number)[1]
+  return(index)
 }
