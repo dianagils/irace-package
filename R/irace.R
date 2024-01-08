@@ -785,12 +785,12 @@ irace_run <- function(scenario, parameters)
     # empty data frame 
     iraceClusters <- data.frame(stringsAsFactors=FALSE)
     clusterParameters <- filterClusteringParams(parameters)
-    if (scenario$nbPartitions) {
-      cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
-    } else {
-      cat("# No partitions\n")
-    }
-    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = scenario$nbPartitions)
+    #if (scenario$nbPartitions) {
+    #  cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
+    #} else {
+    #  cat("# No partitions\n")
+    #}
+    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = 4)
     print(partitions)
 
     blockSize <- scenario$blockSize
