@@ -149,7 +149,6 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
   }
   printCluster(nbClusters, configurations, nbSubClusters = nrow(partitions))
   }
-  summarizeClusters(configurations)
   return(configurations)
 }
 
@@ -339,66 +338,177 @@ summarizeClusters <- function(configurations) {
       mean_performance <- mean(subset_df$.RESULTS.)
       std_dev_performance <- sd(subset_df$.RESULTS.)
 
+      # check if is there any alive  == TRUE in the subset
+      if (subset_df$.ALIVE.[1] == TRUE) {
+        aliveCluster <- TRUE
+      } else {
+        aliveCluster <- FALSE
+      }
+
       # Append the summary information to the summary dataframe
       summary_df <- rbind(summary_df, data.frame(cluster = cluster,
                                                 subcluster = subcluster,
                                                 MeanPerformance = mean_performance,
-                                                StdDevPerformance = std_dev_performance))
+                                                StdDevPerformance = std_dev_performance,
+                                                Alive = aliveCluster))
     }
   }
   print(summary_df)
   return(summary_df)
 }
 
-getClusterRepresentatives <- function(nbRepresentatives, configurations) {
-  # nbRepresentatives: number of representatives
-  # configurations: data frame containing configuration information, including cluster and subcluster details
-  # returns: data frame of representatives
-  
-  # Initialize an empty list to store representatives
-  representatives <- list()
-  
-  # Get unique clusters in the configurations data frame
-  unique_clusters <- unique(configurations$.CLUSTER.)
-  
-  # Function to get representatives for a cluster
-  getRepresentatives <- function(unique_clusters) {
-    cluster <- sample(unique_clusters, 1)  # Using sample for random selection
-    cluster_configs <- configurations[configurations$.CLUSTER. == cluster,]
-    
-    unique_subclusters <- unique(cluster_configs$.SUBCLUSTER.)
-    subcluster <- sample(unique_subclusters, 1)
-    
-    subcluster_configs <- cluster_configs[cluster_configs$.SUBCLUSTER. == subcluster,]
-    config <- subcluster_configs[which.min(subcluster_configs$.RANK.),]
-    return(config)
+representatives <- function(configurations, nbRepresentatives, typeProb) {
+  summary = summarizeClusters(configurations)
+  if (typeProb == '1') {
+    # use rank as metric
+    column <- ".RANK."
+  } else if (typeProb == '2') {
+    # use results as metric
+    column <- ".RESULTS."
+  } else {
+    # use no bias reps
+    column <- FALSE
+  }
+  cat("Selecting representatives with column ")
+  print(column)
+  clusterRepresentatives <- getClusterRepresentatives(configurations = configurations, columnName = column, summary = summary)
+  rouletteRepresentatives <- pickRepresentatives(configurations = clusterRepresentatives, nbRepresentatives = nbRepresentatives, columnName = column)
+  return(rouletteRepresentatives)
+}
+
+getClusterRepresentatives <- function(configurations, columnName, summary) {
+  # for each cluster - subcluster combination, get the config with the best performance
+  # configurations: data frame of configurations
+  # returns: data frame of configurations with the best performance
+  if (columnName == FALSE) {
+    columnName <- ".RANK."
   }
 
-  # Use lapply to generate nbRepresentatives representatives
-  representatives <- lapply(1:nbRepresentatives, function(i) {
-    getRepresentatives(unique_clusters)
-  })
+  # get rows with Alive = TRUE in summary
+  summary <- summary[summary$Alive == TRUE, ]  
   
-  # Combine the list of representatives into a single data frame
-  representatives_df <- do.call(rbind, representatives)
-  
-  cat("Representatives: \n")
-  print(representatives_df)
-  
-  return(representatives_df)
+  # create empty data frame
+  representatives <- data.frame()
+
+  # iterate over all rows of summary
+  for (i in 1:nrow(summary)) {
+    # get cluster and subcluster
+    cluster <- summary[i, ]$cluster
+    subcluster <- summary[i, ]$subcluster
+    # get rows with cluster and subcluster
+    subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
+    # sort by column name
+    subset_df <- subset_df[order(subset_df[,columnName], decreasing = FALSE), ]
+    # get row with lowest result
+    subset_df <- subset_df[1, ]
+    # add to representatives
+    representatives <- rbind(representatives, subset_df)
+  }
+  cat("Representatives for each ALIVE cluster - subcluster :\n")
+  print(representatives)
+  return(representatives)
+}
+
+pickRepresentativesNoBias <- function(configurations, nbRepresentatives) {
+  # configurations: data frame of configurations
+  # nbRepresentatives: number of representatives to pick
+  # returns: data frame of nbRepresentatives picked by roulette weighting
+  representatives <- data.frame()
+  configurations <- configurations[order(configurations[[".RANK."]]), , drop = FALSE]
+  nbConfigurations <- nrow(configurations)
+  configurations$.WEIGHT. <- (((nbConfigurations + 1) - seq_len(nbConfigurations))
+                           / (nbConfigurations * (nbConfigurations + 1L) / 2))
+  for (i in 1:nbRepresentatives) {
+    index <- roulette(configurations$.WEIGHT.)
+    cat("Picked configuration ")
+    print(configurations[index, ]$.ID.)
+    cat(" with weight ")
+    print(configurations[index, ]$.WEIGHT.)
+    # add to representatives
+    representatives <- rbind(representatives, configurations[index, ])
+    # remove from configurations
+    configurations <- configurations[-index, ]
+    nbConfigurations <- nbConfigurations - 1
+    configurations$.WEIGHT. <- (((nbConfigurations + 1) - seq_len((nbConfigurations)))
+                             / (nbConfigurations * (nbConfigurations + 1L) / 2))
+  }
+  cat("Representatives picked by roulette weighting, calculating weights: \n")
+  representatives$.WEIGHT. <- (((nbRepresentatives + 1) - seq_len(nbRepresentatives))
+                             / (nbRepresentatives * (nbRepresentatives + 1L) / 2))
+  print(representatives)
+  return(representatives)
+}
+
+pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
+  # configurations: data frame of configurations
+  # nbRepresentatives: number of representatives to pick
+  # returns: data frame of nbRepresentatives picked by roulette weighting  
+  if (nrow(configurations) == nbRepresentatives) {
+    cat("Number of configurations is equal to number of representatives. Returning all configurations.\n")
+    return(configurations)
+  }
+
+  if (columnName == FALSE) {
+    return (pickRepresentativesNoBias(configurations, nbRepresentatives))
+  }
+  representatives <- data.frame()
+
+  # calculate the inverse of column for each configuration
+  configurations$.METRIC_INV. <- 1 / configurations[, columnName]  
+  # calculate the sum of the inverse of results
+  sum_metric <- sum(configurations$.METRIC_INV.)
+  # calculate the weight of each configuration
+  configurations$.WEIGHT. <- configurations$.METRIC_INV. / sum_metric
+  cat("Configurations with weights:\n")
+  print(configurations)
+
+
+  # pick nbRepresentatives configurations
+  for (i in 1:nbRepresentatives) {
+    # pick a configuration
+    index <- roulette(configurations$.WEIGHT.)
+    cat("Picked configuration ")
+    print(configurations[index, ]$.ID.) 
+    cat(" with weight ")
+    print(configurations[index, ]$.WEIGHT.)
+    # add to representatives
+    representatives <- rbind(representatives, configurations[index, ])
+    # remove from configurations
+    configurations <- configurations[-index, ]
+    # recalculate the sum of the inverse of results
+    sum_metric <- sum(configurations$.METRIC_INV.)
+    if (sum_metric == 0) {
+      cat("Sum of metric is 0. Assign equal probabilities\n")
+      # assign equal probabilities
+      configurations$.WEIGHT. <- 1 / nrow(configurations)
+    } else {
+      # recalculate the weight of each configuration
+      configurations$.WEIGHT. <- configurations$.METRIC_INV. / sum(representatives$.METRIC_INV.)
+    }
+  }
+  cat("Representatives picked by roulette weighting, calculating weights: \n")
+
+  # recalculating the weights for the remaining configurations
+  representatives$.WEIGHT. <- representatives$.METRIC_INV. / sum(representatives$.METRIC_INV.)
+  print(representatives)
+
+
+  return(representatives)
 }
 
 
-roulette <- function(elements) {
-  # elements: list of elements
-  # returns: index of chosen element
-  # get sum of elements
-  sum_elements <- sum(elements)
-  # get random number between 0 and sum_elements
-  random_number <- runif(1, 0, sum_elements)
-  # get cumulative sum of elements
-  cumulative_sum <- cumsum(elements)
-  # get index of element that is greater than random_number
+roulette <- function(probabilities) {
+  # probabilities: vector of probabilities
+  # returns: index of the chosen element
+  # generate random number between 0 and 1
+  random_number <- runif(1)
+  cat("Random number: ")
+  print(random_number)
+  # get cumulative sum of probabilities
+  cumulative_sum <- cumsum(probabilities)
+  print(cumulative_sum)
+  # get index of the first element that is greater than the random number
   index <- which(cumulative_sum > random_number)[1]
   return(index)
 }
+

@@ -1198,24 +1198,31 @@ irace_run <- function(scenario, parameters)
       if (debugLevel >= 1) irace.note("Update model\n")
       model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
                            nbIterations, nbNewConfigurations, scenario)
-      # representativesModel <- updateModel(parameters, representativesConfigurations, representativesModel, indexIteration,
-                          #  nbIterations, nbNewConfigurations, scenario)
-      if (debugLevel >= 2) printModel (model)
+      if (debugLevel >= 1) irace.note("Update representatives model\n") 
+      representativesModel <- initialiseModel (parameters, representativesConfigurations)
+      if (debugLevel >= 2) {
+        printModel (model)
+        printModel (representativesModel)
+      }
       if (debugLevel >= 1)
         irace.note("Sample ", nbNewConfigurations, " configurations from model\n")
       
       newConfigurations <- sampleModel(parameters, eliteConfigurations,
                                        model, nbNewConfigurations,
                                        repair = scenario$repairConfiguration)
-      # newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
-                                          # model, nbNewConfigurations,
-                                          # repair = scenario$repairConfiguration)
+        irace.note("Sample ", nbNewConfigurations, " configurations from representatives model\n")
+      newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
+                                          representativesModel, nbNewConfigurations,
+                                          repair = scenario$repairConfiguration)
+      print(newConfigurationsRep)
 
       # Set ID of the new configurations.
       newConfigurations <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq_nrow(newConfigurations), newConfigurations)
-      raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurations)],
-                                  newConfigurations)
+      newConfigurationsRep <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) +
+                                    seq_nrow(newConfigurationsRep), newConfigurationsRep)
+      raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurationsRep)],
+                                  newConfigurationsRep)
       rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
                   
       if (scenario$softRestart) {
@@ -1235,15 +1242,18 @@ irace_run <- function(scenario, parameters)
           newConfigurations <- sampleModel(parameters, eliteConfigurations,
                                            model, nbNewConfigurations,
                                            repair = scenario$repairConfiguration)
-          # newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
-                                              # model, nbNewConfigurations,
-                                              # repair = scenario$repairConfiguration)
+          newConfigurationsRep <- sampleModel(parameters, representativesConfigurations,
+                                              model, nbNewConfigurations,
+                                              repair = scenario$repairConfiguration)
           #cat("# ", format(Sys.time(), usetz=TRUE), " sampleModel() DONE\n")
           # Set ID of the new configurations.
           newConfigurations <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) + 
                                   seq_nrow(newConfigurations), newConfigurations)
-          raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurations)],
-                                      newConfigurations)
+          cat("Bind new represrntatives generated configurations\n")
+          newConfigurationsRep <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) + 
+                                  seq_nrow(newConfigurationsRep), newConfigurationsRep)
+          raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurationsRep)],
+                                      newConfigurationsRep)
           rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
         }
       }
@@ -1301,7 +1311,7 @@ irace_run <- function(scenario, parameters)
     iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions)
     iraceResults$clusters <- iraceClusters
     
-    # representativesConfigurations <- getClusterRepresentatives(nbRepresentatives =  min(raceResults$nbAlive, minSurvival), configurations = iraceClusters)
+    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb='3')
     
                                              
     if (length(raceResults$rejectedIDs) > 0) {
@@ -1347,11 +1357,11 @@ irace_run <- function(scenario, parameters)
     if (firstRace) {
       if (debugLevel >= 1) irace.note("Initialise model\n")
       model <- initialiseModel(parameters, eliteConfigurations)
-      # representativesModel <- initialiseModel(parameters, representativesConfigurations)
+      representativesModel <- initialiseModel(parameters, representativesConfigurations)
       if (debugLevel >= 2) {
         printModel (model)
-        # cat("Representatives model:\n")
-        # printModel (representativesModel)
+        cat("Representatives model:\n")
+        printModel (representativesModel)
       }
       firstRace <- FALSE
     }
