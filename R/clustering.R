@@ -477,7 +477,7 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
     configurations <- configurations[-index, ]
     # recalculate the sum of the inverse of results
     sum_metric <- sum(configurations$.METRIC_INV.)
-    if (sum_metric == 0) {
+    if (sum_metric == 0 && nrow(configurations) > 0) {
       cat("Sum of metric is 0. Assign equal probabilities\n")
       # assign equal probabilities
       configurations$.WEIGHT. <- 1 / nrow(configurations)
