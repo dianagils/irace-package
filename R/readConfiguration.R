@@ -337,6 +337,9 @@ readScenario <- function(filename = "", scenario = list(),
       scenario[[param]] <- value
     }
   }
+  cat("SCENARIO")
+  print(ls(scenario_env))
+  print(params_names)
   unknown_scenario_vars <- setdiff(ls(scenario_env), params_names)
   if (length(unknown_scenario_vars) > 0) {
     # We only accept variables that match irace.params.names and if the user
