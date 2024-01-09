@@ -785,13 +785,19 @@ irace_run <- function(scenario, parameters)
     # empty data frame 
     iraceClusters <- data.frame(stringsAsFactors=FALSE)
     clusterParameters <- filterClusteringParams(parameters)
-    #if (scenario$nbPartitions) {
-    #  cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
-    #} else {
-    #  cat("# No partitions\n")
-    #}
+    if (scenario$nbPartitions) {
+     cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
+    } else {
+     cat("# No partitions\n")
+    }
     partitions <- clustering.partition(parameters = clusterParameters, num_partitions = 4)
     print(partitions)
+
+    if (scenario$probType) {
+      probType <- scenario$probType
+    } else {
+      probType <- "2"
+    }
 
     blockSize <- scenario$blockSize
     model <- NULL
@@ -1311,8 +1317,7 @@ irace_run <- function(scenario, parameters)
     iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions)
     iraceResults$clusters <- iraceClusters
     
-    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb='3')
-    
+    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)

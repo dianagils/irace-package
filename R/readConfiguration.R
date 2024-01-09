@@ -325,8 +325,6 @@ readScenario <- function(filename = "", scenario = list(),
   pathParams <- setdiff(params_def[params_def[, "type"] == "p",
                                           "name"], "logFile")
   params_names <- params_def[!startsWith(params_def[,"name"], "."), "name"]
-  cat("ENv")
-  print(ls(scenario_env))
   
   for (param in params_names) {
     if (exists (param, envir = scenario_env, inherits = FALSE)) {
@@ -337,9 +335,7 @@ readScenario <- function(filename = "", scenario = list(),
       scenario[[param]] <- value
     }
   }
-  cat("SCENARIO")
-  print(ls(scenario_env))
-  print(params_names)
+
   unknown_scenario_vars <- setdiff(ls(scenario_env), params_names)
   if (length(unknown_scenario_vars) > 0) {
     # We only accept variables that match irace.params.names and if the user
