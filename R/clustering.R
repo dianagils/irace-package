@@ -353,7 +353,9 @@ summarizeClusters <- function(configurations) {
 }
 
 representatives <- function(configurations, nbRepresentatives, typeProb) {
+  # summarize clusters to get clusters - subclusters to work with
   summary = summarizeClusters(configurations)
+  # how to calculate the probability of each configuration
   if (typeProb == '1') {
     # use rank as metric
     column <- ".RANK."
@@ -375,6 +377,8 @@ getClusterRepresentatives <- function(configurations, columnName, summary) {
   # for each cluster - subcluster combination, get the config with the best performance
   # configurations: data frame of configurations
   # returns: data frame of configurations with the best performance
+
+  # for bias reps use .RANK. as column name
   if (columnName == FALSE) {
     columnName <- ".RANK."
   }
@@ -392,7 +396,7 @@ getClusterRepresentatives <- function(configurations, columnName, summary) {
     subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
     # sort by column name
     subset_df <- subset_df[order(subset_df[,columnName], decreasing = FALSE), ]
-    # get row with lowest result
+    # get row with lowest result / best config
     subset_df <- subset_df[1, ]
     # add to representatives
     representatives <- rbind(representatives, subset_df)
@@ -407,13 +411,20 @@ pickRepresentativesNoBias <- function(configurations, nbRepresentatives) {
   # nbRepresentatives: number of representatives to pick
   # returns: data frame of nbRepresentatives picked by roulette weighting
   representatives <- data.frame()
+  # calculate the weight of each configuration
   configurations <- configurations[order(configurations[[".RANK."]]), , drop = FALSE]
   nbConfigurations <- nrow(configurations)
   configurations$.WEIGHT. <- (((nbConfigurations + 1) - seq_len(nbConfigurations))
                            / (nbConfigurations * (nbConfigurations + 1L) / 2))
+  cat("Configurations with weights:\n")
+  print(configurations)
+
+  # if there are less or equal configurations than nbRepresentatives, return all configurations
   if (nrow(configurations) <= nbRepresentatives) {
     return(configurations)
   }
+
+  # pick nbRepresentatives configurations
   for (i in 1:nbRepresentatives) {
     index <- roulette(configurations$.WEIGHT.)
     cat("Picked configuration ")
@@ -425,10 +436,12 @@ pickRepresentativesNoBias <- function(configurations, nbRepresentatives) {
     # remove from configurations
     configurations <- configurations[-index, ]
     nbConfigurations <- nbConfigurations - 1
+    # recalculate the weight of each configuration
     configurations$.WEIGHT. <- (((nbConfigurations + 1) - seq_len((nbConfigurations)))
                              / (nbConfigurations * (nbConfigurations + 1L) / 2))
   }
-  cat("Representatives picked by roulette weighting, calculating weights: \n")
+
+  cat("Representatives picked by roulette weighting, RE-calculating weights: \n")
   representatives$.WEIGHT. <- (((nbRepresentatives + 1) - seq_len(nbRepresentatives))
                              / (nbRepresentatives * (nbRepresentatives + 1L) / 2))
   print(representatives)
@@ -444,6 +457,7 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
   if (columnName == FALSE) {
     return (pickRepresentativesNoBias(configurations, nbRepresentatives))
   }
+
   representatives <- data.frame()
 
   # calculate the inverse of column for each configuration
@@ -473,6 +487,8 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
     configurations <- configurations[-index, ]
     # recalculate the sum of the inverse of results
     sum_metric <- sum(configurations$.METRIC_INV.)
+    # if the sum of the inverse of results is 0, assign equal probabilities
+    # this happens when results are NA
     if (sum_metric == 0 && nrow(configurations) > 0) {
       cat("Sum of metric is 0. Assign equal probabilities\n")
       # assign equal probabilities
@@ -482,7 +498,7 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
       configurations$.WEIGHT. <- configurations$.METRIC_INV. / sum(configurations$.METRIC_INV.)
     }
   }
-  cat("Representatives picked by roulette weighting, calculating weights: \n")
+  cat("Representatives picked by roulette weighting, REcalculating weights: \n")
 
   # recalculating the weights for the remaining configurations
   representatives$.WEIGHT. <- representatives$.METRIC_INV. / sum(representatives$.METRIC_INV.)
