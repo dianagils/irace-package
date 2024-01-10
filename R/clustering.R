@@ -443,8 +443,9 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
   # configurations: data frame of configurations
   # nbRepresentatives: number of representatives to pick
   # returns: data frame of nbRepresentatives picked by roulette weighting  
-  if (nrow(configurations) == nbRepresentatives) {
-    cat("Number of configurations is equal to number of representatives. Returning all configurations.\n")
+
+  # if there are less configurations than nbRepresentatives, return all configurations
+  if (nrow(configurations) <= nbRepresentatives) {
     return(configurations)
   }
 
