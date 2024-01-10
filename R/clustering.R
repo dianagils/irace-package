@@ -118,6 +118,7 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
   numericalParameters <- parameters$names[parameters$types == "i" | parameters$types == "r"]
   if (length(numericalParameters) == 0) {
     cat("No numerical parameters detected.\n")
+    configurations$.SUBCLUSTER. <- 1
     printCluster(nbClusters, configurations)
     return(configurations)
 
@@ -227,6 +228,8 @@ dynamic_partition <- function(interval, num_partitions) {
     upper <- lower_bound + i * width
     return(c(lower, upper))
   })
+  # last partition, should be closed on the right
+  partitions[[num_partitions]][2] <- partitions[[num_partitions]][2] + 1e-10
   return(partitions)
 }
 
@@ -239,7 +242,7 @@ find_partition <- function(configuration, partitions, parameters) {
   intervalFound <- FALSE
   while (!intervalFound) {
     interval <- parameter_partition[[1]]
-    if ((parameter_value >= interval[1] && parameter_value <= interval[2]) | (is.na(parameter_value))) {
+    if ((parameter_value >= interval[1] && parameter_value < interval[2]) | (is.na(parameter_value))) {
       intervalFound <- TRUE
       if (length(parameters) == 1) {
         # return index of interval
