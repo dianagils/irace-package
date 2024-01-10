@@ -339,7 +339,7 @@ summarizeClusters <- function(configurations) {
       std_dev_performance <- sd(subset_df$.RESULTS.)
 
       # check if is there any alive  == TRUE in the subset
-      if (subset_df$.ALIVE.[1] == TRUE) {
+      if (any(subset_df$.ALIVE. == TRUE)) {
         aliveCluster <- TRUE
       } else {
         aliveCluster <- FALSE
@@ -446,7 +446,8 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
 
   # if there are less configurations than nbRepresentatives, return all configurations
   if (nrow(configurations) <= nbRepresentatives) {
-    return(configurations)
+    # add the weights to the configurations
+    if 
   }
 
   if (columnName == FALSE) {
@@ -462,7 +463,6 @@ pickRepresentatives <- function(configurations, nbRepresentatives, columnName) {
   configurations$.WEIGHT. <- configurations$.METRIC_INV. / sum_metric
   cat("Configurations with weights:\n")
   print(configurations)
-
 
   # pick nbRepresentatives configurations
   for (i in 1:nbRepresentatives) {
@@ -513,3 +513,13 @@ roulette <- function(probabilities) {
   return(index)
 }
 
+calculateRank2 <- function(configurations) {
+  # configurations: data frame of configurations
+  # returns: data frame of configurations with weights
+  # calculate the inverse of column for each configuration
+  configurations <- configurations[order(configurations[[".RANK."]]), , drop = FALSE]
+  nbConfigurations <- nrow(configurations)
+  configurations$.WEIGHT. <- (((nbConfigurations + 1) - seq_len(nbConfigurations))
+                           / (nbConfigurations * (nbConfigurations + 1L) / 2))
+  return(configurations)
+}
