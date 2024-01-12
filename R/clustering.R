@@ -10,7 +10,8 @@ clustering <- function(clusters, configurations, parameters, partitions, results
 }
 
 addResultsToConfigurations <- function(aliveConfigurations, results) {
-  cat("Adding results to configurations.\n")
+  cat("Adding results to configurations. Results:\n")
+  print(results)
   # configurations: data frame of configurations
   # results: matrix of results
   # returns: data frame of configurations with results
@@ -444,7 +445,7 @@ pickRepresentativesNoBias <- function(configurations, nbRepresentatives) {
                              / (nbConfigurations * (nbConfigurations + 1L) / 2))
   }
 
-  cat("Representatives picked by roulette weighting, RE-calculating weights: \n")
+  cat("Representatives picked by roulette weighting, Re-calculating weights: \n")
   representatives$.WEIGHT. <- (((nbRepresentatives + 1) - seq_len(nbRepresentatives))
                              / (nbRepresentatives * (nbRepresentatives + 1L) / 2))
   print(representatives)
