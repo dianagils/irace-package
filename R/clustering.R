@@ -13,9 +13,9 @@ addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
   if (flag) {
     # race has been stopped. check what is the last instance that was executed with all configurations
     # filter column names in result that are in aliveConfigurations .ID.
-    results <- results[, names(results) %in% aliveConfigurations$.ID.]
+    results <- results[, colnames(results) %in% aliveConfigurations$.ID.]
     # get the last row that has no NAN values
-    lastRow <- which(apply(results, 1, function(x) all(!is.na(x))))
+    lastRow <- tail(which(apply(results, 1, function(row) all(!is.na(row)))), 1)
     # remove all rows after lastRow
     results <- results[1:lastRow, ]
   }
@@ -29,13 +29,18 @@ addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
   # for each config, add a column with the average of the results
   for (i in 1:nrow(aliveConfigurations)) {
     currentID <- aliveConfigurations[i, ]$.ID.
-    if (ncol(results) < currentID) {
-      
-    } else {
-      currentResults <- results[, currentID]
-      # add column to configurations
-      aliveConfigurations[i, ".RESULTS."] <- mean(currentResults)
+    #get current results from column name currentID
+    # currentID must be string
+    if (is.numeric(currentID)) {
+      currentID <- as.character(currentID)
     }
+    currentResults <- results[, currentID]
+    # current results should be numeric
+    if (!is.numeric(currentResults)) {
+      currentResults <- as.numeric(currentResults)
+    }
+    # add column to configurations
+    aliveConfigurations[i, ".RESULTS."] <- mean(currentResults)
   }
   return(aliveConfigurations)
 }
