@@ -819,6 +819,7 @@ elitist_race <- function(maxExp = 0,
   
   # Start main loop
   break.msg <- NULL
+  flag <- FALSE
   best <- NA
   for (current.task in seq_len(no.tasks)) {
     which.alive <- which(alive)
@@ -874,6 +875,7 @@ elitist_race <- function(maxExp = 0,
       break.msg <- paste0("number of alive configurations (", nbAlive,
                           ") <= minimum number of configurations (",
                           minSurvival, ")")
+      flag <- TRUE
       break
     }
     # LESLIE: FIXME: Stopping deactivated by Thomas suggestion. Remove second
@@ -907,6 +909,7 @@ elitist_race <- function(maxExp = 0,
         break.msg <- paste0("experiments for next test (",
                             experimentsUsed + length(which.exe) * each.test,
                             ") > max experiments (", maxExp, ")")
+        flag <- TRUE
         break
       }
     }
@@ -916,6 +919,7 @@ elitist_race <- function(maxExp = 0,
           && all_elite_instances_evaluated()) {
         break.msg <- paste0("tests without elimination (", no.elimination,
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
+        flag <- TRUE
         break
       }
 ##     This is not needed anymore... 
@@ -1267,5 +1271,6 @@ elitist_race <- function(maxExp = 0,
        experimentsUsed = experimentsUsed,
        nbAlive = nbAlive,
        configurations = configurations,
-       rejectedIDs = configurations[is.rejected, ".ID."])
+       rejectedIDs = configurations[is.rejected, ".ID."],
+       flag = flag,)
 }

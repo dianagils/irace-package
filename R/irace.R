@@ -1317,7 +1317,7 @@ irace_run <- function(scenario, parameters)
     iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions)
     iraceResults$clusters <- iraceClusters
     
-    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
+    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType, flag = raceResults$flag)
     iraceResults$iterationsRepresentatives <- c(iraceResults$iterationsRepresentatives, representativesConfigurations[[".ID."]][1L])
     iraceResults$allRepresentatives[[indexIteration]] <- representativesConfigurations[[".ID."]]
 

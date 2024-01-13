@@ -9,7 +9,16 @@ clustering <- function(clusters, configurations, parameters, partitions, results
   }
 }
 
-addResultsToConfigurations <- function(aliveConfigurations, results) {
+addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
+  if (flag) {
+    # race has been stopped. check what is the last instance that was executed with all configurations
+    # filter column names in result that are in aliveConfigurations .ID.
+    results <- results[, names(results) %in% aliveConfigurations$.ID.]
+    # get the last row that has no NAN values
+    lastRow <- which(apply(results, 1, function(x) all(!is.na(x))))
+    # remove all rows after lastRow
+    results <- results[1:lastRow, ]
+  }
   cat("Adding results to configurations. Results:\n")
   print(results)
   # configurations: data frame of configurations
@@ -21,7 +30,7 @@ addResultsToConfigurations <- function(aliveConfigurations, results) {
   for (i in 1:nrow(aliveConfigurations)) {
     currentID <- aliveConfigurations[i, ]$.ID.
     if (ncol(results) < currentID) {
-      aliveConfigurations[i, ".RESULTS."] <- NA
+      
     } else {
       currentResults <- results[, currentID]
       # add column to configurations
@@ -356,7 +365,7 @@ summarizeClusters <- function(configurations) {
   return(summary_df)
 }
 
-representatives <- function(configurations, nbRepresentatives, typeProb) {
+representatives <- function(configurations, nbRepresentatives, typeProb, flag) {
   # summarize clusters to get clusters - subclusters to work with
   summary = summarizeClusters(configurations)
   # how to calculate the probability of each configuration
@@ -400,8 +409,8 @@ getClusterRepresentatives <- function(configurations, columnName, summary) {
     subset_df <- configurations[configurations$.CLUSTER. == cluster & configurations$.SUBCLUSTER. == subcluster, ]
     # sort by column name
     subset_df <- subset_df[order(subset_df[,columnName], decreasing = FALSE), ]
-    # get row with lowest result / best config
-    subset_df <- subset_df[1, ]
+    # get row with lowest result / best config and ALIVE = TRUE
+    subset_df <- subset_df[subset_df$.ALIVE. == TRUE, ][1, ]
     # add to representatives
     representatives <- rbind(representatives, subset_df)
   }
