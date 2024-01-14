@@ -1272,5 +1272,5 @@ elitist_race <- function(maxExp = 0,
        nbAlive = nbAlive,
        configurations = configurations,
        rejectedIDs = configurations[is.rejected, ".ID."],
-       flag = flag,)
+       flag = flag)
 }
