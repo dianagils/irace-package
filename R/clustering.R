@@ -11,6 +11,7 @@ clustering <- function(clusters, configurations, parameters, partitions, results
 
 addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
   if (flag) {
+    cat("Falg detected, updating result matrix\n")
     # race has been stopped. check what is the last instance that was executed with all configurations
     # filter column names in result that are in aliveConfigurations .ID.
     results <- results[, colnames(results) %in% aliveConfigurations$.ID.]
@@ -18,6 +19,7 @@ addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
     lastRow <- tail(which(apply(results, 1, function(row) all(!is.na(row)))), 1)
     # remove all rows after lastRow
     results <- results[1:lastRow, ]
+    print(results)
   }
   cat("Adding results to configurations. Results:\n")
   print(results)
