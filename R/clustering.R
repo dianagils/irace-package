@@ -10,8 +10,9 @@ clustering <- function(clusters, configurations, parameters, partitions, results
 }
 
 addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
-  if (flag) {
+  if (flag) {    
     cat("Flag detected, updating result matrix\n")
+    print(results)
     # race has been stopped. check what is the last instance that was executed with all configurations
     # filter column names in result that are in aliveConfigurations .ID.
     results <- results[, colnames(results) %in% aliveConfigurations$.ID.]
@@ -19,7 +20,6 @@ addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
     lastRow <- tail(which(apply(results, 1, function(row) all(!is.na(row)))), 1)
     # remove all rows after lastRow
     results <- results[1:lastRow, ]
-    print(results)
   }
   cat("Adding results to configurations. Results:\n")
   print(results)
@@ -158,15 +158,17 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
 
     # Update configurations with the results
     configurations[configurations$.CLUSTER. == i, ] <- updatedCluster
-  }
-
+    
+      }
   cat ("Numerical clustering finished.\n")
+  printCluster(nbClusters, configurations, nbSubClusters = nrow(partitions))
+    }
    if (!is.null(existingClusters)) {
     #rbind existing clusters and new clusters
+    cat("Adding new clusters to existing clusters.\n")
     configurations <- rbind(existingClusters, configurations)
   }
-  printCluster(nbClusters, configurations, nbSubClusters = nrow(partitions))
-  }
+
   return(configurations)
 }
 
