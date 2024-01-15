@@ -168,13 +168,13 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
       }
   cat ("Numerical clustering finished.\n")
   printCluster(nbClusters, configurations, nbSubClusters = nrow(partitions))
-    }
+
    if (!is.null(existingClusters)) {
     #rbind existing clusters and new clusters
     cat("Adding new clusters to existing clusters.\n")
     configurations <- rbind(existingClusters, configurations)
   }
-
+    }
   return(configurations)
 }
 
