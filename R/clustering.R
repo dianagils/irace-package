@@ -131,12 +131,18 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
     }
   }
   cat ("Categorical clustering finished.\n")
+  
 
   numericalParameters <- parameters$names[parameters$types == "i" | parameters$types == "r"]
   if (length(numericalParameters) == 0) {
     cat("No numerical parameters detected.\n")
     configurations$.SUBCLUSTER. <- 1
     printCluster(nbClusters, configurations)
+    if (!is.null(existingClusters)) {
+      #rbind existing clusters and new clusters
+      cat("Adding new clusters to existing clusters.\n")
+      configurations <- rbind(existingClusters, configurations)
+  }
     return(configurations)
 
   } else {
