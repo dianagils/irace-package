@@ -1314,10 +1314,10 @@ irace_run <- function(scenario, parameters)
     iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                               raceResults$experiments)
     # Cluster configurations
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions)
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions, flag = raceResults$flag)
     iraceResults$clusters <- iraceClusters
     
-    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType, flag = raceResults$flag)
+    representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
     iraceResults$iterationsRepresentatives <- c(iraceResults$iterationsRepresentatives, representativesConfigurations[[".ID."]][1L])
     iraceResults$allRepresentatives[[indexIteration]] <- representativesConfigurations[[".ID."]]
 

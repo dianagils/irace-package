@@ -1,5 +1,5 @@
-clustering <- function(clusters, configurations, parameters, partitions, results) {
-  configurations <- addResultsToConfigurations(aliveConfigurations = configurations, results = results)
+clustering <- function(clusters, configurations, parameters, partitions, results, flag) {
+  configurations <- addResultsToConfigurations(aliveConfigurations = configurations, results = results, flag = flag)
   if (nrow(clusters) == 0) {
     return(clusterConfigurations(parameters = parameters, configurations = configurations, partitions = partitions))
   } else {
@@ -11,7 +11,7 @@ clustering <- function(clusters, configurations, parameters, partitions, results
 
 addResultsToConfigurations <- function(aliveConfigurations, results, flag) {
   if (flag) {
-    cat("Falg detected, updating result matrix\n")
+    cat("Flag detected, updating result matrix\n")
     # race has been stopped. check what is the last instance that was executed with all configurations
     # filter column names in result that are in aliveConfigurations .ID.
     results <- results[, colnames(results) %in% aliveConfigurations$.ID.]
@@ -372,7 +372,7 @@ summarizeClusters <- function(configurations) {
   return(summary_df)
 }
 
-representatives <- function(configurations, nbRepresentatives, typeProb, flag) {
+representatives <- function(configurations, nbRepresentatives, typeProb) {
   # summarize clusters to get clusters - subclusters to work with
   summary = summarizeClusters(configurations)
   # how to calculate the probability of each configuration
