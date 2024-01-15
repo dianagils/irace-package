@@ -137,14 +137,13 @@ clusterConfigurations <- function(parameters, configurations, existingClusters =
   if (length(numericalParameters) == 0) {
     cat("No numerical parameters detected.\n")
     configurations$.SUBCLUSTER. <- 1
-    printCluster(nbClusters, configurations)
     if (!is.null(existingClusters)) {
       #rbind existing clusters and new clusters
       cat("Adding new clusters to existing clusters.\n")
       configurations <- rbind(existingClusters, configurations)
-  }
+    }  
+    printCluster(nbClusters, configurations)
     return(configurations)
-
   } else {
   # for each cluster, apply the clustering numerical function
   for (i in 1:nbClusters) {
