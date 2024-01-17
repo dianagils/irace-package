@@ -760,6 +760,7 @@ irace_run <- function(scenario, parameters)
     } else {
       iraceClusters <- iraceResults$clusters
       if (is.null(iraceResults$allRepresentatives)) {
+        cat ("# No representatives\n")
         representativesConfigurations <- NULL
       } else {
       representativesConfigurationsIDs <- iraceResults$allRepresentatives[length(iraceResults$iterationsRepresentatives)][[1]]
@@ -1233,7 +1234,8 @@ irace_run <- function(scenario, parameters)
       model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
                            nbIterations, nbNewConfigurations, scenario)
       if (debugLevel >= 1) irace.note("Update representatives model\n") 
-      if (!exists("representativesConfigurations") && is.null(representativesConfigurations)) {
+      if (is.null(representativesConfigurations)) {
+        cat("Representatives configurations are null\n")
         representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = nrow(eliteConfigurations), typeProb=probType)
       }
       representativesModel <- initialiseModel (parameters, representativesConfigurations)
