@@ -755,14 +755,17 @@ irace_run <- function(scenario, parameters)
   if (!is.null.or.empty(scenario$recoveryFile)) {
     irace.note ("Resuming from file: '", scenario$recoveryFile,"'\n")
     recoverFromFile(scenario$recoveryFile)
-    if (!is.null(iraceResults$clusters)) {
+    if (is.null(iraceResults$clusters)) {
+      irace.note (" No clusters recovered\n")
       iraceClusters <- data.frame(stringsAsFactors=FALSE)
     } else {
+      irace.note (" Recovered ", nrow(iraceResults$clusters), " clusters\n")
       iraceClusters <- iraceResults$clusters
       if (is.null(iraceResults$allRepresentatives)) {
-        cat ("# No representatives\n")
+        irace.note (" No representatives\n")
         representativesConfigurations <- NULL
       } else {
+      irace.note (" Recovered ", length(iraceResults$allRepresentatives), " representatives\n")
       representativesConfigurationsIDs <- iraceResults$allRepresentatives[length(iraceResults$iterationsRepresentatives)][[1]]
       representativesConfigurations <- iraceResults$allConfigurations[representativesConfigurationsIDs, ]
       print(representativesConfigurations)
