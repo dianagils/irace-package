@@ -759,6 +759,8 @@ irace_run <- function(scenario, parameters)
       iraceClusters <- data.frame(stringsAsFactors=FALSE)
     } else {
       iraceClusters <- iraceResults$clusters
+      representativesConfigurationsIDs <- iraceResults$allRepresentatives[length(iraceResults$iterationsRepresentatives)][[1]]
+      representativesConfigurations <- iraceResults$allConfigurations[representativesConfigurationsIDs, ]
     }
     if (!is.null(iraceResults$partitions)) {
       if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
@@ -1337,9 +1339,10 @@ irace_run <- function(scenario, parameters)
                                               raceResults$experiments)
     # Cluster configurations
     iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions, flag = raceResults$flag)
-    iraceResults$clusters <- iraceClusters
-    
     representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
+
+    # Save to the log file
+    iraceResults$clusters <- iraceClusters
     iraceResults$iterationsRepresentatives <- c(iraceResults$iterationsRepresentatives, representativesConfigurations[[".ID."]][1L])
     iraceResults$allRepresentatives[[indexIteration]] <- representativesConfigurations[[".ID."]]
 
