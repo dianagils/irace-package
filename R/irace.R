@@ -765,6 +765,7 @@ irace_run <- function(scenario, parameters)
       } else {
       representativesConfigurationsIDs <- iraceResults$allRepresentatives[length(iraceResults$iterationsRepresentatives)][[1]]
       representativesConfigurations <- iraceResults$allConfigurations[representativesConfigurationsIDs, ]
+      print(representativesConfigurations)
       }
     }
     if (!is.null(iraceResults$partitions)) {
@@ -1237,6 +1238,8 @@ irace_run <- function(scenario, parameters)
       if (is.null(representativesConfigurations)) {
         cat("Representatives configurations are null\n")
         representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = nrow(eliteConfigurations), typeProb=probType)
+      } else {
+        print(representativesConfigurations)
       }
       representativesModel <- initialiseModel (parameters, representativesConfigurations)
       if (debugLevel >= 2) {
