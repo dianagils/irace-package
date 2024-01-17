@@ -51,12 +51,15 @@ filterClusteringParams <- function(parameters) {
   # parameters: list of parameters
   # returns: list of parameters
   # remove parameter names that have clustering = FALSE
-  parameters$names <- parameters$names[parameters$clustering == TRUE]
-  parameters$types <- parameters$types[parameters$clustering == TRUE]
-  parameters$domain <- parameters$domain[parameters$clustering == TRUE]
-  parameters$conditions <- parameters$conditions[parameters$clustering == TRUE]
-  print(parameters)
-  return (parameters)
+  # copy parameters
+  parametersCpy <- parameters
+
+  parametersCpy$names <- parametersCpy$names[parametersCpy$clustering == TRUE]
+  parametersCpy$types <- parametersCpy$types[parametersCpy$clustering == TRUE]
+  parametersCpy$domain <- parametersCpy$domain[parametersCpy$clustering == TRUE]
+  parametersCpy$conditions <- parametersCpy$conditions[parametersCpy$clustering == TRUE]
+  print(parametersCpy)
+  return (parametersCpy)
 }
 
 updateClusters <- function(clusteredConfigs, aliveConfigurations) {

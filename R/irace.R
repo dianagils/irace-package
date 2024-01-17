@@ -39,6 +39,7 @@ recoverFromFile <- function(filename)
       scenario[[name]] <- iraceResults$scenario[[name]]
     options(.race.debug.level = scenario$debugLevel)
     options(.irace.debug.level = scenario$debugLevel)
+  
   }))
 }
 
@@ -748,18 +749,32 @@ irace_run <- function(scenario, parameters)
 
   timer <- Timer$new()
   debugLevel <- scenario$debugLevel
+  clusterParameters <- filterClusteringParams(parameters)
 
   # Recover state from file?
   if (!is.null.or.empty(scenario$recoveryFile)) {
     irace.note ("Resuming from file: '", scenario$recoveryFile,"'\n")
     recoverFromFile(scenario$recoveryFile)
+    if (iraceResults$clusters == NULL) {
+      iraceClusters <- data.frame(stringsAsFactors=FALSE)
+    } else {
+      iraceClusters <- iraceResults$clusters
+    }
+    if (iraceResults$partitions == NULL) {
+      if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
+      partitions <- clustering.partition(parameters = clusterParameters, num_partitions = nbPartitions)
+    } else {
+      partitions <- iraceResults$partitions
+    }
     # We call checkScenario again to fix any inconsistencies in the recovered data.
     # FIXME: Do not call checkScenario earlier and instead do the minimum to check recoveryFile.
     scenario <- checkScenario(scenario)
+    blockSize <- scenario$blockSize
     firstRace <- FALSE
     stopParallel()
     startParallel(scenario)
     on.exit(stopParallel(), add = TRUE)
+    
   } else { # Do not recover
     firstRace <- TRUE
     scenario <- irace.init(scenario)
@@ -782,22 +797,23 @@ irace_run <- function(scenario, parameters)
                               dimnames = list(NULL,
                                               c("iteration", "instance", "configuration", "time", "bound")))
     )
-    # empty data frame 
+    # empty data frame for clusters
     iraceClusters <- data.frame(stringsAsFactors=FALSE)
-    clusterParameters <- filterClusteringParams(parameters)
+
+    # partitions not to be recovered
     if (scenario$nbPartitions) {
      cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
+     nbPartitions <- scenario$nbPartitions
     } else {
      cat("# No partitions\n")
+      nbPartitions <- 4L
     }
-    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = 4)
+    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = 
+    nbPartitions)
     print(partitions)
 
-    if (scenario$probType) {
-      probType <- scenario$probType
-    } else {
-      probType <- "2"
-    }
+    # Save log of partitions
+    iraceResults$partitions <- partitions
 
     blockSize <- scenario$blockSize
     model <- NULL
@@ -988,6 +1004,12 @@ irace_run <- function(scenario, parameters)
     
   } #end of do not recover
   
+    if (scenario$probType) {
+      probType <- scenario$probType
+    } else {
+      probType <- "2"
+    }
+
   catInfo("Initialization\n",
           if (scenario$elitist)
             paste0("# Elitist race\n",
