@@ -755,12 +755,12 @@ irace_run <- function(scenario, parameters)
   if (!is.null.or.empty(scenario$recoveryFile)) {
     irace.note ("Resuming from file: '", scenario$recoveryFile,"'\n")
     recoverFromFile(scenario$recoveryFile)
-    if (iraceResults$clusters == NULL) {
+    if (!is.null(iraceResults$clusters)) {
       iraceClusters <- data.frame(stringsAsFactors=FALSE)
     } else {
       iraceClusters <- iraceResults$clusters
     }
-    if (iraceResults$partitions == NULL) {
+    if (!is.null(iraceResults$partitions)) {
       if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
       partitions <- clustering.partition(parameters = clusterParameters, num_partitions = nbPartitions)
     } else {
