@@ -1233,7 +1233,7 @@ irace_run <- function(scenario, parameters)
       model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
                            nbIterations, nbNewConfigurations, scenario)
       if (debugLevel >= 1) irace.note("Update representatives model\n") 
-      if (representativesConfigurations == NULL) {
+      if (exists("representativesConfigurations") && !is.null(representativesConfigurations)) {
         representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = nrow(eliteConfigurations), typeProb=probType)
       } else {
         representativesConfigurations <- rbind(representativesConfigurations, eliteConfigurations)
