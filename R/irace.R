@@ -759,8 +759,12 @@ irace_run <- function(scenario, parameters)
       iraceClusters <- data.frame(stringsAsFactors=FALSE)
     } else {
       iraceClusters <- iraceResults$clusters
+      if (is.null(iraceResults$allRepresentatives)) {
+        representativesConfigurations <- NULL
+      } else {
       representativesConfigurationsIDs <- iraceResults$allRepresentatives[length(iraceResults$iterationsRepresentatives)][[1]]
       representativesConfigurations <- iraceResults$allConfigurations[representativesConfigurationsIDs, ]
+      }
     }
     if (!is.null(iraceResults$partitions)) {
       if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
@@ -1229,6 +1233,11 @@ irace_run <- function(scenario, parameters)
       model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
                            nbIterations, nbNewConfigurations, scenario)
       if (debugLevel >= 1) irace.note("Update representatives model\n") 
+      if (representativesConfigurations == NULL) {
+        representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = nrow(eliteConfigurations), typeProb=probType)
+      } else {
+        representativesConfigurations <- rbind(representativesConfigurations, eliteConfigurations)
+      }
       representativesModel <- initialiseModel (parameters, representativesConfigurations)
       if (debugLevel >= 2) {
         printModel (model)
