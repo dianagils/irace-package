@@ -771,10 +771,12 @@ irace_run <- function(scenario, parameters)
       print(representativesConfigurations)
       }
     }
-    if (!is.null(iraceResults$partitions)) {
+    if (is.null(iraceResults$partitions)) {
+      cat("Calculating partitions")
       if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
       partitions <- clustering.partition(parameters = clusterParameters, num_partitions = nbPartitions)
     } else {
+      cat("Recovering partitions")
       partitions <- iraceResults$partitions
     }
     # We call checkScenario again to fix any inconsistencies in the recovered data.
