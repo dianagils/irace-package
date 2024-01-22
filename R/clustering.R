@@ -97,11 +97,13 @@ updateClusters <- function(clusteredConfigs, aliveConfigurations) {
 }
 
 
-clusterConfigurations <- function(parameters, configurations, nbClusters) {
+clusterConfigurations <- function(parameters, configurations, nbClusters, dissMetric) {
   # subset configurations only with parameters that are used for clustering
-  cat("Clustering configurations using partitioning around medoids .\n")
+  cat("Clustering configurations using partitioning around medoids using: ")
+  print(dissMetric)
+  cat(" \n ")
   clusterConfigurations <- subset(configurations, select = parameters$names)
-  clustering <- pam(clusterConfigurations, k = nbClusters, metric = "euclidean", stand = FALSE)
+  clustering <- pam(clusterConfigurations, k = nbClusters, metric = dissMetric, stand = FALSE)
   # extract cluster assignments
   clusterAssignments <- clustering$cluster
   # add cluster assignments to configurations, to CLUSTER column

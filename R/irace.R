@@ -815,12 +815,13 @@ irace_run <- function(scenario, parameters)
     if (scenario$clusterAll == 1) clusterAll <- TRUE else clusterAll <- FALSE
     clusterParameters <- filterClusteringParams(parameters, clusterAll)
 
-    if (scenario$dissMetric) {
-      dissMetric <- scenario$dissMetric
-    } else {
+    # check if dissMetric is defined in scenario
+    if (is.null(scenario$dissMetric)) {
       dissMetric <- "euclidean"
+    } else {
+      dissMetric <- scenario$dissMetric
     }
-
+    
     blockSize <- scenario$blockSize
     model <- NULL
     nbConfigurations <- 0L
