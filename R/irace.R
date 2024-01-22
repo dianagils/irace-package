@@ -812,7 +812,7 @@ irace_run <- function(scenario, parameters)
       nbClusters <- 4L
     }
 
-    if (scenario$clusterAll) clusterAll <- TRUE else clusterAll <- FALSE
+    if (scenario$clusterAll == 1) clusterAll <- TRUE else clusterAll <- FALSE
     clusterParameters <- filterClusteringParams(parameters, clusterAll)
 
     blockSize <- scenario$blockSize
