@@ -749,7 +749,6 @@ irace_run <- function(scenario, parameters)
 
   timer <- Timer$new()
   debugLevel <- scenario$debugLevel
-  clusterParameters <- filterClusteringParams(parameters)
 
   # Recover state from file?
   if (!is.null.or.empty(scenario$recoveryFile)) {
@@ -770,14 +769,6 @@ irace_run <- function(scenario, parameters)
       representativesConfigurations <- iraceResults$allConfigurations[representativesConfigurationsIDs, ]
       print(representativesConfigurations)
       }
-    }
-    if (is.null(iraceResults$partitions)) {
-      cat("Calculating partitions")
-      if (scenario$nbPartitions) nbPartitions <- scenario$nbPartitions else nbPartitions <- 4L
-      partitions <- clustering.partition(parameters = clusterParameters, num_partitions = nbPartitions)
-    } else {
-      cat("Recovering partitions")
-      partitions <- iraceResults$partitions
     }
     # We call checkScenario again to fix any inconsistencies in the recovered data.
     # FIXME: Do not call checkScenario earlier and instead do the minimum to check recoveryFile.
@@ -814,19 +805,15 @@ irace_run <- function(scenario, parameters)
     iraceClusters <- data.frame(stringsAsFactors=FALSE)
 
     # partitions not to be recovered
-    if (scenario$nbPartitions) {
-     cat("# Creating ", scenario$nbPartitions, " partitions\n", sep = "")
-     nbPartitions <- scenario$nbPartitions
+    if (scenario$nbClusters) {
+     nbClusters <- scenario$nbClusters
     } else {
-     cat("# No partitions\n")
-      nbPartitions <- 4L
+     cat("# No number of clusters specified\n")
+      nbClusters <- 4L
     }
-    partitions <- clustering.partition(parameters = clusterParameters, num_partitions = 
-    nbPartitions)
-    print(partitions)
 
-    # Save log of partitions
-    iraceResults$partitions <- partitions
+    if (scenario$clusterAll) clusterAll <- TRUE else clusterAll <- FALSE
+    clusterParameters <- filterClusteringParams(parameters, clusterAll)
 
     blockSize <- scenario$blockSize
     model <- NULL
@@ -1355,7 +1342,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                               raceResults$experiments)
     # Cluster configurations
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, partitions = partitions, flag = raceResults$flag)
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, nbClusters = nbClusters, flag = raceResults$flag)
     representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
 
     # Save to the log file
