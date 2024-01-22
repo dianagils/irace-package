@@ -815,6 +815,12 @@ irace_run <- function(scenario, parameters)
     if (scenario$clusterAll == 1) clusterAll <- TRUE else clusterAll <- FALSE
     clusterParameters <- filterClusteringParams(parameters, clusterAll)
 
+    if (scenario$dissMetric) {
+      dissMetric <- scenario$dissMetric
+    } else {
+      dissMetric <- "euclidean"
+    }
+
     blockSize <- scenario$blockSize
     model <- NULL
     nbConfigurations <- 0L
@@ -1342,7 +1348,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                               raceResults$experiments)
     # Cluster configurations
-    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, nbClusters = nbClusters, flag = raceResults$flag)
+    iraceClusters <- clustering(clusters = iraceClusters, parameters = clusterParameters, configurations = raceResults$configurations, results = raceResults$experiments, nbClusters = nbClusters, flag = raceResults$flag, dissMetric = dissMetric)
     representativesConfigurations <- representatives(configurations = iraceClusters, nbRepresentatives = min(raceResults$nbAlive, minSurvival), typeProb=probType)
 
     # Save to the log file

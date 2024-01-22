@@ -20,17 +20,17 @@
 "capping", "cappingType", "boundType", "boundMax", "boundDigits", 
 "boundPar", "boundAsTimeout", "postselection", "aclib", "nbIterations", 
 "nbExperimentsPerIteration", "minNbSurvival", "nbConfigurations", 
-"mu", "confidence", "nbClusters", "clusterAll", "probType"), type = c("x", "x", "x", "x", "p", "p", "p", 
+"mu", "confidence", "nbClusters", "clusterAll", "probType", "dissMetric"), type = c("x", "x", "x", "x", "p", "p", "p", 
 "p", "x", "p", "p", "p", "s", "p", "p", "b", "p", "p", "x", "i", 
 "b", "s", "i", "i", "i", "p", "p", "s", "i", "i", "x", "x", "p", 
 "b", "i", "i", "i", "r", "r", "i", "b", "b", "s", "i", "b", "i", 
 "i", "b", "r", "b", "i", "i", "x", "b", "s", "s", "i", "i", "i", 
-"b", "r", "b", "i", "i", "i", "i", "i", "r", "i", "i", "i"), short = c("-h", 
+"b", "r", "b", "i", "i", "i", "i", "i", "r", "i", "i", "i", "p"), short = c("-h", 
 "-v", "-c", "-i", "", "-s", "", "-p", "", "", "-l", "", "", "", 
 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "-q", 
 "", "", "", "", "-e", "", "", "", "", "", "", "", "", "", "", 
-"", "", "", "", "", "", "", "", "", "", ""), long = c("--help", "--version", 
+"", "", "", "", "", "", "", "", "", "", "", ""), long = c("--help", "--version", 
 "--check", "--init", "--only-test", "--scenario", "--exec-dir", 
 "--parameter-file", "", "--configurations-file", "--log-file", 
 "--recovery-file", "", "--train-instances-dir", "--train-instances-file", 
@@ -47,18 +47,18 @@
 "--bound-max", "--bound-digits", "--bound-par", "--bound-as-timeout", 
 "--postselection", "--aclib", "--iterations", "--experiments-per-iteration", 
 "--min-survival", "--num-configurations", "--mu", "--confidence",
-"--nb-clusters", "--cluster-all", "--prob-type"), default = c(NA, NA, NA, "", "", "./scenario.txt", "./", "./parameters.txt", 
+"--nb-clusters", "--cluster-all", "--prob-type", "--diss-metric"), default = c(NA, NA, NA, "", "", "./scenario.txt", "./", "./parameters.txt", 
 "", "", "./irace.Rdata", "", "", "./Instances", "", "1", "", 
 "", "", "1", "0", "", "5", "1", "1", "./target-runner", "", "{configurationID} {instanceID} {seed} {instance} {bound} {targetRunnerArgs}", 
 "0", "0", "", "", "", "0", "0", NA, "0", "0.02", "0.01", "0", 
 "1", "0", "0", "4", "0", "0", NA, "1", "", "1", "1", "2", "", 
 NA, "median", "candidate", "0", "0", "1", "1", "0", "0", "0", 
-"0", "0", "0", "5", "0.95", "3", "1", "1"), domain = c(NA, NA, NA, NA, NA, NA, 
+"0", "0", "0", "5", "0.95", "3", "1", "1", "euclidean"), domain = c(NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "F-test,t-test,t-test-holm,t-test-bonferroni", 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, "sge,pbs,torque,slurm,htcondor", NA, NA, NA, 
 NA, NA, NA, NA, NA, NA, NA, NA, "median,mean,worst,best", "instance,candidate", 
-NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show this help.", 
+NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "euclidean,manhattan"), description = c("Show this help.", 
 "Show irace package version.", "Check scenario.", "Initialize the working directory with template config files.", 
 "Only test the configurations given in the file passed as argument.", 
 "File that describes the configuration scenario setup and other irace settings.", 
@@ -118,7 +118,8 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Sh
 "Confidence level for the elimination test.",
 "Number of clusters to create post-race",
 "Enable clustering with all the parameters and override the cluster variable in parameter file",
-"How to calculate probability for representative selection, 1 for RANK, 2 for mean results, 3 for rank of ranks"
+"How to calculate probability for representative selection, 1 for RANK, 2 for mean results, 3 for rank of ranks",
+"Dissimilarity metric for k-medoid clustering"
 )), row.names = c(".help", 
 ".version", ".check", ".init", ".onlytest", "scenarioFile", "execDir", 
 "parameterFile", "initConfigurations", "configurationsFile", 
@@ -135,7 +136,9 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Sh
 "elitistLimit", "repairConfiguration", "capping", "cappingType", 
 "boundType", "boundMax", "boundDigits", "boundPar", "boundAsTimeout", 
 "postselection", "aclib", "nbIterations", "nbExperimentsPerIteration", 
-"minNbSurvival", "nbConfigurations", "mu", "confidence", "nbClusters", "clusterAll", "probType"), class = "data.frame")
+"minNbSurvival", "nbConfigurations", "mu", "confidence", "nbClusters", "clusterAll", "probType",
+"dissMetric"
+), class = "data.frame")
 .irace.params.names <- c("scenarioFile", "execDir", "parameterFile", "initConfigurations", 
 "configurationsFile", "logFile", "recoveryFile", "instances", 
 "trainInstancesDir", "trainInstancesFile", "sampleInstances", 
@@ -151,7 +154,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Sh
 "capping", "cappingType", "boundType", "boundMax", "boundDigits", 
 "boundPar", "boundAsTimeout", "postselection", "aclib", "nbIterations", 
 "nbExperimentsPerIteration", "minNbSurvival", "nbConfigurations", 
-"mu", "confidence", "nbClusters", "clusterAll", "probType")
+"mu", "confidence", "nbClusters", "clusterAll", "probType", "dissMetric")
 ## FIXME: If these values are special perhaps they should be saved in $state ?
 .irace.params.recover <- c("instances", "seed", "testInstances",
                            # We need this because this data may mutate

@@ -1,11 +1,12 @@
-clustering <- function(clusters, configurations, parameters, nbClusters, results, flag) {
+
+clustering <- function(clusters, configurations, parameters, nbClusters, results, flag, dissMetric) {
   configurations <- addResultsToConfigurations(aliveConfigurations = configurations, results = results, flag = flag)
   if (nrow(clusters) == 0) {
-    return(clusterConfigurations(parameters = parameters, configurations = configurations, nbClusters = nbClusters))
+    return(clusterConfigurations(parameters = parameters, configurations = configurations, nbClusters = nbClusters, dissMetric = dissMetric))
   } else {
     # update clusters
     result <- updateClusters(clusteredConfigs = clusters, aliveConfigurations = configurations)
-    return(clusterConfigurations(parameters = parameters, configurations = configurations, existingClusters = NULL, nbClusters = nbClusters))
+    return(clusterConfigurations(parameters = parameters, configurations = configurations, nbClusters = nbClusters, dissMetric = dissMetric))
   }
 }
 
