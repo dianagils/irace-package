@@ -202,9 +202,13 @@ similarConfigurations <- function(configurations, parameters, threshold)
 }
 
 getTrajectories <- function(newConfigurations, eliteConfigurations, experiments, iteration) {
+  if (nrow(eliteConfigurations) == 0L) {
+    #first iteration, return 
+    cat("first iteration, returning\n")
+  }
   mean_results_per_config <- colMeans(experiments, na.rm = TRUE)
-  newConfigurations <- mean_results_per_config[match(newConfigurations[[".ID."]], colnames(mean_results_per_config))]
-  eliteConfigurations <- mean_results_per_config[match(eliteConfigurations[[".ID."]], colnames(mean_results_per_config))]
+  newConfigurations[".RESULTS."] <- mean_results_per_config[match(newConfigurations[[".ID."]], colnames(mean_results_per_config))]
+  eliteConfigurations[".RESULTS."] <- mean_results_per_config[match(eliteConfigurations[[".ID."]], colnames(mean_results_per_config))]
   
   trajectories <- list()
   # for each parent, write the parent parameters, e (for elite), iteration, and then the child parameters, ne for new and iteration
@@ -212,6 +216,9 @@ getTrajectories <- function(newConfigurations, eliteConfigurations, experiments,
     # get only param values, not names
     elite <- eliteConfigurations[i, -1]
     new <- newConfigurations[i, -1]
+    #remove .PARENT. column
+    elite <- elite[-1]
+    new <- new[-1]
     # add to trajectories
     trajectories <- c(trajectories, list(c(elite, "e", iteration, new, "ne", iteration)))
   }
