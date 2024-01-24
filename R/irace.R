@@ -201,6 +201,23 @@ similarConfigurations <- function(configurations, parameters, threshold)
   configurations[[".ID."]]
 }
 
+getTrajectories <- function(newConfigurations, eliteConfigurations, experiments, iteration) {
+  mean_results_per_config <- colMeans(experiments, na.rm = TRUE)
+  newConfigurations <- mean_results_per_config[match(newConfigurations[[".ID."]], colnames(mean_results_per_config))]
+  eliteConfigurations <- mean_results_per_config[match(eliteConfigurations[[".ID."]], colnames(mean_results_per_config))]
+  
+  trajectories <- list()
+  # for each parent, write the parent parameters, e (for elite), iteration, and then the child parameters, ne for new and iteration
+  for (i in seq_along(eliteConfigurations[[".ID."]])) {
+    # get only param values, not names
+    elite <- eliteConfigurations[i, -1]
+    new <- newConfigurations[i, -1]
+    # add to trajectories
+    trajectories <- c(trajectories, list(c(elite, "e", iteration, new, "ne", iteration)))
+  }
+  print(trajectories)
+}
+
 
 ## Number of iterations.
 computeNbIterations <- function(nbParameters) (2 + log2(nbParameters))
@@ -1271,6 +1288,9 @@ irace_run <- function(scenario, parameters)
     # Merge new results.
     iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                               raceResults$experiments)
+
+    # bind with results from previous iterations
+    getTrajectories(newConfigurations, eliteConfigurations, experiments, indexIteration)
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
