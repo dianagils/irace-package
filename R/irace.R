@@ -1290,7 +1290,7 @@ irace_run <- function(scenario, parameters)
                                               raceResults$experiments)
 
     # bind with results from previous iterations
-    getTrajectories(newConfigurations, eliteConfigurations, experiments, indexIteration)
+    getTrajectories(newConfigurations, eliteConfigurations, iraceResults$experiments, indexIteration)
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
