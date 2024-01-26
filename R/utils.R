@@ -653,6 +653,15 @@ irace_save_logfile <- function(iraceResults, scenario)
   save(iraceResults, file = scenario$logFile, version = 2)
 }
 
+irace_save_trajectories <- function(trajectories, scenario)
+{
+  # if (is.null.or.empty(scenario$trajectoriesFile)) return(invisible())
+  # withr::local_dir(scenario$execDir) # FIXME: This is probably not needed because make sure that scenario$logFile is an absolute path.
+  # FIXME: Use saveRDS
+  # FIXME: Bump to version=3 when we bump the minimum R version to >=3.6
+  save(trajectories, file = "./trajectories.RData", version = 2)
+}
+
 valid_iracelog <- function(x)
 {
   is.list(x) && ("scenario" %in% names(x))

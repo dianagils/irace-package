@@ -205,24 +205,36 @@ getTrajectories <- function(newConfigurations, eliteConfigurations, experiments,
   if (nrow(eliteConfigurations) == 0L) {
     #first iteration, return 
     cat("first iteration, returning\n")
+    return(NULL)
   }
   mean_results_per_config <- colMeans(experiments, na.rm = TRUE)
-  newConfigurations[".RESULTS."] <- mean_results_per_config[match(newConfigurations[[".ID."]], colnames(mean_results_per_config))]
-  eliteConfigurations[".RESULTS."] <- mean_results_per_config[match(eliteConfigurations[[".ID."]], colnames(mean_results_per_config))]
+  newConfigurations[".RESULTS."] <- mean_results_per_config[newConfigurations[[".ID."]]]
+  eliteConfigurations[".RESULTS."] <- mean_results_per_config[eliteConfigurations[[".ID."]]]
+
+  # remove .ALIVE, .WEIGHT., .PARENT., .RANK. from newConfigurations and eliteConfigurations
+  newConfigurations <- newConfigurations[, !names(newConfigurations) %in% c(".ALIVE.", ".WEIGHT.", ".RANK.")]
+  eliteConfigurations <- eliteConfigurations[, !names(eliteConfigurations) %in% c(".ALIVE.", ".WEIGHT.", ".RANK.")]
+
+  print(newConfigurations)
+  print(eliteConfigurations)
   
   trajectories <- list()
   # for each parent, write the parent parameters, e (for elite), iteration, and then the child parameters, ne for new and iteration
   for (i in seq_along(eliteConfigurations[[".ID."]])) {
-    # get only param values, not names
-    elite <- eliteConfigurations[i, -1]
-    new <- newConfigurations[i, -1]
-    #remove .PARENT. column
-    elite <- elite[-1]
-    new <- new[-1]
-    # add to trajectories
-    trajectories <- c(trajectories, list(c(elite, "e", iteration, new, "ne", iteration)))
+    # get elite config
+    elite <- eliteConfigurations[eliteConfigurations[[".ID."]] == eliteConfigurations[[".ID."]][i],]
+    eliteResults <- elite[[".RESULTS."]]
+    elite <- elite[, !names(elite) %in% c(".RESULTS.", ".PARENT.", ".ID.")]
+    successors <- newConfigurations[[".ID."]][newConfigurations[[".PARENT."]] == elite[[".ID."]][1]]
+
+    for (j in seq_along(successors)) {
+      newConfig <- newConfigurations[newConfigurations[[".ID."]] == successors[j],]
+      newResults <- newConfig[[".RESULTS."]]
+      new <- newConfig[, !names(newConfig) %in% c(".RESULTS.", ".PARENT.", ".ID.")]
+      trajectories <- c(trajectories, list(c(elite, "e", iteration, eliteResults, new, "ne", iteration, newResults)))
+    }
   }
-  print(trajectories)
+  return(trajectories)
 }
 
 
@@ -755,7 +767,7 @@ irace_run <- function(scenario, parameters)
     }
   }
 
-  irace_finish <- function(iraceResults, scenario, reason) {
+  irace_finish <- function(iraceResults, trajectories, scenario, reason) {
     elapsed <- timer$elapsed()
     if (!quiet)
       cat("# Total CPU user time: ", elapsed["user"], ", CPU sys time: ", elapsed["system"],
@@ -764,6 +776,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$state$completed <- reason
     iraceResults$state$sessionInfo <- sessionInfo()
     irace_save_logfile(iraceResults, scenario)
+    irace_save_trajectories(trajectories, scenario)
     iraceResults$state$eliteConfigurations
   }
 
@@ -1015,7 +1028,7 @@ irace_run <- function(scenario, parameters)
             paste0("# boundMax: ", scenario$boundMax, "\n"),
           verbose = FALSE)
 
-  
+  trajectories <- list()
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
@@ -1046,11 +1059,11 @@ irace_run <- function(scenario, parameters)
 
     if (remainingBudget <= 0) {
       catInfo("Stopped because budget is exhausted")
-      return(irace_finish(iraceResults, scenario, reason = "Budget exhausted"))
+      return(irace_finish(iraceResults, trajectories, scenario, reason = "Budget exhausted"))
     }
     if (scenario$maxTime > 0 && timeUsed >= scenario$maxTime) {
       catInfo("Stopped because time budget is exhausted")
-      return(irace_finish(iraceResults, scenario, reason = "Time budget exhausted"))
+      return(irace_finish(iraceResults, trajectories, scenario, reason = "Time budget exhausted"))
     }
 
     if (indexIteration > nbIterations) {
@@ -1060,7 +1073,7 @@ irace_run <- function(scenario, parameters)
         if (debugLevel >= 1) {
           catInfo("Limit of iterations reached", verbose = FALSE)
         }
-        return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
+        return(irace_finish(iraceResults, trajectories, scenario, reason = "Limit of iterations reached"))
       }
     }
     # Compute the current budget (nb of experiments for this iteration),
@@ -1105,7 +1118,7 @@ irace_run <- function(scenario, parameters)
       } else {
         catInfo("Stopped because ",
                 "there is not enough budget to enforce the value of nbConfigurations.")
-        return(irace_finish(iraceResults, scenario, reason = "Not enough budget to enforce the value of nbConfigurations"))
+        return(irace_finish(iraceResults, trajectories, scenario, reason = "Not enough budget to enforce the value of nbConfigurations"))
       }
     }
     
@@ -1114,7 +1127,7 @@ irace_run <- function(scenario, parameters)
       catInfo("Stopped because there is not enough budget left to race more than ",
               "the minimum (", minSurvival,").\n",
               "# You may either increase the budget or set 'minNbSurvival' to a lower value.")
-      return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race more than the minimum configurations"))
+      return(irace_finish(iraceResults, trajectories, scenario, reason = "Not enough budget to race more than the minimum configurations"))
     }
 
 
@@ -1132,7 +1145,7 @@ irace_run <- function(scenario, parameters)
       catInfo("Stopped because ",
               "there is not enough budget left to race newly sampled configurations.")
       #(number of elites  + 1) * (mu + min(5, indexIteration)) > remainingBudget" 
-      return(irace_finish(iraceResults, scenario, reason = "Not enough budget left to race newly sampled configurations"))
+      return(irace_finish(iraceResults, trajectories, scenario, reason = "Not enough budget left to race newly sampled configurations"))
     }
     
     if (scenario$elitist) {
@@ -1142,11 +1155,11 @@ irace_run <- function(scenario, parameters)
           + nrow(eliteConfigurations) * min(scenario$elitistNewInstances, scenario$mu)
           > currentBudget) {
         catInfo("Stopped because there is not enough budget left to race all configurations up to the first test (or mu).")
-        return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
+        return(irace_finish(iraceResults, trajectories,  scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
       }
     } else if (nbConfigurations * scenario$mu > currentBudget) {
       catInfo("Stopped because there is not enough budget left to race all configurations up to the first test (or mu).")
-      return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
+      return(irace_finish(iraceResults, trajectories, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
     }
 
     catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
@@ -1297,7 +1310,9 @@ irace_run <- function(scenario, parameters)
                                               raceResults$experiments)
 
     # bind with results from previous iterations
-    getTrajectories(newConfigurations, eliteConfigurations, iraceResults$experiments, indexIteration)
+    currTrajectories <- getTrajectories(newConfigurations, eliteConfigurations, iraceResults$experiments, indexIteration)
+    print(currTrajectories)
+    trajectories <- c(trajectories, currTrajectories)
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
