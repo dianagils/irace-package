@@ -1280,7 +1280,7 @@ irace_run <- function(scenario, parameters)
         if (!is.null(tmp.ids)) {
           if (debugLevel >= 1)
             irace.note("Soft restart: ", paste(collapse = " ", tmp.ids), " !\n")
-          model <- restartConfigurations (raceConfigurations, tmp.ids, representativesModel,
+          representativesModel <- restartConfigurations (raceConfigurations, tmp.ids, representativesModel,
                                           parameters, nbNewConfigurations)
           iraceResults$softRestart[indexIteration] <- TRUE
           if (debugLevel >= 2) { printModel (representativesModel) }
