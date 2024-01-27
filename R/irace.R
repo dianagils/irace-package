@@ -1317,10 +1317,10 @@ irace_run <- function(scenario, parameters)
     }
 
     # Get data from previous elite tests 
-    # elite.data <- if (scenario$elitist && nrow(eliteConfigurations) > 0)
-    #                 iraceResults$experiments[, as.character(eliteConfigurations[[".ID."]]), drop=FALSE]
-    #               else NULL
-    elite.data <- NULL
+    elite.data <- if (scenario$elitist && nrow(representativesConfigurations) > 0)
+                    iraceResults$experiments[, as.character(representativesConfigurations[[".ID."]]), drop=FALSE]
+                  else NULL
+    # elite.data <- NULL
 
     # FIXME: Remove this assert after a while
     irace.assert(max(nrow(iraceResults$experiments), 0) == nrow(iraceResults$experiments))
