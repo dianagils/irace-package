@@ -1062,7 +1062,7 @@ irace_run <- function(scenario, parameters)
                                experimentsUsedSoFar = experimentsUsedSoFar,
                                indexIteration = indexIteration,
                                minSurvival = minSurvival,
-                               model = model,
+                               model = representativesModel,
                                nbConfigurations = nbConfigurations,
                                nbIterations = nbIterations,
                                remainingBudget = remainingBudget,
@@ -1237,9 +1237,9 @@ irace_run <- function(scenario, parameters)
       nbNewConfigurations <- nbConfigurations - nrow(eliteConfigurations)
 
       # Update the model based on elites configurations
-      if (debugLevel >= 1) irace.note("Update model\n")
-      model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
-                           nbIterations, nbNewConfigurations, scenario)
+      # if (debugLevel >= 1) irace.note("Update model\n")
+      # model <- updateModel(parameters, eliteConfigurations, model, indexIteration,
+      #                      nbIterations, nbNewConfigurations, scenario)
       if (debugLevel >= 1) irace.note("Update representatives model\n") 
       if (is.null(representativesConfigurations)) {
         cat("Representatives configurations are null\n")
@@ -1249,7 +1249,7 @@ irace_run <- function(scenario, parameters)
       }
       representativesModel <- initialiseModel (parameters, representativesConfigurations)
       if (debugLevel >= 2) {
-        printModel (model)
+        # printModel (model)
         printModel (representativesModel)
       }
       if (debugLevel >= 1)
@@ -1318,8 +1318,8 @@ irace_run <- function(scenario, parameters)
     }
 
     # Get data from previous elite tests 
-    elite.data <- if (scenario$elitist && nrow(representativesConfigurations) > 0)
-                    iraceResults$experiments[, as.character(representativesConfigurations[[".ID."]]), drop=FALSE]
+    elite.data <- if (scenario$elitist && nrow(eliteConfigurations) > 0)
+                    iraceResults$experiments[, as.character(eliteConfigurations[[".ID."]]), drop=FALSE]
                   else NULL
     # elite.data <- NULL
 
@@ -1396,8 +1396,9 @@ irace_run <- function(scenario, parameters)
     # FIXME: Since we only actually keep the alive ones, we don't need
     # to carry around rejected ones in raceResults$configurations. This
     # would reduce overhead.
-    eliteConfigurations <- extractElites(scenario, raceResults$configurations,
-                                         min(raceResults$nbAlive, minSurvival))
+    survivingConfigs <- raceResults$configurations
+    # elite are all alive configs
+    eliteConfigurations <- survivingConfigs[survivingConfigs$.ALIVE., , drop = FALSE]
     irace.note("Elite configurations (first number is the configuration ID;",
                " listed from best to worst according to the ",
                test.type.order.str(scenario$testType), "):\n")
@@ -1407,10 +1408,10 @@ irace_run <- function(scenario, parameters)
     
     if (firstRace) {
       if (debugLevel >= 1) irace.note("Initialise model\n")
-      model <- initialiseModel(parameters, eliteConfigurations)
+      # model <- initialiseModel(parameters, eliteConfigurations)
       representativesModel <- initialiseModel(parameters, representativesConfigurations)
       if (debugLevel >= 2) {
-        printModel (model)
+        # printModel (model)
         cat("Representatives model:\n")
         printModel (representativesModel)
       }
