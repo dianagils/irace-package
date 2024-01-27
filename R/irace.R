@@ -832,6 +832,7 @@ irace_run <- function(scenario, parameters)
     model <- NULL
     nbConfigurations <- 0L
     eliteConfigurations <- data.frame(stringsAsFactors=FALSE)
+    representativesConfigurations <- data.frame(stringsAsFactors=FALSE)
     
     nbIterations <- if (scenario$nbIterations == 0)
                       computeNbIterations(parameters$nbVariable)
