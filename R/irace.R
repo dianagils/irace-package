@@ -202,10 +202,11 @@ similarConfigurations <- function(configurations, parameters, threshold)
 }
 
 getTrajectories <- function(newConfigurations, eliteConfigurations, experiments, iteration) {
+  trajectories <- data.frame()
   if (nrow(eliteConfigurations) == 0L) {
     #first iteration, return 
     cat("first iteration, returning\n")
-    return(NULL)
+    return(trajectories)
   }
   mean_results_per_config <- colMeans(experiments, na.rm = TRUE)
   newConfigurations[".RESULTS."] <- mean_results_per_config[newConfigurations[[".ID."]]]
@@ -218,22 +219,24 @@ getTrajectories <- function(newConfigurations, eliteConfigurations, experiments,
   print(newConfigurations)
   print(eliteConfigurations)
   
-  trajectories <- list()
   # for each parent, write the parent parameters, e (for elite), iteration, and then the child parameters, ne for new and iteration
   for (i in seq_along(eliteConfigurations[[".ID."]])) {
     # get elite config
     elite <- eliteConfigurations[eliteConfigurations[[".ID."]] == eliteConfigurations[[".ID."]][i],]
     eliteResults <- elite[[".RESULTS."]]
-    elite <- elite[, !names(elite) %in% c(".RESULTS.", ".PARENT.", ".ID.")]
+    elite <- elite[, !names(elite) %in% c(".RESULTS.", ".PARENT.")]
     successors <- newConfigurations[[".ID."]][newConfigurations[[".PARENT."]] == elite[[".ID."]][1]]
-
+    statusElite <- "e"
     for (j in seq_along(successors)) {
+      statusNew <- "ne"
       newConfig <- newConfigurations[newConfigurations[[".ID."]] == successors[j],]
       newResults <- newConfig[[".RESULTS."]]
-      new <- newConfig[, !names(newConfig) %in% c(".RESULTS.", ".PARENT.", ".ID.")]
-      trajectories <- c(trajectories, list(c(elite, "e", iteration, eliteResults, new, "ne", iteration, newResults)))
+      new <- newConfig[, !names(newConfig) %in% c(".RESULTS.", ".PARENT.")]
+      trajectories <- rbind(trajectories, cbind(elite, statusElite, iteration, eliteResults, new, statusNew, iteration, newResults))
+      rownames(trajectories) <- NULL
     }
   }
+  print(trajectories)
   return(trajectories)
 }
 
@@ -1312,7 +1315,8 @@ irace_run <- function(scenario, parameters)
     # bind with results from previous iterations
     currTrajectories <- getTrajectories(newConfigurations, eliteConfigurations, iraceResults$experiments, indexIteration)
     print(currTrajectories)
-    trajectories <- c(trajectories, currTrajectories)
+    trajectories <- rbind(trajectories, currTrajectories)
+    rownames(trajectories) <- seq_len(nrow(trajectories))
                                              
     if (length(raceResults$rejectedIDs) > 0) {
       rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
