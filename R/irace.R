@@ -1270,7 +1270,7 @@ irace_run <- function(scenario, parameters)
        #                             seq_nrow(newConfigurations), newConfigurations)
       newConfigurationsRep <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq_nrow(newConfigurationsRep), newConfigurationsRep)
-      raceConfigurations <- rbind(representativesConfigurations[, colnames(newConfigurationsRep)],
+      raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurationsRep)],
                                   newConfigurationsRep)
       rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
                   
@@ -1301,7 +1301,7 @@ irace_run <- function(scenario, parameters)
           cat("Bind new representatives generated configurations\n")
           newConfigurationsRep <- cbind (.ID. = max(0L, allConfigurations[[".ID."]]) + 
                                   seq_nrow(newConfigurationsRep), newConfigurationsRep)
-          raceConfigurations <- rbind(representativesConfigurations[, colnames(newConfigurationsRep)],
+          raceConfigurations <- rbind(eliteConfigurations[, colnames(newConfigurationsRep)],
                                       newConfigurationsRep)
           rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
         }
