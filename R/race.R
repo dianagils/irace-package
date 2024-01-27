@@ -717,6 +717,10 @@ elitist_race <- function(maxExp = 0,
                     nrow = elite.safe,
                     ncol = no.configurations,
                     dimnames = list(elite.instances.ID, configurations.ID))
+  print(Results)
+  
+  print(elite.data)
+  
   if (capping)
     experimentsTime <- matrix(NA,
                               nrow = elite.safe,
