@@ -830,6 +830,7 @@ irace_run <- function(scenario, parameters)
 
     blockSize <- scenario$blockSize
     model <- NULL
+    representativesModel <- NULL
     nbConfigurations <- 0L
     eliteConfigurations <- data.frame(stringsAsFactors=FALSE)
     representativesConfigurations <- data.frame(stringsAsFactors=FALSE)
