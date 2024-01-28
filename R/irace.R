@@ -830,7 +830,6 @@ irace_run <- function(scenario, parameters)
 
     blockSize <- scenario$blockSize
     model <- NULL
-    representativesModel <- NULL
     nbConfigurations <- 0L
     eliteConfigurations <- data.frame(stringsAsFactors=FALSE)
     representativesConfigurations <- data.frame(stringsAsFactors=FALSE)
@@ -1024,6 +1023,8 @@ irace_run <- function(scenario, parameters)
     } else {
       probType <- "2"
     }
+  
+  representativesModel <- NULL
 
   catInfo("Initialization\n",
           if (scenario$elitist)
@@ -1248,7 +1249,7 @@ irace_run <- function(scenario, parameters)
       } else {
         print(representativesConfigurations)
       }
-      representativesModel <- initialiseModel (parameters, representativesConfigurations)
+      representativesModel <- initialiseModel(parameters, representativesConfigurations)
       if (debugLevel >= 2) {
         # printModel (model)
         printModel (representativesModel)
