@@ -228,7 +228,12 @@ getTrajectories <- function(newConfigurations, eliteConfigurations, experiments,
     successors <- newConfigurations[[".ID."]][newConfigurations[[".PARENT."]] == elite[[".ID."]][1]]
     statusElite <- "e"
     for (j in seq_along(successors)) {
-      statusNew <- "ne"
+      # check if successor is in elite
+      if (successors[j] %in% eliteConfigurations[[".ID."]]) {
+        statusNew <- "e"
+      } else {
+        statusNew <- "ne"
+      }
       newConfig <- newConfigurations[newConfigurations[[".ID."]] == successors[j],]
       newResults <- newConfig[[".RESULTS."]]
       new <- newConfig[, !names(newConfig) %in% c(".RESULTS.", ".PARENT.")]
