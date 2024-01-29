@@ -784,7 +784,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$state$completed <- reason
     iraceResults$state$sessionInfo <- sessionInfo()
     irace_save_logfile(iraceResults, scenario)
-    irace_save_trajectories(trajectories, scenario)
+    irace_save_trajectories(trajectories)
     iraceResults$state$eliteConfigurations
   }
 
