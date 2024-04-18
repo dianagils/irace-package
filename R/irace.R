@@ -1245,11 +1245,13 @@ irace_run <- function(scenario, parameters)
     # Calculate budget needed for old instances assuming non elitist irace
     if ((nrow(.irace$instancesList) - (.irace$next.instance - 1))
         < ceiling(remainingBudget / minSurvival)) {
+      # SUBSET: GENERATE INSTANCES -SEED PAIRS PER SUBSET
       .irace$instancesList <- generateInstances(scenario, n = ceiling(remainingBudget / minSurvival),
                                                 instancesList = .irace$instancesList)
     }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
+    # SUBSET: modify elitist race to receive list of instancesList and iterate the execution of one fo each list
     raceResults <- elitist_race (scenario = scenario,
                                  configurations = raceConfigurations,
                                  parameters = parameters,
@@ -1303,6 +1305,7 @@ irace_run <- function(scenario, parameters)
     # FIXME: Since we only actually keep the alive ones, we don't need
     # to carry around rejected ones in raceResults$configurations. This
     # would reduce overhead.
+    # SUBSETS: extract elites per subsets. Resultas should be separated by configs per subsets
     eliteConfigurations <- extractElites(scenario, raceResults$configurations,
                                          min(raceResults$nbAlive, minSurvival))
     irace.note("Elite configurations (first number is the configuration ID;",
@@ -1313,6 +1316,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[".ID."]]
     
     if (firstRace) {
+      # SUBSETS: all model calls should be per subset
       if (debugLevel >= 1) irace.note("Initialise model\n")
       model <- initialiseModel(parameters, eliteConfigurations)
       if (debugLevel >= 2) printModel (model)

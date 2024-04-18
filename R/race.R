@@ -672,6 +672,7 @@ elitist_race <- function(maxExp = 0,
   }
   
   # Create the instance list according to the algorithm selected
+  #SUBSETS: maybe build the stream (with alternation here)
   if (elitist)
     race.instances <- elitrace.init.instances(race.env,
                                               scenario$deterministic,
@@ -1118,6 +1119,7 @@ elitist_race <- function(maxExp = 0,
     # We assume that first.test is a multiple of each.test.  In any
     # case, this will only do the first test after the first multiple
     # of each.test that is larger than first.test.
+    # SUBSETS: MODIFY TO PERFORM N ELIMINATION TESTS
     if (current.task >= first.test && (current.task %% each.test) == 0
         && nbAlive > 1L) {
       irace.assert(sum(alive) == nbAlive)
@@ -1261,7 +1263,7 @@ elitist_race <- function(maxExp = 0,
 
   # nrow(Results) may be smaller, equal or larger than current.task.
   irace.assert(nrow(experimentLog) == experimentsUsed)
-
+  # manage results to know which instance is alive in every subset. i think having a lists of datasets per subset will do.
   list(experiments = Results,
        experimentLog = experimentLog,
        experimentsUsed = experimentsUsed,
