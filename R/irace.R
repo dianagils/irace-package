@@ -1388,8 +1388,9 @@ irace_run <- function(scenario, parameters)
     # FIXME: Since we only actually keep the alive ones, we don't need
     # to carry around rejected ones in raceResults$configurations. This
     # would reduce overhead.
-    eliteConfigurations <- extractElites(scenario, raceResults$configurations,
-                                         min(raceResults$nbAlive, minSurvival))
+    survivingConfigs <- raceResults$configurations
+    # elite are all alive configs
+    eliteConfigurations <- survivingConfigs[survivingConfigs$.ALIVE., , drop = FALSE]
     irace.note("Elite configurations (first number is the configuration ID;",
                " listed from best to worst according to the ",
                test.type.order.str(scenario$testType), "):\n")
