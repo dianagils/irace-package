@@ -346,6 +346,7 @@ readScenario <- function(filename = "", scenario = list(),
                 "\nIf you wish to use your own variables in the scenario file, use names beginning with a dot `.'")
   }
   scenario
+  
 }
 
 readInstanceSubsets <- function(filename = "") {
