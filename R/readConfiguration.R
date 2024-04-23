@@ -345,6 +345,9 @@ readScenario <- function(filename = "", scenario = list(),
                 "\nMAKE SURE NO VARIABLE NAME IS MISSPELL (for example, 'parameterFile' is correct, while 'parametersFile' is not)",
                 "\nIf you wish to use your own variables in the scenario file, use names beginning with a dot `.'")
   }
+  irace.note('Reading subset instance file:\n')
+  subsets <- readInstanceSubsets('subsetQAP.txt')
+  print(subsets)
   scenario
   
 }
