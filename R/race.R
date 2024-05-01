@@ -295,6 +295,61 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
                     else seq_len(next_instance - 1L)
   c(new.instances, past_instances, future.instances)
 }
+elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
+  all_instances <- list()
+  
+  # Find the maximum length of all subsets
+  max_length <- max(sapply(subsets, function(subset) nrow(.irace$subsetInstancesList[[subset]])))
+
+  # Initialize a matrix to store instances for each subset
+  instances_matrix <- matrix(NA, nrow = max_length, ncol = length(subsets))
+
+  for (i in seq_along(subsets)) {
+    subset <- subsets[[i]]
+    instances <- .irace$subsetInstancesList[[subset]]
+    next_instance <- subset$nextInstance
+    
+    # If nextInstance is 1, initialize the subset with sequence from 1 to max_instances
+    if (next_instance == 1) {
+      instances_matrix[1:max_instances, i] <- seq_len(max_instances)
+    } else {
+      last_new <- next_instance - 1L + race.env$elitistNewInstances
+
+      if (race.env$elitistNewInstances > 0) {
+        if (last_new > max_instances) {
+          irace.assert(deterministic)
+          last_new <- max_instances
+          new_instances <- next_instance:last_new
+          race.env$elitistNewInstances <- length(new_instances)
+        } else {
+          new_instances <- next_instance:last_new
+        }
+      }
+
+      future_instances <- NULL
+      if ((last_new + 1) <= max_instances) {
+        future_instances <- (last_new + 1):max_instances
+      }
+
+      if (sampleInstances) {
+        past_instances <- sample.int(next_instance - 1L)
+      } else {
+        past_instances <- seq_len(next_instance - 1L)
+      }
+
+      instances_matrix[next_instance:last_new, i] <- new_instances
+      instances_matrix[1:(next_instance - 1), i] <- past_instances
+      if (!is.null(future_instances)) {
+        instances_matrix[(last_new + 1):max_instances, i] <- future_instances
+      }
+    }
+  }
+
+  # Flatten the matrix to a single list alternating elements from each column
+  flattened_list <- c(t(instances_matrix))
+
+  return(flattened_list)
+}
 
 table_hline <- function(widths) {
   s <- "+"
@@ -603,7 +658,8 @@ race <- function(maxExp = 0,
                  minSurvival = 1,
                  configurations,
                  parameters,
-                 scenario)
+                 scenario,
+                 subset.data)
   elitist_race(maxExp = maxExp,
                minSurvival = minSurvival,
                elite.data = NULL,
@@ -611,11 +667,13 @@ race <- function(maxExp = 0,
                parameters = parameters,
                scenario = scenario,
                elitistNewInstances = 0L,
-               full_experiment_log = NULL)
+               full_experiment_log = NULL
+               subset.data = subset.data)
 
 elitist_race <- function(maxExp = 0,
                  minSurvival = 1,
                  elite.data = NULL,
+                 subset.data,
                  configurations,
                  parameters,
                  scenario,
@@ -678,7 +736,12 @@ elitist_race <- function(maxExp = 0,
                                               scenario$deterministic,
                                               max_instances = nrow(.irace$instancesList),
                                               sampleInstances = scenario$sampleInstances)
+    race.subsets_instances <- elitrace.init.instances.subsets (race.env,
+                                              subsets = subset.data,
+                                              scenario$deterministic,
+                                              sampleInstances = scenario$sampleInstances)
   else
+  # TODO> DETERMINISTIC 
     race.instances <- no_elitrace.init.instances(scenario$deterministic,
                                                  max_instances = nrow(.irace$instancesList))
   irace.assert(!anyDuplicated(race.instances))
@@ -821,6 +884,9 @@ elitist_race <- function(maxExp = 0,
   # Start main loop
   break.msg <- NULL
   best <- NA
+  for (i in seq_along(subsets)) {
+      subsets[[i]]$currentSubsetTask <- 1
+    }
   for (current.task in seq_len(no.tasks)) {
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
@@ -1027,13 +1093,20 @@ elitist_race <- function(maxExp = 0,
     }
     
     # Execute experiments
-    output <- race.wrapper(configurations = configurations[which.alive, , drop = FALSE],
+    currentInstance <- race.instances[current.task]
+    #get subsetNumber
+    subsetNumber <- .irace$subsetInstancesList[currentInstance]$subsetNumber
+    #filter configs from that subset only
+    race.configs <- configurations[configurations[isAliveInSubset = subset_number]]
+
+    output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = race.instances[current.task],
                            # FIXME: Why are we keeping final.bounds values for configurations that are dead?
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
+    subsets[[i]]$currentSubsetTask <- subsets[[i]]$currentSubsetTask + 1
 
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
@@ -1120,21 +1193,30 @@ elitist_race <- function(maxExp = 0,
     # case, this will only do the first test after the first multiple
     # of each.test that is larger than first.test.
     # SUBSETS: MODIFY TO PERFORM N ELIMINATION TESTS
-    if (current.task >= first.test && (current.task %% each.test) == 0
-        && nbAlive > 1L) {
-      irace.assert(sum(alive) == nbAlive)
-      test.res <-
-        switch(stat.test,
-               friedman = aux_friedman(Results[seq_len(current.task), ], alive, which.alive, conf.level),
-               t.none = aux.ttest(Results[seq_len(current.task), ], alive, which.alive, conf.level, adjust = "none"),
-               t.holm = aux.ttest(Results[seq_len(current.task), ], alive, which.alive, conf.level, adjust = "holm"),
-               t.bonferroni = aux.ttest(Results[seq_len(current.task), ], alive, which.alive, conf.level, adjust = "bonferroni"))
-      
-      race.ranks <- test.res$ranks
-      test.alive <- test.res$alive
-      test.dropped <- sum(alive) > sum(test.alive)
-      test.done   <- TRUE
+    for (i in seq_along(subsets)) {
+      subset <- subsets[[i]]
+      if (subset$currentSubsetTask >= first.test && 
+          (subset$currentSubsetTask %% each.test) == 0 && 
+          nbAlive > 1L) {
+        
+        irace.assert(sum(alive) == nbAlive)
+        
+        # Perform the test based on the condition
+        test.res <- switch(
+          stat.test,
+          friedman = aux_friedman(Results[seq_len(subset$currentSubsetTask), ], alive, which.alive, conf.level),
+          t.none = aux.ttest(Results[seq_len(subset$currentSubsetTask), ], alive, which.alive, conf.level, adjust = "none"),
+          t.holm = aux.ttest(Results[seq_len(subset$currentSubsetTask), ], alive, which.alive, conf.level, adjust = "holm"),
+          t.bonferroni = aux.ttest(Results[seq_len(subset$currentSubsetTask), ], alive, which.alive, conf.level, adjust = "bonferroni")
+        )
+        
+        race.ranks <- test.res$ranks
+        test.alive <- test.res$alive
+        test.dropped <- sum(alive) > sum(test.alive)
+        test.done <- TRUE
+      }
     }
+  }
     
     # Merge the result of both eliminations.
     prev.sum.alive <- sum(alive)
