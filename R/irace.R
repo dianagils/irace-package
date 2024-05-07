@@ -375,46 +375,51 @@ irace.init <- function(scenario)
   scenario
 }
 
-generateInstancesPerSubset <- function(scenario, n, subsets, unique_subsets) {
-  instance_lists <- list()
-  last_id <- 0  # Initialize last assigned ID
+generateInstancesPerSubset <- function(scenario, n, subsets, instancesList = NULL)
+{
+  # If we are adding and the scenario is deterministic, we have already added all instances.
+  if (!is.null(instancesList) && scenario$deterministic) return(instancesList)
+
+  instances <- scenario$instances
+  # Number of times that we need to repeat the set of instances given by the user.
+  ntimes <- if (scenario$deterministic) 1L else
+            # "Upper bound"" of instances needed
+            # FIXME: We could bound it even further if maxExperiments >> nInstances
+            ceiling(n / length(instances))
+
+  # Initialize a running ID count
+  running_id <- 1
   
-  for (subset_num in unique_subsets) {
-    # Get instance information for the current subset number
+  # Iterate over subsets
+  for (subset_num in unique(subsets$SubsetNumber)) {
     subset_instances <- subsets[subsets$SubsetNumber == subset_num, ]
-    n_instances <- nrow(subset_instances)
     
-    if (n_instances > 0) {
-      instancesList <- NULL
-
-      # Number of times to repeat instances
-      n_times <- if (scenario$deterministic) 1L else ceiling(n / n_instances)
-
-      # Repeat instances
-      repeated_instances <- rep(seq_len(n_instances), each = n_times)
-      
-      # Sample seeds
-      seeds <- sample.int(2147483647L, size = length(repeated_instances), replace = TRUE)
-      
-      # Create instance list with continuous IDs
-      instancesList <- data.frame(instanceID = (last_id + 1):(last_id + length(repeated_instances)),
-                                  seed = seeds,
-                                  stringsAsFactors = FALSE)
-
-      # Update last assigned ID
-      last_id <- last_id + length(repeated_instances)
-
-      # Store instance list in the result, using SubsetNumber as the key
-      instance_lists[[subset_num]] <- instancesList
+    # Get instances order
+    if (scenario$sampleInstances) {
+      blockSize <- scenario$blockSize
+      n_blocks <- nrow(subset_instances) / blockSize
+      # Sample instances index in groups (ntimes)
+      selected_blocks <- unlist(lapply(rep(n_blocks, ntimes), sample.int, replace = FALSE))
+      sindex <- c(outer(seq_len(blockSize), (selected_blocks - 1L) * blockSize, "+"))
     } else {
-      # If no instances found for the subset number, store an empty list
-      instance_lists[[subset_num]] <- list()
+      sindex <- rep(seq_len(nrow(subset_instances)), ntimes)
     }
+    
+    # Sample seeds.
+    # 2147483647 is the maximum value for a 32-bit signed integer.
+    # We use replace = TRUE, because replace = FALSE allocates memory for each possible number.
+    subset_instances <- data.frame(instanceID = running_id:(running_id + length(sindex) - 1),
+                                   seed = sample.int(2147483647L, size = length(sindex), replace = TRUE),
+                                   stringsAsFactors = FALSE)
+    # Increment the running ID count
+    running_id <- running_id + length(sindex)
+    
+    # Append the subset instances to the instancesList
+    instancesList <- rbind(instancesList, subset_instances)
   }
-  
-  return(instance_lists)
-}
 
+  return(instancesList)
+}
 
 ## Generate instances + seed.
 generateInstances <- function(scenario, n, subsets, instancesList = NULL)
