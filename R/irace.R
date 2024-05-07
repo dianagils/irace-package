@@ -840,6 +840,8 @@ irace_run <- function(scenario, parameters)
       df <- data.frame(stringsAsFactors = FALSE)
       eliteConfigurations[[as.character(subset_number)]] <- df
     }
+    cat("Elite configs: \n")
+    print(eliteConfigurations)
 
     #nbIterations is global
     nbIterations <- if (scenario$nbIterations == 0)
@@ -868,7 +870,6 @@ irace_run <- function(scenario, parameters)
                                                     max(scenario$firstTest, length(scenario$instances)),
                                                     instanceSubsets, unique_subsets)
     
-    print(.irace$subsetInstancesList)
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
@@ -1165,6 +1166,8 @@ irace_run <- function(scenario, parameters)
 
     # If we have too many eliteConfigurations, reduce their number. This can
     # happen before the first race due to the initial budget estimation.
+    print(nbConfigurations)
+    print(eliteConfigurations)
     if (firstRace) {
       if (nbConfigurations < nrow(eliteConfigurations)) {
         eliteRanks <- overall_ranks(iraceResults$experiments, test = scenario$testType)
