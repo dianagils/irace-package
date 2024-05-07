@@ -667,7 +667,7 @@ race <- function(maxExp = 0,
                parameters = parameters,
                scenario = scenario,
                elitistNewInstances = 0L,
-               full_experiment_log = NULL
+               full_experiment_log = NULL,
                subset.data = subset.data)
 
 elitist_race <- function(maxExp = 0,
