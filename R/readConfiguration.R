@@ -350,11 +350,10 @@ readScenario <- function(filename = "", scenario = list(),
   scenario
   
 }
-
 readInstanceSubsets <- function(filename = "") {
   
-  # Initialize an empty list to store data frames
-  subsets <- list()
+  # Initialize an empty data frame to store instance names and subset numbers
+  all_instances <- data.frame(InstanceName = character(), SubsetNumber = integer())
   
   # First find out which file...
   filename_given <- filename != ""
@@ -374,14 +373,12 @@ readInstanceSubsets <- function(filename = "") {
         instance_name <- trimws(parts[1])
         subset_number <- as.integer(trimws(parts[2]))
         
-        # Check if the subset number exists in the list, if not, create it
-        if (!(subset_number %in% names(subsets))) {
-          subsets[[subset_number]] <- data.frame(InstanceName = character(), SubsetNumber = integer())
-        }
+        # Create a data frame for the current instance and subset
+        instance_df <- data.frame(InstanceName = instance_name, SubsetNumber = subset_number)
         
-        # Append the instance to the existing subset
-        subsets[[subset_number]] <- rbind(subsets[[subset_number]], 
-                                          data.frame(InstanceName = instance_name, SubsetNumber = subset_number))
+        # Append the data frame to the all_instances data frame
+        all_instances <- rbind(all_instances, instance_df)
+        
       } else {
         cat("Invalid format in line:", line, "\n")
       }
@@ -390,8 +387,9 @@ readInstanceSubsets <- function(filename = "") {
     irace.error("The instance subset file ", shQuote(filename), " does not exist.")
   }
 
-  return(subsets)
+  return(all_instances)
 }
+
 
 setup_test_instances <- function(scenario)
 {

@@ -375,37 +375,41 @@ irace.init <- function(scenario)
   scenario
 }
 
-generateInstancesPerSubset <- function(scenario, n, subsets) {
+generateInstancesPerSubset <- function(scenario, n, subsets, unique_subsets) {
   instance_lists <- list()
   
-  for (subset in subsets) {
-    instancesList <- NULL
+  for (subset_num in unique_subsets) {
+    # Get instance information for the current subset number
+    subset_instances <- subsets[subsets$SubsetNumber == subset_num, ]
+    n_instances <- nrow(subset_instances)
     
-    # Get instance information for the current subset
-    instances <- subset$InstanceName
-    n_instances <- nrow(instances)
-    
-    # Number of times to repeat instances
-    n_times <- if (scenario$deterministic) 1L else ceiling(n / n_instances)
-    
-    # Repeat instances
-    repeated_instances <- rep(seq_len(n_instances), each = n_times)
-    
-    # Sample seeds
-    seeds <- sample.int(2147483647L, size = length(repeated_instances), replace = TRUE)
-    
-    # Create instance list
-    instancesList <- data.frame(instanceID = repeated_instances,
-                                seed = seeds,
-                                stringsAsFactors = FALSE)
-    
-    # Store instance list in the result
-    instance_lists[[subset$SubsetNumber[1]]] <- instancesList
+    if (n_instances > 0) {
+      instancesList <- NULL
+
+      # Number of times to repeat instances
+      n_times <- if (scenario$deterministic) 1L else ceiling(n / n_instances)
+
+      # Repeat instances
+      repeated_instances <- rep(seq_len(n_instances), each = n_times)
+
+      # Sample seeds
+      seeds <- sample.int(2147483647L, size = length(repeated_instances), replace = TRUE)
+
+      # Create instance list
+      instancesList <- data.frame(instanceID = repeated_instances,
+                                  seed = seeds,
+                                  stringsAsFactors = FALSE)
+
+      # Store instance list in the result, using SubsetNumber as the key
+      instance_lists[[subset_num]] <- instancesList
+    } else {
+      # If no instances found for the subset number, store an empty list
+      instance_lists[[subset_num]] <- list()
+    }
   }
   
   return(instance_lists)
 }
-
 
 ## Generate instances + seed.
 generateInstances <- function(scenario, n, subsets, instancesList = NULL)
@@ -862,7 +866,7 @@ irace_run <- function(scenario, parameters)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)),
-                                                    instanceSubsets)
+                                                    instanceSubsets, unique_subsets)
     
     print(.irace$subsetInstancesList)
     indexIteration <- 1L
@@ -1379,7 +1383,8 @@ irace_run <- function(scenario, parameters)
                                                 instancesList = .irace$instancesList)
       .irace$subsetInstancesList <- generateInstancesPerSubset(scenario,
                                                     n = ceiling(remainingBudget / minSurvival),
-                                                    instanceSubsets)
+                                                    instanceSubsets, unique_subsets)
+      print(.irace$subsetInstancesList)
     }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
