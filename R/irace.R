@@ -374,10 +374,9 @@ irace.init <- function(scenario)
   }
   scenario
 }
-
 generateInstancesPerSubset <- function(scenario, n, subsets, unique_subsets) {
   instance_lists <- list()
-  running_id <- 1  # Initialize running ID
+  last_id <- 0  # Initialize last assigned ID
   
   for (subset_num in unique_subsets) {
     # Get instance information for the current subset number
@@ -396,13 +395,13 @@ generateInstancesPerSubset <- function(scenario, n, subsets, unique_subsets) {
       # Sample seeds
       seeds <- sample.int(2147483647L, size = length(repeated_instances), replace = TRUE)
       
-      # Create instance list with running ID
-      instancesList <- data.frame(instanceID = running_id:(running_id + length(repeated_instances) - 1),
+      # Create instance list with continuous IDs
+      instancesList <- data.frame(instanceID = (last_id + 1):(last_id + length(repeated_instances)),
                                   seed = seeds,
                                   stringsAsFactors = FALSE)
 
-      # Increment running ID
-      running_id <- running_id + length(repeated_instances)
+      # Update last assigned ID
+      last_id <- last_id + length(repeated_instances)
 
       # Store instance list in the result, using SubsetNumber as the key
       instance_lists[[subset_num]] <- instancesList
