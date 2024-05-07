@@ -779,7 +779,7 @@ irace_run <- function(scenario, parameters)
   debugLevel <- scenario$debugLevel
     #Read instance subsets
   instanceSubsetFile <- scenario$instanceSubsetFile
-  instanceSubsets <- readInstanceinstanceSubsets(scenario$instanceSubsetFile)
+  instanceSubsets <- readInstanceSubsets(scenario$instanceSubsetFile)
   cat("Instance subset's: ")
   print(instanceSubsets)
   unique_subsets <- unique(instanceSubsets$SubsetNumber)

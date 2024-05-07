@@ -347,7 +347,6 @@ readScenario <- function(filename = "", scenario = list(),
   }
   irace.note('Reading subset instance file:\n')
   subsets <- readInstanceSubsets('subsetQAP.txt')
-  print(subsets)
   scenario
   
 }
@@ -374,10 +373,13 @@ readInstanceSubsets <- function(filename = "") {
       if (length(parts) == 2) {
         instance_name <- trimws(parts[1])
         subset_number <- as.integer(trimws(parts[2]))
+        
+        # Check if the subset number exists in the list, if not, create it
         if (!(subset_number %in% names(subsets))) {
           subsets[[subset_number]] <- data.frame(InstanceName = character(), SubsetNumber = integer())
         }
-      
+        
+        # Append the instance to the existing subset
         subsets[[subset_number]] <- rbind(subsets[[subset_number]], 
                                           data.frame(InstanceName = instance_name, SubsetNumber = subset_number))
       } else {
