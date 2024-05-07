@@ -1166,15 +1166,14 @@ irace_run <- function(scenario, parameters)
 
     # If we have too many eliteConfigurations, reduce their number. This can
     # happen before the first race due to the initial budget estimation.
-    print(nbConfigurations)
-    print(eliteConfigurations)
+    totalElites <- sum(sapply(eliteConfigurations, function(df) nrow(df)))
     if (firstRace) {
-      if (nbConfigurations < nrow(eliteConfigurations)) {
+      if (nbConfigurations < totalElites) {
         eliteRanks <- overall_ranks(iraceResults$experiments, test = scenario$testType)
         eliteConfigurations <- eliteConfigurations[order(eliteRanks), ]
         eliteConfigurations <- eliteConfigurations[seq_len(nbConfigurations), ]
       }
-    } else if (nbConfigurations <= nrow(eliteConfigurations)) {
+    } else if (nbConfigurations <= totalElites) {
       # Stop if  the number of configurations to produce is not greater than
       # the number of elites.
       catInfo("Stopped because ",
@@ -1186,8 +1185,8 @@ irace_run <- function(scenario, parameters)
     if (scenario$elitist) {
       # The non-elite have to run up to the first test. The elites consume
       # budget at most up to the new instances.
-      if ((nbConfigurations - nrow(eliteConfigurations)) * scenario$mu
-          + nrow(eliteConfigurations) * min(scenario$elitistNewInstances, scenario$mu)
+      if ((nbConfigurations - totalElites) * scenario$mu
+          + totalElites * min(scenario$elitistNewInstances, scenario$mu)
           > currentBudget) {
         catInfo("Stopped because there is not enough budget left to race all configurations up to the first test (or mu).")
         return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
@@ -1338,6 +1337,7 @@ irace_run <- function(scenario, parameters)
       }
       # Append new configurations to the global table.
       allConfigurations <- rbind(allConfigurations, new_configs_subset)
+      print(allConfigurations)
       rownames(allConfigurations) <- allConfigurations[[".ID."]] 
       }
  
