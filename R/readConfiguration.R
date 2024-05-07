@@ -350,10 +350,11 @@ readScenario <- function(filename = "", scenario = list(),
   scenario
   
 }
+
 readInstanceSubsets <- function(filename = "") {
   
-  # Initialize an empty data frame to store instance names and subset numbers
-  all_instances <- data.frame(InstanceName = character(), SubsetNumber = integer())
+  # Initialize an empty data frame to store instance names, subset numbers, and unique IDs
+  all_instances <- data.frame(InstanceName = character(), SubsetNumber = integer(), UniqueID = integer())
   
   # First find out which file...
   filename_given <- filename != ""
@@ -365,6 +366,7 @@ readInstanceSubsets <- function(filename = "") {
   
   if (file.exists(filename)) {
     file_content <- readLines(filename)
+    unique_id <- 1 # Initialize unique ID counter
 
     for (line in file_content) {
 
@@ -374,7 +376,10 @@ readInstanceSubsets <- function(filename = "") {
         subset_number <- as.integer(trimws(parts[2]))
         
         # Create a data frame for the current instance and subset
-        instance_df <- data.frame(InstanceName = instance_name, SubsetNumber = subset_number)
+        instance_df <- data.frame(InstanceName = instance_name, SubsetNumber = subset_number, UniqueID = unique_id)
+        
+        # Increment unique ID counter
+        unique_id <- unique_id + 1
         
         # Append the data frame to the all_instances data frame
         all_instances <- rbind(all_instances, instance_df)
@@ -389,7 +394,6 @@ readInstanceSubsets <- function(filename = "") {
 
   return(all_instances)
 }
-
 
 setup_test_instances <- function(scenario)
 {

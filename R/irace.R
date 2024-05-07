@@ -374,55 +374,56 @@ irace.init <- function(scenario)
   }
   scenario
 }
-
-generateInstancesPerSubset <- function(scenario, n, subsets, instancesList = NULL)
-{
+generateInstancesForSubsets <- function(scenario, n, instance_data = NULL) {
   # If we are adding and the scenario is deterministic, we have already added all instances.
-  if (!is.null(instancesList) && scenario$deterministic) return(instancesList)
+  if (!is.null(instance_data) && scenario$deterministic) return(instance_data)
 
   instances <- scenario$instances
   # Number of times that we need to repeat the set of instances given by the user.
   ntimes <- if (scenario$deterministic) 1L else
-            # "Upper bound"" of instances needed
-            # FIXME: We could bound it even further if maxExperiments >> nInstances
-            ceiling(n / length(instances))
+    # "Upper bound"" of instances needed
+    # FIXME: We could bound it even further if maxExperiments >> nInstances
+    ceiling(n / length(instances))
 
-  # Initialize a running ID count
-  running_id <- 1
-  
-  # Iterate over subsets
-  for (subset_num in unique(subsets$SubsetNumber)) {
-    subset_instances <- subsets[subsets$SubsetNumber == subset_num, ]
-    
-    # Get instances order
-    if (scenario$sampleInstances) {
-      blockSize <- scenario$blockSize
-      n_blocks <- nrow(subset_instances) / blockSize
-      # Sample instances index in groups (ntimes)
-      selected_blocks <- unlist(lapply(rep(n_blocks, ntimes), sample.int, replace = FALSE))
-      sindex <- c(outer(seq_len(blockSize), (selected_blocks - 1L) * blockSize, "+"))
-    } else {
-      sindex <- rep(seq_len(nrow(subset_instances)), ntimes)
-    }
-    
-    # Sample seeds.
-    # 2147483647 is the maximum value for a 32-bit signed integer.
-    # We use replace = TRUE, because replace = FALSE allocates memory for each possible number.
-    subset_instances <- data.frame(instanceID = running_id:(running_id + length(sindex) - 1),
-                                   seed = sample.int(2147483647L, size = length(sindex), replace = TRUE),
-                                   stringsAsFactors = FALSE)
-    # Increment the running ID count
-    running_id <- running_id + length(sindex)
-    
-    # Append the subset instances to the instancesList
-    instancesList <- rbind(instancesList, subset_instances)
+  # Get instances order
+  if (scenario$sampleInstances) {
+    blockSize <- scenario$blockSize
+    n_blocks <- length(instances) / blockSize
+    # Sample instances index in groups (ntimes)
+    selected_blocks <- unlist(lapply(rep(n_blocks, ntimes), sample.int, replace = FALSE))
+    sindex <- c(outer(seq_len(blockSize), (selected_blocks - 1L) * blockSize, "+"))
+  } else {
+    sindex <- rep(seq_along(instances), ntimes)
   }
-
-  return(instancesList)
+  
+  # Sample seeds.
+  # 2147483647 is the maximum value for a 32-bit signed integer.
+  # We use replace = TRUE, because replace = FALSE allocates memory for each possible number.
+  
+  # Initialize a list to store instance + seeds pairs for each subset
+  subset_instance_seeds_list <- list()
+  
+  # Iterate through unique subset numbers
+  unique_subsets <- unique(instance_data$SubsetNumber)
+  for (subset_num in unique_subsets) {
+    subset_instances <- subset(instance_data, SubsetNumber == subset_num)
+    
+    subset_instance_seeds <- data.frame(
+      InstanceID = subset_instances$UniqueID,
+      seed = sample.int(2147483647L, size = nrow(subset_instances), replace = TRUE),
+      stringsAsFactors = FALSE
+    )
+    
+    # Append subset_instance_seeds to the list
+    subset_instance_seeds_list[[as.character(subset_num)]] <- subset_instance_seeds
+  }
+  
+  subset_instance_seeds_list
 }
 
+
 ## Generate instances + seed.
-generateInstances <- function(scenario, n, subsets, instancesList = NULL)
+generateInstances <- function(scenario, n, instancesList = NULL)
 {
   # If we are adding and the scenario is deterministic, we have already added all instances.
   if (!is.null(instancesList) && scenario$deterministic) return(instancesList)
@@ -1394,9 +1395,13 @@ irace_run <- function(scenario, parameters)
         < ceiling(remainingBudget / minSurvival)) {
       .irace$instancesList <- generateInstances(scenario, n = ceiling(remainingBudget / minSurvival),
                                                 instancesList = .irace$instancesList)
-      .irace$subsetInstancesList <- generateInstancesPerSubset(scenario,
+      cat("Instance list:\n")
+      print(.irace$instancesList)
+      .irace$subsetInstancesSubsetList <- generateInstancesPerSubset(scenario,
                                                     n = ceiling(remainingBudget / minSurvival),
                                                     instanceSubsets, unique_subsets)
+      cat("Instance SUBSET list:\n")
+      print(.irace$instancesSubsetList)
     }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
