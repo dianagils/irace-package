@@ -1337,7 +1337,7 @@ irace_run <- function(scenario, parameters)
       }
       # Append new configurations to the global table.
       allConfigurations <- rbind(allConfigurations, new_configs_subset)
-      print(allConfigurations)
+
       rownames(allConfigurations) <- allConfigurations[[".ID."]] 
       }
  

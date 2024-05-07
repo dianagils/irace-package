@@ -305,7 +305,8 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
   instances_matrix <- matrix(NA, nrow = max_length, ncol = length(subsets))
 
   for (i in seq_along(subsets)) {
-    subset <- subsets[[i]]
+    subset_row <- subsets[i, ]
+    print(.irace$subsetInstancesList)
     instances <- .irace$subsetInstancesList[[subset]]
     next_instance <- subset$nextInstance
     
