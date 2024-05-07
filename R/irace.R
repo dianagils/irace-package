@@ -374,6 +374,7 @@ irace.init <- function(scenario)
   }
   scenario
 }
+
 generateInstancesPerSubset <- function(scenario, n, subsets, unique_subsets) {
   instance_lists <- list()
   last_id <- 0  # Initialize last assigned ID
