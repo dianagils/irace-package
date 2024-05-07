@@ -935,6 +935,7 @@ elitist_race <- function(maxExp = 0,
         next
       }
     }
+    }
 
     # We always stop when we have less configurations than required.
     if (nbAlive <= minSurvival && all_elite_instances_evaluated()) {
@@ -986,7 +987,9 @@ elitist_race <- function(maxExp = 0,
         break.msg <- paste0("tests without elimination (", no.elimination,
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
         break
+      }    
       }
+      
 ##     This is not needed anymore... 
 #      else if (current.task > initial.tests && nbAlive <= minSurvival) {
 #        # We can stop the race ONLY when we pass the elite.safe
@@ -997,7 +1000,7 @@ elitist_race <- function(maxExp = 0,
 #                            minSurvival, ")")
 #        break
 #      }
-    }
+
     
                                 
     if (nrow(Results) < current.task) {
@@ -1218,8 +1221,7 @@ elitist_race <- function(maxExp = 0,
         test.done <- TRUE
       }
     }
-  }
-    
+     
     # Merge the result of both eliminations.
     prev.sum.alive <- sum(alive)
     alive <- cap.alive & test.alive
@@ -1292,8 +1294,7 @@ elitist_race <- function(maxExp = 0,
         }
       }
     } 
-  }
-  
+
   if (is.null(break.msg))
     break.msg <- paste0("all instances (", no.tasks, ") evaluated")
 
