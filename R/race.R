@@ -295,62 +295,38 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
                     else seq_len(next_instance - 1L)
   c(new.instances, past_instances, future.instances)
 }
+
 elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
   print(.irace$subsetInstancesList)
+  
   # Find the maximum length of all subsets
   max_length <- max(sapply(subsets, function(subset) nrow(.irace$subsetInstancesList[[subset]])))
-
-  # Initialize a matrix to store instances for each subset
-  instances_matrix <- matrix(NA, nrow = max_length, ncol = length(subsets))
-
-  for (i in seq_along(subsets)) {
-    subset_row <- subsets[i, ]
-    
+  
+  # Initialize a list to store instances for each subset
+  instances_list <- lapply(subsets, function(subset) {
     instances <- .irace$subsetInstancesList[[subset]]
-    next_instance <- subset$nextInstance
-    
-    # If nextInstance is 1, initialize the subset with sequence from 1 to max_instances
-    if (next_instance == 1) {
-      instances_matrix[1:max_instances, i] <- seq_len(max_instances)
+    if (nrow(instances) > 0) {
+      return(instances$InstanceName)
     } else {
-      last_new <- next_instance - 1L + race.env$elitistNewInstances
-
-      if (race.env$elitistNewInstances > 0) {
-        if (last_new > max_instances) {
-          irace.assert(deterministic)
-          last_new <- max_instances
-          new_instances <- next_instance:last_new
-          race.env$elitistNewInstances <- length(new_instances)
-        } else {
-          new_instances <- next_instance:last_new
-        }
-      }
-
-      future_instances <- NULL
-      if ((last_new + 1) <= max_instances) {
-        future_instances <- (last_new + 1):max_instances
-      }
-
-      if (sampleInstances) {
-        past_instances <- sample.int(next_instance - 1L)
-      } else {
-        past_instances <- seq_len(next_instance - 1L)
-      }
-
-      instances_matrix[next_instance:last_new, i] <- new_instances
-      instances_matrix[1:(next_instance - 1), i] <- past_instances
-      if (!is.null(future_instances)) {
-        instances_matrix[(last_new + 1):max_instances, i] <- future_instances
-      }
+      return(character(0))
     }
-  }
-
-  # Flatten the matrix to a single list alternating elements from each column
-  flattened_list <- c(t(instances_matrix))
-
+  })
+  
+  # Flatten the list to a single list alternating elements from each subset
+  flattened_list <- unlist(lapply(seq_len(max_length), function(i) {
+    unlist(lapply(instances_list, function(instances) {
+      if (length(instances) >= i) {
+        return(instances[i])
+      } else {
+        return(NULL)
+      }
+    }))
+  }), use.names = FALSE)
+  
   return(flattened_list)
 }
+
 
 table_hline <- function(widths) {
   s <- "+"
