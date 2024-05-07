@@ -731,7 +731,7 @@ elitist_race <- function(maxExp = 0,
   
   # Create the instance list according to the algorithm selected
   #SUBSETS: maybe build the stream (with alternation here)
-  if (elitist)
+  if (elitist) {
     race.instances <- elitrace.init.instances(race.env,
                                               scenario$deterministic,
                                               max_instances = nrow(.irace$instancesList),
@@ -740,10 +740,12 @@ elitist_race <- function(maxExp = 0,
                                               subsets = subset.data,
                                               scenario$deterministic,
                                               sampleInstances = scenario$sampleInstances)
-  else
+  }
+  else {
   # TODO> DETERMINISTIC 
     race.instances <- no_elitrace.init.instances(scenario$deterministic,
                                                  max_instances = nrow(.irace$instancesList))
+  }
   irace.assert(!anyDuplicated(race.instances))
   irace.assert(identical(sort(race.instances), seq_along(race.instances)))
   no.tasks <- length(race.instances)
