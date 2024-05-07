@@ -374,7 +374,7 @@ irace.init <- function(scenario)
   }
   scenario
 }
-generateInstancesForSubsets <- function(scenario, n, instance_data = NULL) {
+generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
   # If we are adding and the scenario is deterministic, we have already added all instances.
   if (!is.null(instance_data) && scenario$deterministic) return(instance_data)
 
@@ -873,14 +873,17 @@ irace_run <- function(scenario, parameters)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)))
-
+                                                     cat("Instance list:\n")
+    print(.irace$instancesList)
+     
     .irace$subsetInstancesList <- generateInstancesPerSubset(scenario,
                                                     n = if (scenario$maxExperiments != 0)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)),
                                                     instanceSubsets, unique_subsets)
-    
+     cat("Instance SUBSET list:\n")
+    print(.irace$instancesSubsetList)
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
@@ -1395,13 +1398,11 @@ irace_run <- function(scenario, parameters)
         < ceiling(remainingBudget / minSurvival)) {
       .irace$instancesList <- generateInstances(scenario, n = ceiling(remainingBudget / minSurvival),
                                                 instancesList = .irace$instancesList)
-      cat("Instance list:\n")
-      print(.irace$instancesList)
+     
       .irace$subsetInstancesSubsetList <- generateInstancesPerSubset(scenario,
                                                     n = ceiling(remainingBudget / minSurvival),
                                                     instanceSubsets, unique_subsets)
-      cat("Instance SUBSET list:\n")
-      print(.irace$instancesSubsetList)
+
     }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
