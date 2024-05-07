@@ -297,7 +297,7 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
 }
 elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
-  
+  print(.irace$subsetInstancesList)
   # Find the maximum length of all subsets
   max_length <- max(sapply(subsets, function(subset) nrow(.irace$subsetInstancesList[[subset]])))
 
@@ -306,7 +306,7 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
 
   for (i in seq_along(subsets)) {
     subset_row <- subsets[i, ]
-    print(.irace$subsetInstancesList)
+    
     instances <- .irace$subsetInstancesList[[subset]]
     next_instance <- subset$nextInstance
     
