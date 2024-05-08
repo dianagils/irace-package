@@ -295,39 +295,48 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
                     else seq_len(next_instance - 1L)
   c(new.instances, past_instances, future.instances)
 }
-
-elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
-  print(".irace$instanceSubsetList:")
-  print(.irace$instanceSubsetList)
+elitrace.init.instances.subsets <- function(race.env, subsets, subset, deterministic, sampleInstances) {
   all_instances <- list()
-
-  # Find the maximum length of all subsets
-  max_length <- max(sapply(subsets, function(subset) nrow(.irace$instanceSubsetList[[as.character(subset)]])))
-
-  # Initialize a list to store instances for each subset
-  instances_list <- lapply(subsets, function(subset) {
-    instances <- .irace$instanceSubsetList[[as.character(subset)]]
-    if (nrow(instances) > 0) {
-      return(instances$InstanceID)  # Using InstanceID assuming it contains the instance names
+  
+  for (subset_num in subsets) {
+    next_instance <- subset[subset$SubsetNumber == subset_num, "NextInstance"]
+    subset_length <- nrow(.irace$instanceSubsetsList[[as.character(subset_num)]])
+    
+    if (next_instance == 1) {
+      subset_instances <- seq_len(subset_length)
     } else {
-      return(character(0))
-    }
-  })
-
-  # Flatten the list to a single list alternating elements from each subset
-  flattened_list <- unlist(lapply(seq_len(max_length), function(i) {
-    unlist(lapply(instances_list, function(instances) {
-      if (length(instances) >= i) {
-        return(instances[i])
-      } else {
-        return(NULL)
+      new_instances <- NULL
+      last_new <- next_instance - 1L + race.env$elitistNewInstances
+      
+      if (race.env$elitistNewInstances > 0) {
+        if (last_new > subset_length) {
+          irace.assert(deterministic)
+          if (next_instance <= subset_length) {
+            last_new <- subset_length
+            new_instances <- next_instance:last_new
+          }
+          race.env$elitistNewInstances <- length(new_instances)
+        } else {
+          new_instances <- next_instance:last_new
+        }
       }
-    }))
-  }), use.names = FALSE)
-
-  return(flattened_list)
+      
+      future_instances <- NULL
+      if ((last_new + 1) <= subset_length) {
+        future_instances <- (last_new + 1):subset_length
+      }
+      
+      past_instances <- if (sampleInstances) sample.int(next_instance - 1L)
+                        else seq_len(next_instance - 1L)
+      
+      subset_instances <- c(new_instances, past_instances, future_instances)
+    }
+    
+    all_instances[[as.character(subset_num)]] <- subset_instances
+  }
+  
+  return(all_instances)
 }
-
 
 table_hline <- function(widths) {
   s <- "+"
@@ -719,6 +728,7 @@ elitist_race <- function(maxExp = 0,
                                               subsets = subset.data,
                                               scenario$deterministic,
                                               sampleInstances = scenario$sampleInstances)
+    print(race.subsets_instances)                                              
   }
   else {
   # TODO> DETERMINISTIC 
