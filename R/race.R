@@ -758,6 +758,8 @@ elitist_race <- function(maxExp = 0,
   irace.assert(identical(sort(race.instances), seq_along(race.instances)))
   no.tasks <- sum(lengths(race.subsets_instances))
   subsetOrder <- rep(nrow(subset.data), length.out = no.tasks)
+  cat('SUBSET ORDER\n')
+  print(subsetOrder)
 
   # Initialize some variables...
   experimentsUsed <- 0L
@@ -1146,9 +1148,9 @@ elitist_race <- function(maxExp = 0,
     # Execute experiments
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only
-    print(configurations$isAliveInSubset)
-    print(currentSubset[1])
-    race.configs <- configurations[currentSubset %in% configurations$isAliveInSubset, ]
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
+    race.configs <- configurations[indexes,]
+    print(race.configs)
 
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
