@@ -300,20 +300,19 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
   subsets.numbers <- subsets$SubsetNumber
   for (subset_num in subsets.numbers) {
     next_instance <- subsets[subsets$SubsetNumber == subset_num, "NextInstance"]
-    subset_length <- nrow(.irace$instanceSubsetList[[as.character(subset_num)]])
-    print(subset_length)
-    
+    max_instances <- nrow(.irace$instanceSubsetList[[as.character(subset_num)]])
+
     if (next_instance == 1) {
-      subset_instances <- subset_length
+      subset_instances <- seq_len(max_instances)
     } else {
       new_instances <- NULL
       last_new <- next_instance - 1L + race.env$elitistNewInstances
       
       if (race.env$elitistNewInstances > 0) {
-        if (last_new > subset_length) {
+        if (last_new > max_instances) {
           irace.assert(deterministic)
-          if (next_instance <= subset_length) {
-            last_new <- subset_length
+          if (next_instance <= max_instances) {
+            last_new <- max_instances
             new_instances <- next_instance:last_new
           }
           race.env$elitistNewInstances <- length(new_instances)
@@ -323,8 +322,8 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
       }
       
       future_instances <- NULL
-      if ((last_new + 1) <= subset_length) {
-        future_instances <- (last_new + 1):subset_length
+      if ((last_new + 1) <= max_instances) {
+        future_instances <- (last_new + 1):max_instances
       }
       
       past_instances <- if (sampleInstances) sample.int(next_instance - 1L)
