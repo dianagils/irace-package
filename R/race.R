@@ -1146,8 +1146,8 @@ elitist_race <- function(maxExp = 0,
     # Execute experiments
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only
-    print(currentSubset %in% configurations$isAliveInSubset)
-    print(currentSubset)
+    print(configurations$isAliveInSubset)
+    print(currentSubset[1])
     race.configs <- configurations[currentSubset %in% configurations$isAliveInSubset, ]
 
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
