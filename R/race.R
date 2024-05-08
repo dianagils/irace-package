@@ -904,7 +904,7 @@ elitist_race <- function(maxExp = 0,
     # Compute the elite membership.
     is.elite <- colSums2(!is.na(Results))
     # Remove rejected configurations.
-    is.elite[is.rejected] <- 0L
+    #is.elite[is.rejected] <- 0L
   }
 
   no.elimination <- 0 # number of tasks without elimination.
