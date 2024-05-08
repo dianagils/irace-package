@@ -929,9 +929,8 @@ elitist_race <- function(maxExp = 0,
   # Start main loop
   break.msg <- NULL
   best <- NA
-  for (i in seq_len(nrow(subset.data))) {
-      subset.data[i,]$currentSubsetTask <- 1
-    }
+  subset.data$currentSubsetTask <- 1
+
   print(subset.data)
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
