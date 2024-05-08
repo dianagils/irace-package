@@ -766,10 +766,10 @@ elitist_race <- function(maxExp = 0,
   is.elite <- rep(0L, no.configurations)
   totalEliteSafe <- 0L
   # Iterate over each subset
-  for (subset_number in unique(subsets$SubsetNumber)) {
+  for (subset_number in unique(subset.data$SubsetNumber)) {
     # Subset elite data for the current subset
     elite_data_subset <- elite_Data_per_subset[[as.character(subset_number)]]
-    next_instance <- subsets[subsets$SubsetNumber == subset_number, "NextInstance"]
+    next_instance <- subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"]
     
     # Check if elite data is NULL
     if (is.null(elite_data_subset)) {
@@ -909,8 +909,8 @@ elitist_race <- function(maxExp = 0,
 
   if (elitist) {
     all_elite_instances_evaluated <- function() {
-        for (subset_number in unique(subsets$SubsetNumber)) {
-          if (subsets[subsets$SubsetNumber == subset_number, "NextInstance"] == 1L) return(TRUE)
+        for (subset_number in unique(subset.data$SubsetNumber)) {
+          if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) return(TRUE)
           evaluated <- !is.na(Results[, alive, drop=FALSE])
           # All instances that have been previously seen have been evaluated by at
           # least one configuration.
@@ -1152,7 +1152,7 @@ elitist_race <- function(maxExp = 0,
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
-    subsets[[i]]$currentSubsetTask <- subsets[[i]]$currentSubsetTask + 1
+    subset.data[[i]]$currentSubsetTask <- subset.data[[i]]$currentSubsetTask + 1
 
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
