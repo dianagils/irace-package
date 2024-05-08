@@ -701,11 +701,10 @@ elitist_race <- function(maxExp = 0,
     rep(TRUE, length.out = no.configurations)
   })
 
-  rejected_list <- lapply(seq_len(max(configurations$isAliveInSubset)), function(subset_num) {
-    subset_indices <- which(sapply(configurations$isAliveInSubset, function(subsets) subset_num %in% subsets))
-    rep(FALSE, length.out = nrow(configurations))
-  })
-
+  # rejected_list <- lapply(seq_len(max(configurations$isAliveInSubset)), function(subset_num) {
+  #   subset_indices <- which(sapply(configurations$isAliveInSubset, function(subsets) subset_num %in% subsets))
+  #   rep(FALSE, length.out = nrow(configurations))
+  # })
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
   # Check argument: maxExp
