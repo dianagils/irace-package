@@ -935,10 +935,7 @@ elitist_race <- function(maxExp = 0,
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
-    cat('### Current subset:\n')
-    
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
-    cat('### Current subsets task:\n')
     print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
@@ -1151,6 +1148,8 @@ elitist_race <- function(maxExp = 0,
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only
     race.configs <- configurations[currentSubset %in% configurations$isAliveInSubset, ]
+    print(race.configs)
+    print(currentInstance)
 
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
