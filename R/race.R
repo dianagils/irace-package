@@ -929,15 +929,15 @@ elitist_race <- function(maxExp = 0,
   # Start main loop
   break.msg <- NULL
   best <- NA
-  for (i in seq_along(subset.data)) {
-      subset.data[[i]]$currentSubsetTask <- 1
+  for (i in seq_len(nrow(subset.data))) {
+      subset.data[i,]$currentSubsetTask <- 1
     }
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
     cat('### Current subset:\n')
     print(currentSubset)
-    currentSubsetTask <- subset.data[[currentSubset]]$currentSubsetTask
+    currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     cat('### Current subsets task:\n')
     print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
@@ -1159,7 +1159,7 @@ elitist_race <- function(maxExp = 0,
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
-    subset.data[[i]]$currentSubsetTask <- subset.data[[i]]$currentSubsetTask + 1
+    subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
 
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
