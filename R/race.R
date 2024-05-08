@@ -765,7 +765,6 @@ elitist_race <- function(maxExp = 0,
   # been previously evaluated.
   is.elite <- rep(0L, no.configurations)
   totalEliteSafe <- 0L
-  totalInstances
   elite.safe_per_subset <- list()
   elite.instances.ID_per_subset <- list()
   # Iterate over each subset
