@@ -298,21 +298,20 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
 
 elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
-  print(.irace$subsetInstancesList)
-  
+
   # Find the maximum length of all subsets
-  max_length <- max(sapply(subsets, function(subset) nrow(.irace$subsetInstancesList[[subset]])))
-  
+  max_length <- max(sapply(subsets, function(subset) nrow(.irace$instanceSubsetList[[subset]])))
+
   # Initialize a list to store instances for each subset
   instances_list <- lapply(subsets, function(subset) {
-    instances <- .irace$subsetInstancesList[[subset]]
+    instances <- .irace$instanceSubsetList[[subset]]
     if (nrow(instances) > 0) {
       return(instances$InstanceName)
     } else {
       return(character(0))
     }
   })
-  
+
   # Flatten the list to a single list alternating elements from each subset
   flattened_list <- unlist(lapply(seq_len(max_length), function(i) {
     unlist(lapply(instances_list, function(instances) {
@@ -323,7 +322,7 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
       }
     }))
   }), use.names = FALSE)
-  
+
   return(flattened_list)
 }
 

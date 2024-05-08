@@ -413,6 +413,9 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
       stringsAsFactors = FALSE
     )
 
+    # Shuffle the rows randomly
+    subset_instance_seeds <- subset_instance_seeds[sample(nrow(subset_instance_seeds)), ]
+
     # Append subset_instance_seeds to the list
     subset_instance_seeds_list[[as.character(subset_num)]] <- subset_instance_seeds
   }
