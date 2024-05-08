@@ -765,6 +765,7 @@ elitist_race <- function(maxExp = 0,
   # been previously evaluated.
   is.elite <- rep(0L, no.configurations)
   totalEliteSafe <- 0L
+  totalInstances
   elite.safe_per_subset <- list()
   elite.instances.ID_per_subset <- list()
   # Iterate over each subset
@@ -795,6 +796,7 @@ elitist_race <- function(maxExp = 0,
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
+  combined_elite_instances_ID <- unlist(elite.instances.ID_per_subset, recursive = FALSE)
 
   # if (is.null(elite.data)) {
   #   elite.safe <- 0L
@@ -820,9 +822,9 @@ elitist_race <- function(maxExp = 0,
 
   configurations.ID <- as.character(configurations[[".ID."]])
   Results <- matrix(NA,
-                    nrow = totalEliteSafe,
-                    ncol = no.configurations,
-                    dimnames = list(elite.instances.ID, configurations.ID))
+                  nrow = totalEliteSafe,
+                  ncol = no.configurations,
+                  dimnames = list(combined_elite_instances_ID, configurations.ID))
   if (capping)
     experimentsTime <- matrix(NA,
                               nrow = elite.safe,
@@ -830,7 +832,7 @@ elitist_race <- function(maxExp = 0,
                               dimnames = list(elite.instances.ID, configurations.ID))
 
   if (! is.null(elite.data)) {
-    Results[rownames(elite.data), colnames(elite.data)] <- elite.data
+    # Results[rownames(elite.data), colnames(elite.data)] <- elite.data
 
     if (capping) {
       tmp <- generateTimeMatrix(elite_ids = colnames(elite.data), 
