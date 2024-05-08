@@ -875,16 +875,12 @@ irace_run <- function(scenario, parameters)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)))
                                                      cat("Instance list:\n")
-    print(.irace$instancesList)
-     
     .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
                                                     n = if (scenario$maxExperiments != 0)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)),
                                                     instanceSubsets)
-     cat("Instance SUBSET list:\n")
-    print(.irace$instanceSubsetList)
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
