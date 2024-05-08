@@ -810,6 +810,7 @@ irace_run <- function(scenario, parameters)
   subsets$nbConfigurations <- rep(0, nrow(subsets))  
   subsets$experimentsUsedSoFar <- rep(0, nrow(subsets))  
   subsets$timeUsed <- rep(0, nrow(subsets))  
+  subsets$NextInstance <- 1L
 
   # Recover state from file?
   if (!is.null.or.empty(scenario$recoveryFile)) {
