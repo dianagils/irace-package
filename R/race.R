@@ -714,6 +714,7 @@ elitist_race <- function(maxExp = 0,
                                               scenario$deterministic,
                                               max_instances = nrow(.irace$instancesList),
                                               sampleInstances = scenario$sampleInstances)
+    print(race.instances)
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
