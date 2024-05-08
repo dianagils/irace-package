@@ -768,7 +768,7 @@ elitist_race <- function(maxExp = 0,
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
     # Subset elite data for the current subset
-    elite_data_subset <- elite_Data_per_subset[[as.character(subset_number)]]
+    elite_data_subset <- elite.data[[as.character(subset_number)]]
     next_instance <- subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"]
     
     # Check if elite data is NULL
@@ -938,7 +938,7 @@ elitist_race <- function(maxExp = 0,
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
 
-    if (elitist && any(is.elite > 0)) {
+    if (elitist && any(elite.instances.ID_per_subset[[as.character(subset_number)]] > 0)) {
       # Filter configurations that do not need to be executed (elites).
       # This is valid only for previous iteration instances.
       irace.assert(currentSubsetTask <= elite.safe_per_subset[[as.character(currentSubset)]])

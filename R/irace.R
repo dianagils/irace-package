@@ -991,7 +991,7 @@ irace_run <- function(scenario, parameters)
       # Update budget
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
       experimentsUsedSoFar <- experimentsUsedSoFar + nrow(iraceResults$experimentLog)
-      eliteConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, ,drop = FALSE]
+      #eliteConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, ,drop = FALSE]
 
       # Without elitist, the racing does not re-use the results computed during
       # the estimation.  This means that the time used during estimation needs
@@ -1247,12 +1247,12 @@ irace_run <- function(scenario, parameters)
         
         # This is made only in case that the number of configurations used in
         # the time estimation is more than needed.
-        if (nrow(eliteConfigurations) == nbConfigurations) {
-          raceConfigurations <- eliteConfigurations
-        } else {
-          raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
-          raceConfigurations <- raceConfigurations[seq_len(nbConfigurations), , drop = FALSE]
-        }
+        # if (nrow(eliteConfigurations) == nbConfigurations) {
+        #   raceConfigurations <- eliteConfigurations
+        # } else {
+        #   raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
+        #   raceConfigurations <- raceConfigurations[seq_len(nbConfigurations), , drop = FALSE]
+        # }
       } # end of indexIteration == 1
       # since its the first race, add the column of alive with all of the subsets
       # Assuming 'raceConfigurations' is your dataset and 'subsets' is the dataframe containing unique subset numbers
@@ -1461,14 +1461,19 @@ irace_run <- function(scenario, parameters)
     # to carry around rejected ones in raceResults$configurations. This
     # would reduce overhead.
     # SUBSETS: extract elites per subsets. Resultas should be separated by configs per subsets
-    eliteConfigurations <- extractElites(scenario, raceResults$configurations,
-                                         min(raceResults$nbAlive, minSurvival))
-    irace.note("Elite configurations (first number is the configuration ID;",
-               " listed from best to worst according to the ",
-               test.type.order.str(scenario$testType), "):\n")
-    if (!quiet) configurations.print(eliteConfigurations, metadata = debugLevel >= 1L)
-    iraceResults$iterationElites <- c(iraceResults$iterationElites, eliteConfigurations[[".ID."]][1L])
-    iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[".ID."]]
+    configs <- raceResults$configurations
+    for (subset_number in unique(subsets$SubsetNumber)) {
+      aliveSubsetConfigs <- configs[subset_number %in% configs$isAliveInSubset, ]
+      eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
+                                          min(raceResults$nbAlive, minSurvival))
+      irace.note("Elite configurations (first number is the configuration ID;",
+                " listed from best to worst according to the ",
+                test.type.order.str(scenario$testType), "):\n")
+      if (!quiet) configurations.print(eliteConfigurations, metadata = debugLevel >= 1L)
+      iraceResults$iterationElites <- c(iraceResults$iterationElites, eliteConfigurations[[".ID."]][1L])
+      iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[".ID."]] 
+    }
+    
     
     if (firstRace) {
       # SUBSETS: all model calls should be per subset
