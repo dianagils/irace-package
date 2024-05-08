@@ -301,9 +301,10 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
   for (subset_num in subsets.numbers) {
     next_instance <- subsets[subsets$SubsetNumber == subset_num, "NextInstance"]
     subset_length <- nrow(.irace$instanceSubsetsList[[as.character(subset_num)]])
+    print(subset_length)
     
     if (next_instance == 1) {
-      subset_instances <- seq_len(subset_length)
+      subset_instances <- subset_length
     } else {
       new_instances <- NULL
       last_new <- next_instance - 1L + race.env$elitistNewInstances
