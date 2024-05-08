@@ -757,7 +757,8 @@ elitist_race <- function(maxExp = 0,
   irace.assert(!anyDuplicated(race.instances))
   irace.assert(identical(sort(race.instances), seq_along(race.instances)))
   no.tasks <- sum(lengths(race.subsets_instances))
-  subsetOrder <- rep(nrow(subset.data), length.out = no.tasks)
+  unique_subset_numbers <- unique(subset.data$SubsetNumber)
+  subsetOrder <- rep(unique_subset_numbers, length.out = no.tasks)
   cat('SUBSET ORDER\n')
   print(subsetOrder)
 
