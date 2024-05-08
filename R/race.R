@@ -295,11 +295,11 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
                     else seq_len(next_instance - 1L)
   c(new.instances, past_instances, future.instances)
 }
-elitrace.init.instances.subsets <- function(race.env, subsets, subset, deterministic, sampleInstances) {
+elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
-  
-  for (subset_num in subsets) {
-    next_instance <- subset[subset$SubsetNumber == subset_num, "NextInstance"]
+  subsets.numbers <- subsets$SubsetNumber
+  for (subset_num in subsets.numbers) {
+    next_instance <- subsets[subsets$SubsetNumber == subset_num, "NextInstance"]
     subset_length <- nrow(.irace$instanceSubsetsList[[as.character(subset_num)]])
     
     if (next_instance == 1) {
@@ -723,7 +723,6 @@ elitist_race <- function(maxExp = 0,
                                               scenario$deterministic,
                                               max_instances = nrow(.irace$instancesList),
                                               sampleInstances = scenario$sampleInstances)
-    print(race.instances)
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
