@@ -1262,7 +1262,7 @@ elitist_race <- function(maxExp = 0,
     test_dropped_list <- list()
     test_done_list <- list()
     for (i in seq_along(subset.data)) {
-      subset <- subset.data[[i]]
+      subset <- subset.data[as.character(i)]
       print(subset)
       if (subset$currentSubsetTask >= first.test && 
           (subset$currentSubsetTask %% each.test) == 0 && 
