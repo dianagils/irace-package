@@ -1165,7 +1165,8 @@ elitist_race <- function(maxExp = 0,
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
-
+    print(subset.data[currentSubset,]$currentSubsetTask)
+    print(vcost)
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
     # If the experiment was executed or target.evaluator exists
