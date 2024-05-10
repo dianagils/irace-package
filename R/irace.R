@@ -408,7 +408,7 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
 
     # Combine instance IDs and seeds into a data frame
     subset_instance_seeds <- data.frame(
-      InstanceID = repeated_instances,
+      instanceID = repeated_instances,
       seed = unlist(instance_seeds),
       stringsAsFactors = FALSE
     )
