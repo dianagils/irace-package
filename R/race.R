@@ -64,7 +64,7 @@ createExperimentList <- function(configurations, parameters,
 ## bounds: execution bounds (if needed).
 ## which.alive: index of the configurations that are still alive
 ## which.exe: index of the alive configurations that should be executed
-race.wrapper <- function(configurations, instance.idx, bounds = NULL,
+race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL,
                          # FIXME: we actually only need which.exps, not
                          # which.alive nor which.exe
                          which.alive, which.exe, parameters, scenario)
@@ -74,8 +74,8 @@ race.wrapper <- function(configurations, instance.idx, bounds = NULL,
   # Experiment list to execute
   experiments <- createExperimentList(configurations, parameters = parameters,
                                       instances = scenario$instances,
-                                      instances.ID = .irace$instancesList[instance.idx, "instanceID"],
-                                      seeds = .irace$instancesList[instance.idx, "seed"],
+                                      instances.ID = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "instanceID"],
+                                      seeds = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "seed"],
                                       bounds = bounds)
 
   target.output <- vector("list", length(experiments))
@@ -1158,6 +1158,7 @@ elitist_race <- function(maxExp = 0,
 
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
+                           subset.idx = currentSubset,
                            # FIXME: Why are we keeping final.bounds values for configurations that are dead?
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
