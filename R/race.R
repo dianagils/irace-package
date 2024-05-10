@@ -939,6 +939,8 @@ elitist_race <- function(maxExp = 0,
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
+    print(currentSubset)
+    print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
@@ -1147,6 +1149,7 @@ elitist_race <- function(maxExp = 0,
     }
     
     # Execute experiments
+    print(race.subsets_instances[[currentSubset]])
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
