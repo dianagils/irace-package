@@ -1201,7 +1201,7 @@ elitist_race <- function(maxExp = 0,
                                  configurations[which.exe, ".ID."],
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
-    print(experimentLog)
+    cat('experimentLog\n')
     irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
                      eval.after = {
                        print(mget(ls()))
@@ -1210,6 +1210,7 @@ elitist_race <- function(maxExp = 0,
     # We update the elites that have been executed.
     is.elite <- update.is.elite(is.elite, which.elite.exe)
     print(is.elite)
+    cat('cc\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
     rejected <- is.infinite(Results[current.task, which.exe])
