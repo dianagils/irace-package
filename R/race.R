@@ -295,6 +295,7 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
                     else seq_len(next_instance - 1L)
   c(new.instances, past_instances, future.instances)
 }
+
 elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
   subsets.numbers <- subsets$SubsetNumber
@@ -1154,8 +1155,8 @@ elitist_race <- function(maxExp = 0,
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     race.configs <- configurations[indexes,]
-    print(race.configs)
-
+    print(.irace$instanceSubsetList[[as.character(currentSubset)]])
+    print(.irace$instanceSubsetList[[as.character(currentSubset)]][currentInstance])
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,

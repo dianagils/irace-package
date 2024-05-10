@@ -882,6 +882,7 @@ irace_run <- function(scenario, parameters)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)),
                                                     instanceSubsets)
+    print(.irace$instanceSubsetList)
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
