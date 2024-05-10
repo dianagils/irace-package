@@ -419,6 +419,13 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
     # Append subset_instance_seeds to the list
     subset_instance_seeds_list[[as.character(subset_num)]] <- subset_instance_seeds
   }
+  for (subset_num in unique_subsets) {
+  subset_instance_seeds <- subset_instance_seeds_list[[as.character(subset_num)]]
+  # Reset row names to have sequential integers starting from 1
+  rownames(subset_instance_seeds) <- NULL
+  # Update the modified subset_instance_seeds back into the list
+  subset_instance_seeds_list[[as.character(subset_num)]] <- subset_instance_seeds
+  }
 
   subset_instance_seeds_list
 }
@@ -875,7 +882,8 @@ irace_run <- function(scenario, parameters)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)))
-                                                     cat("Instance list:\n")
+                                                     
+     print(.irace$instancesList)
     .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
                                                     n = if (scenario$maxExperiments != 0)
                                                     ceiling(scenario$maxExperiments / minSurvival)

@@ -1155,8 +1155,7 @@ elitist_race <- function(maxExp = 0,
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     race.configs <- configurations[indexes,]
-    print(.irace$instanceSubsetList[[as.character(currentSubset)]])
-    print(.irace$instanceSubsetList[[as.character(currentSubset)]][currentInstance])
+    print(.irace$instanceSubsetList[[as.character(currentSubset)]][1, "InstanceID"])
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
