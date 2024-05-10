@@ -1201,7 +1201,7 @@ elitist_race <- function(maxExp = 0,
                                  configurations[which.exe, ".ID."],
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
-
+    print(experimentLog)
     irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
                      eval.after = {
                        print(mget(ls()))
@@ -1209,10 +1209,11 @@ elitist_race <- function(maxExp = 0,
     experimentsUsed <- experimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite <- update.is.elite(is.elite, which.elite.exe)
-
+    print(is.elite)
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
     rejected <- is.infinite(Results[current.task, which.exe])
+    print(rejected)
     if (any(rejected)) {
       irace.note ("Immediately rejected configurations: ",
                   paste0(configurations[which.exe[rejected], ".ID."],
@@ -1259,8 +1260,9 @@ elitist_race <- function(maxExp = 0,
     test_alive_list <- list()
     test_dropped_list <- list()
     test_done_list <- list()
-    for (i in seq_along(subsets)) {
-      subset <- subsets[[i]]
+    for (i in seq_along(subset.data)) {
+      subset <- subset.data[[i]]
+      print(subset)
       if (subset$currentSubsetTask >= first.test && 
           (subset$currentSubsetTask %% each.test) == 0 && 
           nbAlive > 1L) {
