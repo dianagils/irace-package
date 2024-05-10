@@ -1261,9 +1261,8 @@ elitist_race <- function(maxExp = 0,
     test_alive_list <- list()
     test_dropped_list <- list()
     test_done_list <- list()
-    for (i in seq_along(subset.data)) {
+    for (i in unique(subset.data$SubsetNumber)) {
       subset <- subset.data[as.character(i),]
-      print(subset)
       if (subset$currentSubsetTask >= first.test && 
           (subset$currentSubsetTask %% each.test) == 0 && 
           nbAlive > 1L) {
