@@ -685,7 +685,7 @@ elitist_race <- function(maxExp = 0,
                           dimnames = list(NULL, c("instance", "configuration", "time", "bound")))
 
   alive_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
-
+  rejected_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
   # Iterate over each row of configurations
   for (i in seq_len(no.configurations)) {
     # Extract the list of subsets for the current configuration
@@ -695,17 +695,23 @@ elitist_race <- function(maxExp = 0,
     for (subset in subsets) {
       alive_list[[subset]] <- c(alive_list[[subset]], TRUE)
     }
+    for (subset in seq_along(rejected_list)) {
+    if (!(subset %in% subsets)) {
+      rejected_list[[subset]] <- c(rejected_list[[subset]], TRUE)
+    } else {
+      rejected_list[[subset]] <- c(rejected_list[[subset]], FALSE)
+    }
   }
-
+  }
   # Ensure that each sublist in alive_list has the same length as the number of configurations
   alive_list <- lapply(alive_list, function(x) {
     rep(TRUE, length.out = no.configurations)
   })
 
-  # rejected_list <- lapply(seq_len(max(configurations$isAliveInSubset)), function(subset_num) {
-  #   subset_indices <- which(sapply(configurations$isAliveInSubset, function(subsets) subset_num %in% subsets))
-  #   rep(FALSE, length.out = nrow(configurations))
-  # })
+    rejected_list <- lapply(rejected_list, function(x) {
+    rep(TRUE, length.out = no.configurations)
+  })
+  
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
   # Check argument: maxExp
@@ -824,10 +830,22 @@ elitist_race <- function(maxExp = 0,
   #}
 
   configurations.ID <- as.character(configurations[[".ID."]])
-  Results <- matrix(NA,
-                  nrow = totalEliteSafe,
-                  ncol = no.configurations,
-                  dimnames = list(combined_elite_instances_ID, configurations.ID))
+  # Initialize a list to store matrices for results separated by subsets
+  result_list <- list()
+
+  # Iterate over each subset
+  for (subset_number in unique(subsets$SubsetNumber)) {
+    # Subset configurations for the current subset
+    subset_configs <- configurations[configurations$isAliveInSubset == subset_number, ]
+    
+    # Create a matrix to store results for configurations in the current subset
+    subset_results <- matrix(NA, nrow = totalEliteSafe, ncol = nrow(subset_configs),
+                            dimnames = list(combined_elite_instances_ID, subset_configs$ID))
+    
+    # Store the matrix in the result_list
+    result_list[[as.character(subset_number)]] <- subset_results
+  }
+
   if (capping)
     experimentsTime <- matrix(NA,
                               nrow = elite.safe,
@@ -835,7 +853,12 @@ elitist_race <- function(maxExp = 0,
                               dimnames = list(elite.instances.ID, configurations.ID))
 
   if (! is.null(elite.data)) {
-    # Results[rownames(elite.data), colnames(elite.data)] <- elite.data
+    for (subset_num in unique(subset.data$SubsetNumber)) {
+    subset_elite_data <- elite_data_subset[[subset_num]]
+    subset_results <- result_list[[as.character(subset_num)]]
+    subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
+    result_list[[as.character(subset_number)]] <- subset_results
+    }
 
     if (capping) {
       tmp <- generateTimeMatrix(elite_ids = colnames(elite.data), 
@@ -908,6 +931,7 @@ elitist_race <- function(maxExp = 0,
     # Compute the elite membership.
     is.elite <- colSums2(!is.na(Results))
     # Remove rejected configurations.
+  
     #is.elite[is.rejected] <- 0L
   }
 
@@ -935,7 +959,6 @@ elitist_race <- function(maxExp = 0,
   best <- NA
   subset.data$currentSubsetTask <- 1
 
-  print(subset.data)
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
@@ -1102,7 +1125,7 @@ elitist_race <- function(maxExp = 0,
           
         # We remove elite configurations that are rejected given that
         # is not possible to calculate the bounds
-        rejected <- is.infinite(Results[current.task, which.elite.exe])
+        rejected <- is.infinite(result_list[[currentSubset]][currentSubsetTask, which.exps])
         if (any(rejected)) {
           irace.note ("Immediately rejected configurations: ",
                       paste0(configurations[which.elite.exe[rejected], ".ID."],
@@ -1165,11 +1188,10 @@ elitist_race <- function(maxExp = 0,
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
-    print(subset.data[currentSubset,]$currentSubsetTask)
     
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
-    print(vcost)
+
     # If the experiment was executed or target.evaluator exists
     # then the result is in the output.
     ## Currently, targetEvaluator always re-evaluates, which implies that the
@@ -1183,8 +1205,8 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
-    Results[current.task, which.exps] <- vcost
-    print(Results)
+    result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
+    print(result_list[[currentSubset]])
 
     # Output is not indexed in the same way as configurations.
     which.exps <- which(which.alive %in% which.exe)
@@ -1201,7 +1223,6 @@ elitist_race <- function(maxExp = 0,
                                  configurations[which.exe, ".ID."],
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
-    cat('experimentLog\n')
     irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
                      eval.after = {
                        print(mget(ls()))
@@ -1213,7 +1234,6 @@ elitist_race <- function(maxExp = 0,
     cat('cc\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
-    rejected <- is.infinite(Results[current.task, which.exe])
     print(rejected)
     if (any(rejected)) {
       irace.note ("Immediately rejected configurations: ",
@@ -1227,10 +1247,10 @@ elitist_race <- function(maxExp = 0,
       which.alive <- which(alive)
       nbAlive     <- length(which.alive)
       # FIXME: Should we stop  if (nbAlive <= minSurvival) ???
-      elite.safe <- update.elite.safe(Results, is.elite)  
+      elite.safe <- update.elite.safe(result_list[[currentSubset]], is.elite)  
     }
-    irace.assert(!anyNA(Results[seq_len(current.task), alive, drop=FALSE]))
-    irace.assert(!any(is.infinite(Results[, alive, drop=FALSE])))
+    irace.assert(!anyNA(result_list[[currentSubset]][seq_len(currentSubsetTask), alive, drop=FALSE]))
+    irace.assert(!any(is.infinite(result_list[[currentSubset]][, alive, drop=FALSE])))
     
     # Variables required to produce output of elimination test.
     cap.done     <- FALSE #if dominance elimination was performed
@@ -1271,7 +1291,8 @@ elitist_race <- function(maxExp = 0,
         # Get unique instance IDs from .irace$instanceSubsetList
         unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(subset_num)]]$instanceID)
 
-        filteredResults <- Results[configurations$currentSubset %in% configurations$isAliveInSubset, unique_instance_ids]
+        filteredResults <-  result_list[[currentSubset]]
+
 
         # Perform the test based on the condition
         test.res <- switch(
@@ -1288,15 +1309,18 @@ elitist_race <- function(maxExp = 0,
         test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
         test_done_list[[i]] <- TRUE
       }
+      prev.sum.alive <- sum(alive)
+      alive_list[[i]] <- cap.alive & test_alive_list[[i]]
     }
      
     # Merge the result of both eliminations.
-    prev.sum.alive <- sum(alive)
-    alive <- cap.alive & test.alive
+    # prev.sum.alive <- sum(alive)
+    # alive <- cap.alive & test.alive
+    # print
     
     # Handle elites when elimination is performed.  The elite configurations
     # can be removed only when they have no more previously-executed instances.
-    irace.assert(!any(is.elite > 0) == (current.task >= elite.safe))
+    irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
     if (!is.null(elite.data) && any(is.elite > 0)) {
       irace.assert (length(alive) == length(is.elite))
       alive <- alive | (is.elite > 0)
@@ -1328,9 +1352,10 @@ elitist_race <- function(maxExp = 0,
       race.ranks <- 1L
       best <- which.alive
     } else  {
-      tmpResults <- Results[seq_len(current.task), which.alive, drop = FALSE]
+      tmpResults <- result_list[[currentSubset]][seq_len(currentSubsetTask), which.alive, drop = FALSE]
       irace.assert(!any(is.na(tmpResults)))
       race.ranks <- get_ranks(tmpResults, test = stat.test) 
+      print(race.ranks)
       # which.min returns only the first minimum.
       best <- which.alive[which.min(race.ranks)]
     }
@@ -1344,17 +1369,17 @@ elitist_race <- function(maxExp = 0,
     race.ranks <- race.ranks[which.alive]
     irace.assert(length(race.ranks) == sum(alive))
     id_best <- configurations[[".ID."]][best]
-    print_task(res.symb, Results[seq_len(current.task), , drop = FALSE],
-               race.instances[current.task],
-               current.task, alive = alive,
+    print_task(res.symb, result_list[[currentSubset]][seq_len(currentSubsetTask), , drop = FALSE],
+                currentInstance,
+               currentSubsetTask, alive = alive,
                id_best = id_best, best = best, experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
     
     if (elitist) {
       # Compute number of statistical tests without eliminations.
-      irace.assert(!any(is.elite > 0) == (current.task >= elite.safe))
+      irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
       if (!any(is.elite > 0)
-          && current.task > first.test && (current.task %% each.test) == 0) {
+          && currentSubsetTask > first.test && (currentSubsetTask %% each.test) == 0) {
         if (length(which.alive) == length(prev.alive)) {
           no.elimination <- no.elimination + 1L
         } else {
