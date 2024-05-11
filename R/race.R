@@ -836,9 +836,8 @@ elitist_race <- function(maxExp = 0,
 
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
-    # Subset configurations for the current subset
-    subset_configs <- configurations[configurations$isAliveInSubset == subset_number, ]
-    
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
+    subset_configs <- configurations[indexes,]
     # Create a matrix to store results for configurations in the current subset
     subset_results <- matrix(NA, nrow = totalEliteSafe, ncol = nrow(subset_configs),
                             dimnames = list(combined_elite_instances_ID, subset_configs$ID))
