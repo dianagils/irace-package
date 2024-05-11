@@ -966,8 +966,6 @@ elitist_race <- function(maxExp = 0,
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
-    print(currentSubset)
-    print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
@@ -1081,9 +1079,9 @@ elitist_race <- function(maxExp = 0,
 
     
                                 
-    if (nrow(Results) < current.task) {
-      Results <- rbind(Results, rep(NA, ncol(Results)))
-      rownames(Results) <- race.instances[seq_nrow(Results)]
+    if (nrow(result_list[[as.character(subset_number)]] ) < currentSubsetTask) {
+      result_list[[as.character(subset_number)]]  <- rbind(result_list[[as.character(subset_number)]] , rep(NA, ncol(result_list[[as.character(subset_number)]] )))
+      rownames(result_list[[as.character(subset_number)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
       if (capping) {
         experimentsTime <- rbind(experimentsTime, rep(NA, ncol(experimentsTime)))
         rownames(experimentsTime) <- race.instances[seq_nrow(experimentsTime)]
