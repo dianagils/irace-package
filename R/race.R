@@ -1094,7 +1094,7 @@ elitist_race <- function(maxExp = 0,
     final.bounds <- elite.bound <- NULL
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite > 0))
-    irace.assert(setequal(which.elite.exe, which(is.elite & is.na(Results[current.task,]))))
+    irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
       # Pre-execute elite configurations that are not yet executed in the current instance.
       if (length(which.elite.exe)) {
