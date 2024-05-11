@@ -853,13 +853,15 @@ elitist_race <- function(maxExp = 0,
                               ncol = no.configurations, 
                               dimnames = list(elite.instances.ID, configurations.ID))
 
-  if (! is.null(elite.data)) {
+    is.elite <- list()
     for (subset_num in unique(subset.data$SubsetNumber)) {
-    subset_elite_data <- elite_data_subset[[subset_num]]
-    subset_results <- result_list[[as.character(subset_num)]]
-    subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
-    result_list[[as.character(subset_number)]] <- subset_results
-    }
+      if (! is.null(elite.data[[subset_num]])) {
+      subset_elite_data <- elite_data_subset[[subset_num]]
+      subset_results <- result_list[[as.character(subset_num)]]
+      subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
+      result_list[[as.character(subset_number)]] <- subset_results
+      is.elite[[as.character(subset_number)]] <- colSums2(!is.na( result_list[[as.character(subset_number)]]))
+      }
 
     if (capping) {
       tmp <- generateTimeMatrix(elite_ids = colnames(elite.data), 
@@ -930,7 +932,7 @@ elitist_race <- function(maxExp = 0,
       }
     }
     # Compute the elite membership.
-    is.elite <- colSums2(!is.na(Results))
+   
     # Remove rejected configurations.
   
     #is.elite[is.rejected] <- 0L
