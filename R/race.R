@@ -855,8 +855,8 @@ elitist_race <- function(maxExp = 0,
 
     is.elite <- list()
     for (subset_num in unique(subset.data$SubsetNumber)) {
-      if (! is.null(elite.data[[subset_num]])) {
-      subset_elite_data <- elite_data_subset[[subset_num]]
+      if (! is.null(elite.data[[as.character(subset_num)]])) {
+      subset_elite_data <- elite.data[[as.character(subset_num)]]
       subset_results <- result_list[[as.character(subset_num)]]
       subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
       result_list[[as.character(subset_number)]] <- subset_results
