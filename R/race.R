@@ -805,6 +805,7 @@ elitist_race <- function(maxExp = 0,
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
+  print(elite.instances.ID_per_subset)
   combined_elite_instances_ID <- unlist(elite.instances.ID_per_subset, recursive = FALSE)
 
   # if (is.null(elite.data)) {
@@ -834,7 +835,7 @@ elitist_race <- function(maxExp = 0,
   result_list <- list()
 
   # Iterate over each subset
-  for (subset_number in unique(subsets$SubsetNumber)) {
+  for (subset_number in unique(subset.data$SubsetNumber)) {
     # Subset configurations for the current subset
     subset_configs <- configurations[configurations$isAliveInSubset == subset_number, ]
     
@@ -845,6 +846,7 @@ elitist_race <- function(maxExp = 0,
     # Store the matrix in the result_list
     result_list[[as.character(subset_number)]] <- subset_results
   }
+  
 
   if (capping)
     experimentsTime <- matrix(NA,
