@@ -1208,8 +1208,9 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
+    print(currentSubsetTask)
     print(which.exps)
-    print(result_list[[currentSubset]])
+    print(dim(result_list[[currentSubset]]))
     result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
     
 
