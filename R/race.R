@@ -1206,13 +1206,9 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
-    print(currentSubsetTask)
-    print(which.exps)
-    print(dim(result_list[[currentSubset]]))
-    print(race.env$elitistNewInstances)
+    result_list[[currentSubset]] <- rbind(result_list[[currentSubset]], rep(NA, length(which.exps)))
     result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
     
-
     # Output is not indexed in the same way as configurations.
     which.exps <- which(which.alive %in% which.exe)
     irace.assert(length(which.exps) == length(which.exe))
