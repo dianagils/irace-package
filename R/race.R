@@ -1189,10 +1189,11 @@ elitist_race <- function(maxExp = 0,
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
-    subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
+    
     
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
+    print(vcost)
 
     # If the experiment was executed or target.evaluator exists
     # then the result is in the output.
@@ -1207,8 +1208,10 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
+    print(which.exps)
     result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
     print(result_list[[currentSubset]])
+    subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
 
     # Output is not indexed in the same way as configurations.
     which.exps <- which(which.alive %in% which.exe)
