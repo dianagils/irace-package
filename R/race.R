@@ -774,7 +774,6 @@ elitist_race <- function(maxExp = 0,
   # is.elite[i] : number of instances to be seen in this race on which i has
   # been previously evaluated.
   is.elite <- rep(0L, no.configurations)
-  totalEliteSafe <- 0L
   elite.safe_per_subset <- list()
   elite.instances.ID_per_subset <- list()
   # Iterate over each subset
@@ -799,7 +798,6 @@ elitist_race <- function(maxExp = 0,
       # Calculate elite.safe for the current subset
       elite.safe <- race.env$elitistNewInstances + nrow(elite_data_subset)
       elite.safe_per_subset[[as.character(subset_number)]] <- elite.safe
-      totalEliteSafe <- totalEliteSafe + elite.safe
       # Generate elite.instances.ID for the current subset
       elite.instances.ID <- as.character(race.instances[seq_len(elite.safe)])
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
@@ -839,7 +837,7 @@ elitist_race <- function(maxExp = 0,
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     subset_configs <- configurations[indexes,]
     # Create a matrix to store results for configurations in the current subset
-    subset_results <- matrix(NA, nrow = totalEliteSafe, ncol = nrow(subset_configs),
+    subset_results <- matrix(NA, nrow = elite.safe_per_subset[[as.character(subset_number)]], ncol = nrow(subset_configs),
                             dimnames = list(combined_elite_instances_ID, subset_configs$ID))
     
     # Store the matrix in the result_list
@@ -1211,6 +1209,7 @@ elitist_race <- function(maxExp = 0,
     print(currentSubsetTask)
     print(which.exps)
     print(dim(result_list[[currentSubset]]))
+    print(race.env$elitistNewInstances)
     result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
     
 
