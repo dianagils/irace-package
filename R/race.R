@@ -1277,12 +1277,13 @@ elitist_race <- function(maxExp = 0,
     # case, this will only do the first test after the first multiple
     # of each.test that is larger than first.test.
     # SUBSETS: MODIFY TO PERFORM N ELIMINATION TESTS
-    test_res_list <- list()
-    race_ranks_list <- list()
-    test_alive_list <- list()
-    test_dropped_list <- list()
-    test_done_list <- list()
-    for (i in unique(subset.data$SubsetNumber)) {
+    nSubsets <- unique(subset.data$SubsetNumber)
+    test_res_list <- vector("list", length(nSubsets))
+    race_ranks_list <- vector("list", length(nSubsets))
+    test_alive_list <- vector("list", length(nSubsets))
+    test_dropped_list <- vector("list", length(nSubsets))
+    test_done_list <- vector("list", length(nSubsets))
+    for (i in Subsets) {
       subset <- subset.data[as.character(i),]
       if (subset$currentSubsetTask >= first.test && 
           (subset$currentSubsetTask %% each.test) == 0 && 
