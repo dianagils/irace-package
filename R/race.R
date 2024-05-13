@@ -1283,7 +1283,7 @@ elitist_race <- function(maxExp = 0,
     test_alive_list <- vector("list", length(nSubsets))
     test_dropped_list <- vector("list", length(nSubsets))
     test_done_list <- vector("list", length(nSubsets))
-    for (i in Subsets) {
+    for (i in nSubsets) {
       subset <- subset.data[as.character(i),]
       if (subset$currentSubsetTask >= first.test && 
           (subset$currentSubsetTask %% each.test) == 0 && 
