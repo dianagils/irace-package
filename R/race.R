@@ -1231,9 +1231,9 @@ elitist_race <- function(maxExp = 0,
                      })
     experimentsUsed <- experimentsUsed + length(which.exe)
     # We update the elites that have been executed.
-    print(is.elite)
+    print(is.elite[[as.character(subset_number)]])
     print(which.exe)
-    is.elite <- update.is.elite(is.elite, which.elite.exe)
+    is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
     
     cat('cc\n')
     ## Drop bad configurations.
