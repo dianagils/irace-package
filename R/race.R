@@ -614,6 +614,7 @@ overall_ranks <- function(x, test)
 update.is.elite <- function(is.elite, which.exe)
 {
   which.notexecuted <- setdiff(which(is.elite > 0), which.exe) 
+  print(which.notexecuted)
   is.elite[which.notexecuted] <- is.elite[which.notexecuted] - 1L
   irace.assert (all(is.elite >= 0))
   is.elite
@@ -1230,8 +1231,10 @@ elitist_race <- function(maxExp = 0,
                      })
     experimentsUsed <- experimentsUsed + length(which.exe)
     # We update the elites that have been executed.
-    is.elite <- update.is.elite(is.elite, which.elite.exe)
     print(is.elite)
+    print(which.exe)
+    is.elite <- update.is.elite(is.elite, which.elite.exe)
+    
     cat('cc\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
