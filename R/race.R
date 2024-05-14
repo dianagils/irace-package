@@ -1316,7 +1316,7 @@ elitist_race <- function(maxExp = 0,
       prev.sum.alive <- sum(alive)
       alive_list[[i]] <- cap.alive & test_alive_list[[i]]
     }
-     
+    cat('cc\n')
     # Merge the result of both eliminations.
     # prev.sum.alive <- sum(alive)
     # alive <- cap.alive & test.alive
@@ -1340,6 +1340,7 @@ elitist_race <- function(maxExp = 0,
       }
       alive <- cap.alive
     }
+    cat('cc\n')
     
     # Output the result of the elimination test
     res.symb <- if (cap.dropped && !test.dropped && prev.sum.alive != sum(alive)) {
@@ -1352,6 +1353,7 @@ elitist_race <- function(maxExp = 0,
     # LESLIE: we have to make the ranking outside: we can have configurations eliminated by capping
     # that are not eliminated by the test.
     # MANUEL: I don't understand the above comment.
+    cat('cc\n')
     
     if (length(which.alive) == 1L) {
       race.ranks[[as.character(currentSubset)]] <- 1L
@@ -1363,7 +1365,7 @@ elitist_race <- function(maxExp = 0,
       # which.min returns only the first minimum.
       best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(currentSubset)]])]
     }
-    
+    cat('cc\n')
     irace.assert(best_list[[as.character(currentSubset)]] == which.alive[order(race.ranks[[as.character(currentSubset)]])][1L])
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == length(which.alive))
 
@@ -1378,7 +1380,7 @@ elitist_race <- function(maxExp = 0,
                currentSubsetTask, alive = alive,
                id_best = id_best, best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
-    
+    cat('cc\n')
     if (elitist) {
       # Compute number of statistical tests without eliminations.
       irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
@@ -1392,6 +1394,7 @@ elitist_race <- function(maxExp = 0,
       }
     } 
   }
+  cat('ccn\n')
   # end loop
   if (is.null(break.msg))
     break.msg <- paste0("all instances (", no.tasks, ") evaluated")
@@ -1422,14 +1425,14 @@ elitist_race <- function(maxExp = 0,
     old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
     best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
     mean_best <- mean(Results[, best_list[[as.character(currentSubset)]]])
-    print_footer(bestconf = configurations[best_list[[as.character(currentSubset)]], , drop = FALSE],
-                 # FIXME: This is the mean of the best, but perhaps it
-                 # should be the sum of ranks in the case of test ==
-                 # friedman?
-                 mean.best = mean_best,
-                 break.msg = break.msg, debug.level = scenario$debugLevel, 
-                 capping = capping,
-                 old_best_id  = if (old_best == best_list[[as.character(currentSubset)]] || is.na(old_best)) NULL else id_best)
+    # print_footer(bestconf = configurations[best_list[[as.character(currentSubset)]], , drop = FALSE],
+    #              # FIXME: This is the mean of the best, but perhaps it
+    #              # should be the sum of ranks in the case of test ==
+    #              # friedman?
+    #              mean.best = mean_best,
+    #              break.msg = break.msg, debug.level = scenario$debugLevel, 
+    #              capping = capping,
+    #              old_best_id  = if (old_best == best_list[[as.character(currentSubset)]] || is.na(old_best)) NULL else id_best)
     }
 
     nbAlive <- sum(alive)
