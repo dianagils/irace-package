@@ -962,6 +962,7 @@ elitist_race <- function(maxExp = 0,
   subset.data$currentSubsetTask <- 1
   nSubsets <- unique(subset.data$SubsetNumber)
   race.ranks <- vector("list", length(nSubsets))
+  print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
@@ -1420,8 +1421,8 @@ elitist_race <- function(maxExp = 0,
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
     best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
-    mean_best <- mean(Results[, best])
-    print_footer(bestconf = configurations[best, , drop = FALSE],
+    mean_best <- mean(Results[, best_list[[as.character(currentSubset)]]])
+    print_footer(bestconf = configurations[best_list[[as.character(currentSubset)]], , drop = FALSE],
                  # FIXME: This is the mean of the best, but perhaps it
                  # should be the sum of ranks in the case of test ==
                  # friedman?
