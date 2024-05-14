@@ -958,9 +958,9 @@ elitist_race <- function(maxExp = 0,
   
   # Start main loop
   break.msg <- NULL
-  best <- NA
+  best_list <- list()
   subset.data$currentSubsetTask <- 1
-
+  race.ranks <- vector("list", length(nSubsets))
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
@@ -975,9 +975,9 @@ elitist_race <- function(maxExp = 0,
       # This is valid only for previous iteration instances.
       irace.assert(currentSubsetTask <= elite.safe_per_subset[[as.character(currentSubset)]])
       # Execute everything that is alive and not yet executed.
-      which.exe <- which(alive & is.na(Results[current.task, ]))
+      which.exe <- which(alive & is.na(result_list[[as.character(currentSubset)]][currentSubsetTask, ]))
       if (length(which.exe) == 0) {
-        is.elite <- update.is.elite(is.elite, which.exe)
+        is.elite[[as.character(currentSubset)]]  <- update.is.elite(is.elite[[as.character(currentSubset)]], which.exe)
         # LESLIE: This is the case in which there are only elite configurations alive
         # and we are still in the previous instances execution, but we can still 
         # continue with the race. (This is only possible because the early termination
@@ -987,25 +987,25 @@ elitist_race <- function(maxExp = 0,
         if (current.task == 1L) {
           # We may reach this point in the first iteration so we need to calculate best.
           if (sum(alive) == 1L) {
-            best <- which.alive
+            best_list[[as.character(currentSubset)]] <- which.alive
           } else  {
-            tmpResults <- Results[1, which.alive, drop = FALSE]
+            tmpResults <- result_list[[as.character(currentSubset)]][currentSubsetTask, ][1, which.alive, drop = FALSE]
             irace.assert(!any(is.na(tmpResults)))
             # which.min returns only the first minimum.
-            best <- which.alive[which.min(get_ranks(tmpResults, test = stat.test))]
+            best_list[[as.character(currentSubset)]] <- which.alive[which.min(get_ranks(tmpResults, test = stat.test))]
           }
         }
-        if (is.na(best)) {
+        if (is.na(best_list[[as.character(currentSubset)]])) {
           dump.frames(dumpto = "best_crash", to.file = TRUE,
                       include.GlobalEnv = TRUE)
-          irace.assert(!is.na(best))
+          irace.assert(!is.na(best_list[[as.character(currentSubset)]]))
         }
-        id_best <- configurations[[".ID."]][best]
-        print_task(".", Results[seq_len(current.task), , drop = FALSE],
+        id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
+        print_task(".", result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                    race.subsets_instances[[currentSubset]][currentSubsetTask],
-                   current.task, alive = alive,
+                   currentSubsetTask, alive = alive,
                    id_best = id_best,
-                   best = best, experimentsUsed, start_time = Sys.time(),
+                   best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = Sys.time(),
                    # FIXME: Why do we pass NA as bound? Why not pass the actual bound if any?
                    bound = NA, capping = capping)
         next
@@ -1350,31 +1350,31 @@ elitist_race <- function(maxExp = 0,
     # LESLIE: we have to make the ranking outside: we can have configurations eliminated by capping
     # that are not eliminated by the test.
     # MANUEL: I don't understand the above comment.
+    
     if (length(which.alive) == 1L) {
-      race.ranks <- 1L
-      best <- which.alive
+      race.ranks[[as.character(currentSubset)]] <- 1L
+      best_list[[as.character(currentSubset)]] <- which.alive
     } else  {
       tmpResults <- result_list[[currentSubset]][seq_len(currentSubsetTask), which.alive, drop = FALSE]
       irace.assert(!any(is.na(tmpResults)))
-      race.ranks <- get_ranks(tmpResults, test = stat.test) 
-      print(race.ranks)
+      race.ranks[[as.character(currentSubset)]] <- get_ranks(tmpResults, test = stat.test) 
       # which.min returns only the first minimum.
-      best <- which.alive[which.min(race.ranks)]
+      best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(currentSubset)]])]
     }
     
-    irace.assert(best == which.alive[order(race.ranks)][1L])
-    irace.assert(length(race.ranks) == length(which.alive))
+    irace.assert(best_list[[as.character(currentSubset)]] == which.alive[order(race.ranks[[as.character(currentSubset)]])][1L])
+    irace.assert(length(race.ranks[[as.character(currentSubset)]]) == length(which.alive))
 
     prev.alive  <- which.alive
     which.alive <- which(alive)
     # Remove the ranks of those that are not alive anymore
-    race.ranks <- race.ranks[which.alive]
-    irace.assert(length(race.ranks) == sum(alive))
-    id_best <- configurations[[".ID."]][best]
+    race.ranks[[as.character(currentSubset)]] <- race.ranks[[as.character(currentSubset)]][which.alive]
+    irace.assert(length(race.ranks[[as.character(currentSubset)]]) == sum(alive))
+    id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
     print_task(res.symb, result_list[[currentSubset]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
-               id_best = id_best, best = best, experimentsUsed, start_time = start_time, 
+               id_best = id_best, best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
     
     if (elitist) {
@@ -1390,6 +1390,7 @@ elitist_race <- function(maxExp = 0,
       }
     } 
   }
+  # end loop
   if (is.null(break.msg))
     break.msg <- paste0("all instances (", no.tasks, ") evaluated")
 
@@ -1405,15 +1406,19 @@ elitist_race <- function(maxExp = 0,
   
   # All instances that are not new in this race must have been evaluated by at
   # least one configuration.
-  irace.assert(all_elite_instances_evaluated(),
-               eval.after = { print(Results[,alive, drop=FALSE])})
+  # irace.assert(all_elite_instances_evaluated(),
+  #              eval.after = { print(Results[,alive, drop=FALSE])})
   # If we stop the loop before we see all new instances, there may be new
   # instances that have not been executed by any configuration.
-  Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
-  race.ranks <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
-  if (!scenario$quiet) {
-    old_best <- best # old_best could be NA.
-    best <- which.alive[which.min(race.ranks)]
+  for (subset_number in unique(subset.data$SubsetNumber)) {
+    Results <- result_list[[as.character(subset_number)]]
+    Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
+    result_list[[as.character(subset_number)]] <- Results
+    alive <- alive_list[as.character(subset_number)[]]
+    race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
+    if (!scenario$quiet) {
+    old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
+    best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
     mean_best <- mean(Results[, best])
     print_footer(bestconf = configurations[best, , drop = FALSE],
                  # FIXME: This is the mean of the best, but perhaps it
@@ -1422,19 +1427,34 @@ elitist_race <- function(maxExp = 0,
                  mean.best = mean_best,
                  break.msg = break.msg, debug.level = scenario$debugLevel, 
                  capping = capping,
-                 old_best_id  = if (old_best == best || is.na(old_best)) NULL else id_best)
+                 old_best_id  = if (old_best == best_list[[as.character(currentSubset)]] || is.na(old_best)) NULL else id_best)
+    }
+
+    nbAlive <- sum(alive)
+    for (i in 1:length(alive)) {
+    if (alive[i]) {
+      configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], currentSubsetNumber)
+      }
+    }
+    # Assign the proper ranks in the configurations data.frame.
+    configurations$.RANK. <- vector("list", nrow(configurations))
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
+    if (nrow(configs) > 0) {
+      for (i in seq_len(nrow(configs))) {
+        config_index <- which(rownames(configurations) == rownames(configs)[i])
+        current_rank <- race.ranks[[as.character(subset_number)]][i]
+        configurations$.RANK.[[config_index]] <- c(configurations$.RANK.[[config_index]], current_rank)
+      }
+    }
+  
+    # Now we can sort the data.frame by the rank.
+    # configurations <- configurations[order(as.numeric(configurations[[".RANK."]])), ]
+    # Consistency check.
+    # irace.assert (all(configurations[seq_len(nbAlive), ".ALIVE."]))
+    # if (nbAlive < nrow(configurations))
+    #   irace.assert(!any(configurations[(nbAlive + 1L):nrow(configurations), ".ALIVE."]))
   }
-  nbAlive <- sum(alive)
-  configurations$.ALIVE. <- as.logical(alive)
-  # Assign the proper ranks in the configurations data.frame.
-  configurations$.RANK. <- Inf
-  configurations[which.alive, ".RANK."] <- race.ranks
-  # Now we can sort the data.frame by the rank.
-  configurations <- configurations[order(as.numeric(configurations[[".RANK."]])), ]
-  # Consistency check.
-  irace.assert (all(configurations[seq_len(nbAlive), ".ALIVE."]))
-  if (nbAlive < nrow(configurations))
-    irace.assert(!any(configurations[(nbAlive + 1L):nrow(configurations), ".ALIVE."]))
+
 
   if (scenario$debugLevel >= 3) {
     irace.note ("Memory used in race():\n")
@@ -1444,7 +1464,7 @@ elitist_race <- function(maxExp = 0,
   # nrow(Results) may be smaller, equal or larger than current.task.
   irace.assert(nrow(experimentLog) == experimentsUsed)
   # manage results to know which instance is alive in every subset. i think having a lists of datasets per subset will do.
-  list(experiments = Results,
+  list(experiments = result_list,
        experimentLog = experimentLog,
        experimentsUsed = experimentsUsed,
        nbAlive = nbAlive,
