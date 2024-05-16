@@ -708,6 +708,8 @@ elitist_race <- function(maxExp = 0,
   alive_list <- lapply(alive_list, function(x) {
     rep(TRUE, length.out = no.configurations)
   })
+  cat('alive list \n')
+  print(alive_list)
 
     rejected_list <- lapply(rejected_list, function(x) {
     rep(TRUE, length.out = no.configurations)
@@ -969,6 +971,7 @@ elitist_race <- function(maxExp = 0,
     currentSubset <- subsetOrder[current.task]
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     alive <- alive_list[[currentSubset]]
+    print(alive)
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
