@@ -1321,9 +1321,9 @@ elitist_race <- function(maxExp = 0,
         test_alive_list[[i]] <- test.res$alive
         test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
         test_done_list[[i]] <- TRUE
+        prev.sum.alive <- sum(alive)
+        alive_list[[i]] <- cap.alive & test_alive_list[[i]] 
       }
-      prev.sum.alive <- sum(alive)
-      alive_list[[i]] <- cap.alive & test_alive_list[[i]]
     }
     cat('cc\n')
     # Merge the result of both eliminations.
