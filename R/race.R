@@ -1421,6 +1421,7 @@ elitist_race <- function(maxExp = 0,
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
     alive <- alive_list[[as.character(subset_number)]]
+    print(alive)
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
