@@ -971,12 +971,11 @@ elitist_race <- function(maxExp = 0,
     print(current.task)
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
-    print(currentSubset)
+    print(currentSubset[1])
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
-    print(alive)
-    alive2 <- alive_list[[currentSubset + 1]]
+    print(alive_list)
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
