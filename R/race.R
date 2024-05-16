@@ -967,9 +967,12 @@ elitist_race <- function(maxExp = 0,
   cat('NO TASKS')
   print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
+    print(current.task)
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
+    print(currentSubset)
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
+    print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
     print(alive)
     which.alive <- which(alive)
@@ -1025,6 +1028,7 @@ elitist_race <- function(maxExp = 0,
       break.msg <- paste0("number of alive configurations (", nbAlive,
                           ") <= minimum number of configurations (",
                           minSurvival, ")")
+      cat('AQUI\n')
       break
     }
     # LESLIE: FIXME: Stopping deactivated by Thomas suggestion. Remove second
