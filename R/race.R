@@ -962,6 +962,7 @@ elitist_race <- function(maxExp = 0,
   subset.data$currentSubsetTask <- 1
   nSubsets <- unique(subset.data$SubsetNumber)
   race.ranks <- vector("list", length(nSubsets))
+  cat('NO TASKS')
   print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
     # which subset and task im executing
