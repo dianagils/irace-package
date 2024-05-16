@@ -973,13 +973,13 @@ elitist_race <- function(maxExp = 0,
     print(currentSubset)
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     print(currentSubsetTask)
-    alive <- alive_list[[currentSubset]]
+    alive <- alive_list[[as.character(currentSubset)]]
     print(alive)
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
 
-    if (elitist && any(elite.instances.ID_per_subset[[as.character(subset_number)]] > 0)) {
+    if (elitist && any(elite.instances.ID_per_subset[[as.character(currentSubset)]] > 0)) {
       # Filter configurations that do not need to be executed (elites).
       # This is valid only for previous iteration instances.
       irace.assert(currentSubsetTask <= elite.safe_per_subset[[as.character(currentSubset)]])
