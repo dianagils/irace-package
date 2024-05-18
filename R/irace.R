@@ -1087,7 +1087,7 @@ irace_run <- function(scenario, parameters)
             paste0("# boundMax: ", scenario$boundMax, "\n"),
           verbose = FALSE)
 
-  
+  doneSubsets <- data.frame()
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
@@ -1116,14 +1116,33 @@ irace_run <- function(scenario, parameters)
     if (scenario$elitist)
       irace.assert(sum(!is.na(iraceResults$experiments)) == experimentsUsedSoFar)
 
-    if (remainingBudget <= 0) {
-      catInfo("Stopped because budget is exhausted")
-      return(irace_finish(iraceResults, scenario, reason = "Budget exhausted"))
+    rows_to_keep <- rep(TRUE, nrow(subsets))
+
+    # Iterate over each unique SubsetNumber
+    for (subsetNumber in unique(subsets$SubsetNumber)) {
+      # Get the indices of the current subset
+      current_indices <- which(subsets$SubsetNumber == subsetNumber)
+      
+      # Extract the subset rows
+      currentSubset <- subsets[current_indices, ]
+      
+      # Check the conditions
+      if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
+        cat('SUBSET DONE WITH RACING')
+        print(subsetNumber)
+        rows_to_keep[current_indices] <- FALSE
+        doneSubsets <- rbind(doneSubsets, currentSubset)
+      }
+      currentSubset$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                    computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
+                                              nbIterations)
+                  else scenario$nbExperimentsPerIteration
+      subsets[current_indices, ] <- currentSubset
     }
-    if (scenario$maxTime > 0 && timeUsed >= scenario$maxTime) {
-      catInfo("Stopped because time budget is exhausted")
-      return(irace_finish(iraceResults, scenario, reason = "Time budget exhausted"))
-    }
+
+    # Keep only the rows that meet the criteria
+    subsets <- subsets[rows_to_keep, ]
+
 
     if (indexIteration > nbIterations) {
       if (scenario$nbIterations == 0) {
@@ -1137,10 +1156,7 @@ irace_run <- function(scenario, parameters)
     }
     # Compute the current budget (nb of experiments for this iteration),
     # or take the value given as parameter.
-    currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                       computeComputationalBudget(remainingBudget, indexIteration,
-                                                  nbIterations)
-                     else scenario$nbExperimentsPerIteration
+
     
     # Compute the number of configurations for this race.
     if (scenario$elitist && !firstRace) {
