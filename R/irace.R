@@ -1035,8 +1035,8 @@ irace_run <- function(scenario, parameters)
     # Check that the budget is enough, for the time estimation case we reduce
     # the number of iterations.
     warn_msg <- NULL
-    while (!checkMinimumBudget(scenario, subsets[SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
-                               boundEstimate, subsets[SubsetNumber == subset_num, ]$timeUsed))
+    while (!checkMinimumBudget(scenario, subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
+                               boundEstimate, subsets[subsets$SubsetNumber == subset_num, ]$timeUsed))
    
     {
       if (is.null(warn_msg))
