@@ -708,9 +708,6 @@ elitist_race <- function(maxExp = 0,
   alive_list <- lapply(alive_list, function(x) {
     rep(TRUE, length.out = no.configurations)
   })
-  cat('alive list \n')
-  print(alive_list[[1]])
-  print(alive_list[[2]])
 
     rejected_list <- lapply(rejected_list, function(x) {
     rep(TRUE, length.out = no.configurations)
@@ -975,7 +972,6 @@ elitist_race <- function(maxExp = 0,
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
-    print(alive_list)
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
@@ -1429,7 +1425,6 @@ elitist_race <- function(maxExp = 0,
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
     alive <- alive_list[[as.character(subset_number)]]
-    print(alive)
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
