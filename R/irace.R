@@ -1117,7 +1117,7 @@ irace_run <- function(scenario, parameters)
       irace.assert(sum(!is.na(iraceResults$experiments)) == experimentsUsedSoFar)
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
-
+    currentBudget <- 0L
     # Iterate over each unique SubsetNumber
     for (subsetNumber in unique(subsets$SubsetNumber)) {
       # Get the indices of the current subset
@@ -1137,6 +1137,7 @@ irace_run <- function(scenario, parameters)
                     computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
                                               nbIterations)
                   else scenario$nbExperimentsPerIteration
+      currentBudget <- currentBudget + currentSubset$currentBudget
       subsets[current_indices, ] <- currentSubset
     }
 
@@ -1159,6 +1160,8 @@ irace_run <- function(scenario, parameters)
 
     
     # Compute the number of configurations for this race.
+    cat('CURRENT BUDGET')
+    print(currentBudget)
     if (scenario$elitist && !firstRace) {
       nbConfigurations <-
         computeNbConfigurations(currentBudget, indexIteration,
