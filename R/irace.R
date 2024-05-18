@@ -379,13 +379,6 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
   # If we are adding and the scenario is deterministic, we have already added all instances.
   if (!is.null(instance_data) && scenario$deterministic) return(instance_data)
 
-  instances <- scenario$instances
-  # Number of times that we need to repeat the set of instances given by the user.
-  ntimes <- if (scenario$deterministic) 1L else
-    # "Upper bound"" of instances needed
-    # FIXME: We could bound it even further if maxExperiments >> nInstances
-    ceiling(n / length(instances))
-
   # Sample seeds.
   # 2147483647 is the maximum value for a 32-bit signed integer.
   # We use replace = TRUE, because replace = FALSE allocates memory for each possible number.
@@ -396,6 +389,13 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
   # Iterate through unique subset numbers
   unique_subsets <- unique(instance_data$SubsetNumber)
   for (subset_num in unique_subsets) {
+    subset_instances <- subset(instance_data, SubsetNumber == subset_num)
+    # Number of times that we need to repeat the set of instances given by the user.
+    ntimes <- if (scenario$deterministic) 1L else
+      # "Upper bound"" of instances needed
+      # FIXME: We could bound it even further if maxExperiments >> nInstances
+      ceiling(n / nrow(subset_instances))
+
     subset_instances <- subset(instance_data, SubsetNumber == subset_num)
 
     # Repeat each instance according to the specified number of times
@@ -876,6 +876,11 @@ irace_run <- function(scenario, parameters)
                    else scenario$minNbSurvival
     minSurvival <- floor(minSurvival)
 
+    # divide equally the budget
+    maxExperimentsPerSubset <- scenario$maxExperiments / lenght(unique_subsets)
+    cat('BUDGET PER SUBSET:')
+    print(maxExperimentsPerSubset)
+
     # Generate initial instance + seed list
     .irace$instancesList <- generateInstances(scenario,
                                               n = if (scenario$maxExperiments != 0)
@@ -885,8 +890,7 @@ irace_run <- function(scenario, parameters)
                                                      
      print(.irace$instancesList)
     .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
-                                                    n = if (scenario$maxExperiments != 0)
-                                                    ceiling(scenario$maxExperiments / minSurvival)
+                                                    n = ceiling(maxExperimentsPerSubset / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)),
                                                     instanceSubsets)
@@ -902,7 +906,7 @@ irace_run <- function(scenario, parameters)
     
     if (scenario$maxTime == 0) {
       if (is.na(scenario$minExperiments)) {
-        remainingBudget <- scenario$maxExperiments
+        subsets$remainingBudget <- rep(maxExperimentsPerSubset, nrow(subsets))  
       } else {
         remainingBudget <- max(scenario$minExperiments,
                                computeMinimumBudget(scenario, minSurvival, nbIterations))
@@ -1024,16 +1028,18 @@ irace_run <- function(scenario, parameters)
 
     # Compute the total initial budget, that is, the maximum number of
     # experiments that we can perform.
-    currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                       computeComputationalBudget(remainingBudget, indexIteration,
+    for (subset_num in unique(subsets$SubsetNumber)) {
+       subsets[SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                       computeComputationalBudget(subsets[SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
                                                   nbIterations)
                      else scenario$nbExperimentsPerIteration
 
     # Check that the budget is enough, for the time estimation case we reduce
     # the number of iterations.
     warn_msg <- NULL
-    while (!checkMinimumBudget(scenario, remainingBudget, minSurvival, nbIterations,
-                               boundEstimate, timeUsed))
+    while (!checkMinimumBudget(scenario, subsets[SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
+                               boundEstimate, subsets[SubsetNumber == subset_num, ]$timeUsed))
+   
     {
       if (is.null(warn_msg))
         warn_msg <- 
@@ -1051,6 +1057,7 @@ irace_run <- function(scenario, parameters)
                                      min(minSurvival * 2L, scenario$nbConfigurations)
                                    else minSurvival * 2L
     }
+        }
     if (!is.null(warn_msg)) irace.warning(warn_msg)
     
   } #end of do not recover
@@ -1087,7 +1094,7 @@ irace_run <- function(scenario, parameters)
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
                                .irace = .irace,
-                               currentBudget = currentBudget,
+                               currentBudget = subsetcurrentBudget,
                                debugLevel = debugLevel,
                                eliteConfigurations = eliteConfigurations,
                                experimentsUsedSoFar = experimentsUsedSoFar,
