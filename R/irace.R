@@ -1071,9 +1071,9 @@ irace_run <- function(scenario, parameters)
           "# nbParameters: ", parameters$nbVariable, "\n",
           "# seed: ", scenario$seed, "\n",
           "# confidence level: ", scenario$confidence, "\n",
-          "# budget: ", remainingBudget, "\n",
+          "# budget: ", subsets$remainingBudget, "\n",
           if (scenario$maxTime == 0) ""
-          else paste0("# time budget: ", scenario$maxTime - timeUsed, "\n"),
+          else paste0("# time budget: ", scenario$maxTime - subsets$timeUsed, "\n"),
           "# mu: ", scenario$mu, "\n",
           "# deterministic: ", scenario$deterministic, "\n",
             
@@ -1092,17 +1092,17 @@ irace_run <- function(scenario, parameters)
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
                                .irace = .irace,
-                               currentBudget = subsetcurrentBudget,
+                               currentBudget = subsets$currentBudget,
                                debugLevel = debugLevel,
                                eliteConfigurations = eliteConfigurations,
-                               experimentsUsedSoFar = experimentsUsedSoFar,
+                               experimentsUsedSoFar = subsets$experimentsUsedSoFar,
                                indexIteration = indexIteration,
                                minSurvival = minSurvival,
                                model = model,
                                nbConfigurations = nbConfigurations,
                                nbIterations = nbIterations,
-                               remainingBudget = remainingBudget,
-                               timeUsed = timeUsed,
+                               remainingBudget = subsets$remainingBudget,
+                               timeUsed = subsets$timeUsed,
                                boundEstimate = boundEstimate,
                                rejectedIDs = rejectedIDs,
                                completed = "Incomplete")
