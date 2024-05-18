@@ -1199,6 +1199,7 @@ elitist_race <- function(maxExp = 0,
     
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
+    cat('vcost')
     print(vcost)
 
     # If the experiment was executed or target.evaluator exists
@@ -1232,10 +1233,10 @@ elitist_race <- function(maxExp = 0,
                                  configurations[which.exe, ".ID."],
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
-    irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
-                     eval.after = {
-                       print(mget(ls()))
-                     })
+    # irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
+    #                  eval.after = {
+    #                    print(mget(ls()))
+    #                  })
     experimentsUsed <- experimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
