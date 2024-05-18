@@ -1027,8 +1027,8 @@ irace_run <- function(scenario, parameters)
     # Compute the total initial budget, that is, the maximum number of
     # experiments that we can perform.
     for (subset_num in unique(subsets$SubsetNumber)) {
-       subsets[SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                       computeComputationalBudget(subsets[SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
+       subsets[subsets$SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                       computeComputationalBudget(subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
                                                   nbIterations)
                      else scenario$nbExperimentsPerIteration
 
