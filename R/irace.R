@@ -1244,10 +1244,10 @@ irace_run <- function(scenario, parameters)
     catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
             "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
             if (scenario$maxTime == 0) ""
-            else paste0("# timeUsed: ", timeUsed, "\n",
+            else paste0("# timeUsed: ", subsets$timeUsed, "\n",
                         "# boundEstimate: ", boundEstimate, "\n"),
-            "# remainingBudget: ", remainingBudget, "\n",
-            "# currentBudget: ", currentBudget, "\n",
+            "# remainingBudget: ", subsets$remainingBudget, "\n",
+            "# currentBudget: ", subsets$currentBudget, "\n",
             "# nbConfigurations: ", nbConfigurations,
             verbose = FALSE)
             
