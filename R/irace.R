@@ -877,7 +877,7 @@ irace_run <- function(scenario, parameters)
     minSurvival <- floor(minSurvival)
 
     # divide equally the budget
-    maxExperimentsPerSubset <- scenario$maxExperiments / lenght(unique_subsets)
+    maxExperimentsPerSubset <- scenario$maxExperiments / length(unique_subsets)
     cat('BUDGET PER SUBSET:')
     print(maxExperimentsPerSubset)
 
