@@ -1114,7 +1114,8 @@ irace_run <- function(scenario, parameters)
           verbose = FALSE)
 
   doneSubsets <- data.frame()
-  iraceResults$experiments <- list()
+  unique_subset_numbers <- unique(subsets$SubsetNumber)
+  iraceResults$experiments <- vector("list", length(unique_subset_numbers))
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
@@ -1200,6 +1201,7 @@ irace_run <- function(scenario, parameters)
     for (i in 1:num_matrices) {
       total_rows <- total_rows + nrow(iraceResults$experiments[[i]])
     }
+
     totalElites <- sum(sapply(eliteConfigurations, function(df) nrow(df)))
 
     if (scenario$elitist && !firstRace) {
