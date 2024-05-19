@@ -1469,7 +1469,7 @@ irace_run <- function(scenario, parameters)
     # Calculate budget needed for old instances assuming non elitist irace
 
     for (subset_number in unique(subsets$SubsetNumber)) {
-      currentSubset <- subsets[subsets$SubsetNumber == subset_number]
+      currentSubset <- subsets[subsets$SubsetNumber == subset_number,]
       print(currentSubset)
       currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
@@ -1483,7 +1483,7 @@ irace_run <- function(scenario, parameters)
                                                       subset(instanceSubsets, SubsetNumber == subset_number), subset_number)
 
       }
-    subsets[subsets$SubsetNumber == subset_number] <- currentSubset
+    subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
      }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
@@ -1534,9 +1534,9 @@ irace_run <- function(scenario, parameters)
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
     } else {
       for (subset_number in unique(subsets$SubsetNumber)) {
-        currentSubset <- subsets[subsets$SubsetNumber == subset_number]
+        currentSubset <- subsets[subsets$SubsetNumber == subset_number,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
-        subsets[subsets$SubsetNumber == subset_number] <- currentSubset
+        subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
       }
     }
 
