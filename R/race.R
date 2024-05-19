@@ -1216,7 +1216,7 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
-    result_list[[as.character(currentSubset)]] <- rbind(result_list[[as.character(currentSubset)]], rep(NA, length(which.exps)))
+
     result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps] <- vcost
     cat('Result list\n')
     print(result_list[[as.character(currentSubset)]])
