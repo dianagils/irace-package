@@ -987,7 +987,7 @@ elitist_race <- function(maxExp = 0,
         # criterion is disabled)
         ## MANUEL: So what is the reason to not immediately terminate here? Is
         ## there a reason to continue?
-        if (current.task == 1L) {
+        if (currentSubsetTask == 1L) {
           # We may reach this point in the first iteration so we need to calculate best.
           if (sum(alive) == 1L) {
             best_list[[as.character(currentSubset)]] <- which.alive
@@ -1033,7 +1033,7 @@ elitist_race <- function(maxExp = 0,
     ## We continue running if (1) we have not reached the first.test or (2)
     ## there are instances previously seen that have not been evaluated on any
     ## alive configuration.
-    if (current.task > first.test) {
+    if (currentSubsetTask > first.test) {
       #if ((current.task > first.test && !capping) 
         # MANUEL: This is new and I'm not sure what it does.
         # LESLIE: When using capping, we dont finish any race until all 
@@ -1050,12 +1050,13 @@ elitist_race <- function(maxExp = 0,
           # || (current.task > elitistNewInstances && nbAlive == 1)))) {
       # If we just did a test, check that we have enough budget to reach the
       # next test.
-      if (maxExp && ( (current.task - 1) %% each.test) == 0
+      if (maxExp && ( (currentSubsetTask - 1) %% each.test) == 0
           && experimentsUsed + length(which.exe) * each.test > maxExp
           && all_elite_instances_evaluated()) {
         break.msg <- paste0("experiments for next test (",
                             experimentsUsed + length(which.exe) * each.test,
                             ") > max experiments (", maxExp, ")")
+        cat('AQUI2\n')
         break
       }
     }
@@ -1065,6 +1066,7 @@ elitist_race <- function(maxExp = 0,
           && all_elite_instances_evaluated()) {
         break.msg <- paste0("tests without elimination (", no.elimination,
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
+        cat('AQUI3\n')
         break
       }    
       }
@@ -1196,7 +1198,7 @@ elitist_race <- function(maxExp = 0,
     
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
-    cat('vcost')
+    cat('vcost\n')
     print(vcost)
 
     # If the experiment was executed or target.evaluator exists
@@ -1239,7 +1241,7 @@ elitist_race <- function(maxExp = 0,
     # We update the elites that have been executed.
     is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
     
-    cat('cc\n')
+    cat('cc1\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
     if (any(rejected_list[[as.character(subset_number)]])) {
@@ -1320,7 +1322,7 @@ elitist_race <- function(maxExp = 0,
         alive_list[[i]] <- cap.alive & test_alive_list[[i]] 
       }
     }
-    cat('cc\n')
+    cat('cc2\n')
     # Merge the result of both eliminations.
     # prev.sum.alive <- sum(alive)
     # alive <- cap.alive & test.alive
@@ -1344,7 +1346,7 @@ elitist_race <- function(maxExp = 0,
       }
       alive <- cap.alive
     }
-    cat('cc\n')
+    cat('cc3\n')
     
     # Output the result of the elimination test
     res.symb <- if (cap.dropped && !test.dropped && prev.sum.alive != sum(alive)) {
@@ -1357,7 +1359,7 @@ elitist_race <- function(maxExp = 0,
     # LESLIE: we have to make the ranking outside: we can have configurations eliminated by capping
     # that are not eliminated by the test.
     # MANUEL: I don't understand the above comment.
-    cat('cc\n')
+    cat('cc4\n')
     
     if (length(which.alive) == 1L) {
       race.ranks[[as.character(currentSubset)]] <- 1L
@@ -1369,7 +1371,7 @@ elitist_race <- function(maxExp = 0,
       # which.min returns only the first minimum.
       best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(currentSubset)]])]
     }
-    cat('cc\n')
+    cat('cc5\n')
     irace.assert(best_list[[as.character(currentSubset)]] == which.alive[order(race.ranks[[as.character(currentSubset)]])][1L])
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == length(which.alive))
 
@@ -1384,7 +1386,7 @@ elitist_race <- function(maxExp = 0,
                currentSubsetTask, alive = alive,
                id_best = id_best, best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
-    cat('cc\n')
+    cat('cc6\n')
     if (elitist) {
       # Compute number of statistical tests without eliminations.
       irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
