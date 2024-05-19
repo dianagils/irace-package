@@ -842,7 +842,6 @@ irace_run <- function(scenario, parameters)
   # Add additional columns to the 'subsets' dataframe
   subsets$currentBudget <- rep(0, nrow(subsets))  
   subsets$remainingBudget <- rep(0, nrow(subsets))  
-  subsets$nbConfigurations <- rep(0, nrow(subsets))  
   subsets$experimentsUsed <- rep(0, nrow(subsets))  
   subsets$timeUsed <- rep(0, nrow(subsets))  
   subsets$NextInstance <- 1L
@@ -1190,14 +1189,27 @@ irace_run <- function(scenario, parameters)
     # Compute the number of configurations for this race.
     cat('CURRENT BUDGET')
     print(currentBudget)
+
+    # Get the number of matrices in the iraceResults$experiments list
+    num_matrices <- length(iraceResults$experiments)
+
+    # Initialize a variable to store the sum of the number of rows
+    total_rows <- 0
+
+    # Iterate over each matrix and sum the number of rows
+    for (i in 1:num_matrices) {
+      total_rows <- total_rows + nrow(iraceResults$experiments[[i]])
+    }
+    totalElites <- sum(sapply(eliteConfigurations, function(df) nrow(df)))
+
     if (scenario$elitist && !firstRace) {
       nbConfigurations <-
         computeNbConfigurations(currentBudget, indexIteration,
                                 mu = scenario$mu,
                                 eachTest = scenario$eachTest,
                                 blockSize = blockSize,
-                                nElites = nrow(eliteConfigurations),
-                                nOldInstances = nrow(iraceResults$experiments),
+                                nElites = totalElites,
+                                nOldInstances = totalRows,
                                 newInstances = scenario$elitistNewInstances)
     } else {
       nbConfigurations <-
@@ -1239,7 +1251,7 @@ irace_run <- function(scenario, parameters)
 
     # If we have too many eliteConfigurations, reduce their number. This can
     # happen before the first race due to the initial budget estimation.
-    totalElites <- sum(sapply(eliteConfigurations, function(df) nrow(df)))
+
     if (firstRace) {
       if (nbConfigurations < totalElites) {
         eliteRanks <- overall_ranks(iraceResults$experiments, test = scenario$testType)
@@ -1430,7 +1442,7 @@ irace_run <- function(scenario, parameters)
       
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
-        iraceResults$experiments[, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
+        iraceResults$experiments[[as.character(subset_number)]][, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
       } else {
         NULL
       }
