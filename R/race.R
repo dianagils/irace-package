@@ -1104,7 +1104,7 @@ elitist_race <- function(maxExp = 0,
     cat('RESULT LIST\n')
     print(result_list[[as.character(subset_number)]][currentSubsetTask,])
     cat('W/O A CHAR')
-    print(result_list[[as.character(subset_number)]][currentSubsetTask,])
+    print(result_list[[subset_number]][currentSubsetTask,])
 
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
