@@ -1153,7 +1153,7 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist)
-        irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsed)
+        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsed)
       
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
@@ -1445,7 +1445,7 @@ irace_run <- function(scenario, parameters)
       
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
-        iraceResults$experiments[[as.character(subset_number)]][, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
+        iraceResults$experiments[[subset_number]][, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
       } else {
         NULL
       }
@@ -1467,13 +1467,10 @@ irace_run <- function(scenario, parameters)
 
     # Add instances if needed
     # Calculate budget needed for old instances assuming non elitist irace
-    cat('irace results\n')
-    print(nrow(iraceResults$experiments))
-    print(nrow(iraceResults$experiments[[subset_number]]))
-    print(nrow(iraceResults$experiments[[as.character(subset_number)]]))
+
     for (subset_number in unique(subsets$SubsetNumber)) {
       currentSubset <- subsets[subsets$SubsetNumber == subset_number]
-      currentSubset$NextInstance <- nrow(iraceResults$experiments[[as.character(subset_number)]]) + 1
+      currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
       if ((n - (currentSubset$NextInstance  - 1))
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
@@ -1511,7 +1508,7 @@ irace_run <- function(scenario, parameters)
     
     for (subset_number in unique(subsets$SubsetNumber)) {
       subsetResults <- raceResults$experiments[[as.character(subset_number)]]
-      iraceResults$experiments[[as.character(subset_number)]] <- merge.matrix (iraceResults$experiments[[as.character(subset_number)]],
+      iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
     }
 
