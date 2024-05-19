@@ -758,8 +758,9 @@ elitist_race <- function(maxExp = 0,
     race.instances <- no_elitrace.init.instances(scenario$deterministic,
                                                  max_instances = nrow(.irace$instancesList))
   }
-  irace.assert(!anyDuplicated(race.instances))
-  irace.assert(identical(sort(race.instances), seq_along(race.instances)))
+  # TODO> DO FOR EACH SUBSET
+  # irace.assert(!anyDuplicated(race.instances))
+  # irace.assert(identical(sort(race.instances), seq_along(race.instances)))
   no.tasks <- sum(lengths(race.subsets_instances))
   unique_subset_numbers <- unique(subset.data$SubsetNumber)
   subsetOrder <- rep(unique_subset_numbers, length.out = no.tasks)
@@ -796,7 +797,7 @@ elitist_race <- function(maxExp = 0,
       elite.safe <- race.env$elitistNewInstances + nrow(elite_data_subset)
       elite.safe_per_subset[[as.character(subset_number)]] <- elite.safe
       # Generate elite.instances.ID for the current subset
-      elite.instances.ID <- as.character(race.instances[seq_len(elite.safe)])
+      elite.instances.ID <- as.character(race.subsets_instances[[as.character(subset_number)]][seq_len(elite.safe)])
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
