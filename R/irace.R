@@ -1470,9 +1470,13 @@ irace_run <- function(scenario, parameters)
 
     for (subset_number in unique(subsets$SubsetNumber)) {
       currentSubset <- subsets[subsets$SubsetNumber == subset_number]
+      print(currentSubset)
       currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
-      if ((n - (currentSubset$NextInstance  - 1))
+      cat('params\n')
+      print(n)
+      print(minSurvival)
+      if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
         .irace$instanceSubsetList <- generateInstancesForOneSubset(scenario,
                                                       n = ceiling(remainingBudget / minSurvival),
