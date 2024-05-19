@@ -1116,6 +1116,8 @@ irace_run <- function(scenario, parameters)
   doneSubsets <- data.frame()
   unique_subset_numbers <- unique(subsets$SubsetNumber)
   iraceResults$experiments <- vector("list", length(unique_subset_numbers))
+  iraceResults$experiments <- lapply(iraceResults$experiments, function(x) data.frame())
+
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
