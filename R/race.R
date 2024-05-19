@@ -1086,9 +1086,9 @@ elitist_race <- function(maxExp = 0,
 
     
                                 
-    if (nrow(result_list[[as.character(subset_number)]] ) < currentSubsetTask) {
-      result_list[[as.character(subset_number)]]  <- rbind(result_list[[as.character(subset_number)]] , rep(NA, ncol(result_list[[as.character(subset_number)]] )))
-      rownames(result_list[[as.character(subset_number)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
+    if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
+      result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
+      rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
       if (capping) {
         experimentsTime <- rbind(experimentsTime, rep(NA, ncol(experimentsTime)))
         rownames(experimentsTime) <- race.instances[seq_nrow(experimentsTime)]
@@ -1102,9 +1102,8 @@ elitist_race <- function(maxExp = 0,
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite > 0))
     cat('RESULT LIST\n')
-    print(result_list[[as.character(subset_number)]][currentSubsetTask,])
-    cat('W/O A CHAR')
-    print(result_list[[subset_number]][currentSubsetTask,])
+    print(result_list[[as.character(currentSubset)]][currentSubsetTask,])
+
 
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
@@ -1307,7 +1306,7 @@ elitist_race <- function(maxExp = 0,
         # Get unique instance IDs from .irace$instanceSubsetList
         unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(subset_num)]]$instanceID)
 
-        filteredResults <-  result_list[[currentSubset]]
+        filteredResults <-  result_list[[as.character(currentSubset)]]
         cat('filtered results')
         print(filteredResults)
         print(alive)
