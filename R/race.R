@@ -748,10 +748,6 @@ elitist_race <- function(maxExp = 0,
   # Create the instance list according to the algorithm selected
   #SUBSETS: maybe build the stream (with alternation here)
   if (elitist) {
-    race.instances <- elitrace.init.instances(race.env,
-                                              scenario$deterministic,
-                                              max_instances = nrow(.irace$instancesList),
-                                              sampleInstances = scenario$sampleInstances)
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
