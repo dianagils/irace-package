@@ -102,7 +102,9 @@ aux2.friedman <- function(y, I, alive, conf.level = 0.95)
 {
   dropped.any <- FALSE
   n <- nrow(y)
+  print(n)
   k <- length(I)
+  print(k)
   r <- rowRanks(y, cols = I, ties.method = "average")
   R <- colSums2(r)
   o <- order(R)
@@ -1099,7 +1101,11 @@ elitist_race <- function(maxExp = 0,
     final.bounds <- elite.bound <- NULL
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite > 0))
+    cat('RESULT LIST\n')
     print(result_list[[as.character(subset_number)]][currentSubsetTask,])
+    cat('W/O A CHAR')
+    print(result_list[[as.character(subset_number)]][currentSubsetTask,])
+
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
       # Pre-execute elite configurations that are not yet executed in the current instance.
