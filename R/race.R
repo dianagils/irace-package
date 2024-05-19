@@ -1102,8 +1102,7 @@ elitist_race <- function(maxExp = 0,
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite > 0))
     cat('RESULT LIST\n')
-    print(result_list[[as.character(currentSubset)]][currentSubsetTask,])
-
+   
 
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
@@ -1184,8 +1183,6 @@ elitist_race <- function(maxExp = 0,
       final.bounds <- rep(scenario$boundMax, no.configurations)
     }
     
-    # Execute experiments
-    print(race.subsets_instances[[currentSubset]])
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
@@ -1219,8 +1216,11 @@ elitist_race <- function(maxExp = 0,
       if (scenario$boundAsTimeout)
         vcost[(vcost >= final.bounds[which.exps]) & (vcost < scenario$boundMax)] <- scenario$boundMax
     }
-    result_list[[currentSubset]] <- rbind(result_list[[currentSubset]], rep(NA, length(which.exps)))
-    result_list[[currentSubset]][currentSubsetTask, which.exps] <- vcost
+    result_list[[as.character(currentSubset)]] <- rbind(result_list[[as.character(currentSubset)]], rep(NA, length(which.exps)))
+    result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps] <- vcost
+    cat('Result list\n')
+    print(result_list[[as.character(currentSubset)]][currentSubsetTask,])
+
     
     # Output is not indexed in the same way as configurations.
     which.exps <- which(which.alive %in% which.exe)
