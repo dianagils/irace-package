@@ -1467,7 +1467,9 @@ irace_run <- function(scenario, parameters)
 
     # Add instances if needed
     # Calculate budget needed for old instances assuming non elitist irace
-    cat('irace results')
+    cat('irace results\n')
+    print(nrow(iraceResults$experiments))
+    print(nrow(iraceResults$experiments[[subset_number]]))
     print(nrow(iraceResults$experiments[[as.character(subset_number)]]))
     for (subset_number in unique(subsets$SubsetNumber)) {
       currentSubset <- subsets[subsets$SubsetNumber == subset_number]
