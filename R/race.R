@@ -1136,7 +1136,7 @@ elitist_race <- function(maxExp = 0,
           
         # We remove elite configurations that are rejected given that
         # is not possible to calculate the bounds
-        rejected <- is.infinite(result_list[[currentSubset]][currentSubsetTask, which.exps])
+        rejected <- is.infinite(result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps])
         if (any(rejected)) {
           irace.note ("Immediately rejected configurations: ",
                       paste0(configurations[which.elite.exe[rejected], ".ID."],
@@ -1219,7 +1219,7 @@ elitist_race <- function(maxExp = 0,
     result_list[[as.character(currentSubset)]] <- rbind(result_list[[as.character(currentSubset)]], rep(NA, length(which.exps)))
     result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps] <- vcost
     cat('Result list\n')
-    print(result_list[[as.character(currentSubset)]][currentSubsetTask,])
+    print(result_list[[as.character(currentSubset)]])
 
     
     # Output is not indexed in the same way as configurations.
@@ -1263,8 +1263,8 @@ elitist_race <- function(maxExp = 0,
       # FIXME: Should we stop  if (nbAlive <= minSurvival) ???
       elite.safe <- update.elite.safe(result_list[[currentSubset]], is.elite)  
     }
-    irace.assert(!anyNA(result_list[[currentSubset]][seq_len(currentSubsetTask), alive, drop=FALSE]))
-    irace.assert(!any(is.infinite(result_list[[currentSubset]][, alive, drop=FALSE])))
+    irace.assert(!anyNA(result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), alive, drop=FALSE]))
+    irace.assert(!any(is.infinite(result_list[[as.character(currentSubset)]][, alive, drop=FALSE])))
     
     # Variables required to produce output of elimination test.
     cap.done     <- FALSE #if dominance elimination was performed
@@ -1374,7 +1374,7 @@ elitist_race <- function(maxExp = 0,
       race.ranks[[as.character(currentSubset)]] <- 1L
       best_list[[as.character(currentSubset)]] <- which.alive
     } else  {
-      tmpResults <- result_list[[currentSubset]][seq_len(currentSubsetTask), which.alive, drop = FALSE]
+      tmpResults <- result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), which.alive, drop = FALSE]
       irace.assert(!any(is.na(tmpResults)))
       race.ranks[[as.character(currentSubset)]] <- get_ranks(tmpResults, test = stat.test) 
       # which.min returns only the first minimum.
@@ -1390,7 +1390,7 @@ elitist_race <- function(maxExp = 0,
     race.ranks[[as.character(currentSubset)]] <- race.ranks[[as.character(currentSubset)]][which.alive]
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == sum(alive))
     id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
-    print_task(res.symb, result_list[[currentSubset]][seq_len(currentSubsetTask), , drop = FALSE],
+    print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
                id_best = id_best, best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = start_time, 
