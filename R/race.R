@@ -1088,6 +1088,9 @@ elitist_race <- function(maxExp = 0,
                                 
     if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
       result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
+      cat('rownames: ')
+      print(race.subsets_instances[[currentSubset]][currentSubsetTask])
+      print(race.subsets_instances[[as.character(currentSubset)]][currentSubsetTask])
       rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
       if (capping) {
         experimentsTime <- rbind(experimentsTime, rep(NA, ncol(experimentsTime)))
@@ -1101,8 +1104,6 @@ elitist_race <- function(maxExp = 0,
     final.bounds <- elite.bound <- NULL
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite > 0))
-    cat('RESULT LIST\n')
-   
 
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
