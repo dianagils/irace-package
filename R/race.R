@@ -1302,7 +1302,11 @@ elitist_race <- function(maxExp = 0,
         unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(subset_num)]]$instanceID)
 
         filteredResults <-  result_list[[currentSubset]]
-
+        cat('filtered results')
+        print(filteredResults)
+        print(alive)
+        print(which.alive)
+        print(conf.level)
 
         # Perform the test based on the condition
         test.res <- switch(
