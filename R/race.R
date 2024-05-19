@@ -1237,6 +1237,7 @@ elitist_race <- function(maxExp = 0,
     #                  eval.after = {
     #                    print(mget(ls()))
     #                  })
+    subset.data[currentSubset,]$experimentsUsed <- subset.data[currentSubset,]$experimentsUsed + length(which.exe)
     experimentsUsed <- experimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
@@ -1480,5 +1481,6 @@ elitist_race <- function(maxExp = 0,
        experimentsUsed = experimentsUsed,
        nbAlive = nbAlive,
        configurations = configurations,
+       subsets = subset.data,
        rejectedIDs = configurations[is.rejected, ".ID."])
 }
