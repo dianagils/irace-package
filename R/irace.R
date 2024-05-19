@@ -1140,9 +1140,6 @@ irace_run <- function(scenario, parameters)
 
     # Consistency checks
     irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
-    # With elitist=TRUE we should never re-run the same configuration on the same (instance,seed) pair
-    if (scenario$elitist)
-      irace.assert(sum(!is.na(iraceResults$experiments)) == experimentsUsedSoFar)
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
@@ -1153,6 +1150,8 @@ irace_run <- function(scenario, parameters)
       
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
+      if (scenario$elitist)
+        irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsedSoFar)
       
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
