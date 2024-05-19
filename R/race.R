@@ -1088,10 +1088,8 @@ elitist_race <- function(maxExp = 0,
                                 
     if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
       result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
-      cat('rownames: ')
-      print(race.subsets_instances[[currentSubset]][currentSubsetTask])
-      print(race.subsets_instances[[as.character(currentSubset)]][currentSubsetTask])
       rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
+      print(result_list[[as.character(currentSubset)]])
       if (capping) {
         experimentsTime <- rbind(experimentsTime, rep(NA, ncol(experimentsTime)))
         rownames(experimentsTime) <- race.instances[seq_nrow(experimentsTime)]
