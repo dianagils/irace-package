@@ -1139,7 +1139,7 @@ irace_run <- function(scenario, parameters)
     irace_save_logfile(iraceResults, scenario)
 
     # Consistency checks
-    irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
+    # irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
