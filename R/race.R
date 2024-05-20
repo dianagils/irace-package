@@ -1257,6 +1257,7 @@ elitist_race <- function(maxExp = 0,
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
     if (any(rejected_list[[as.character(subset_number)]])) {
+      rejected <- rejected_list[[as.character(subset_number)]]
       irace.note ("Immediately rejected configurations: ",
                   paste0(configurations[which.exe[rejected], ".ID."],
                          collapse = ", ") , "\n")
@@ -1445,6 +1446,7 @@ elitist_race <- function(maxExp = 0,
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
     alive <- alive_list[[subset_number]]
+    rejected <- rejected_list[[subset_number]]
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(subset_number)]] # old_best could be NA.
@@ -1461,14 +1463,20 @@ elitist_race <- function(maxExp = 0,
     }
 
     nbAlive <- sum(alive)
-    cat('ALIVE: ')
-    print(alive)
     for (i in 1:length(alive)) {
-    print(i)
     if (alive[i]) {
       configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], subset_number)
       }
     }
+    rejected_ids_by_subset <- vector("list", length(rejected))
+      
+    for (i in 1:length(rejected)) {
+      rejected_indices <- which(!rejected[[i]])
+      rejected_ids <- configurations[rejected_indices, ".ID."]
+      # Store the rejected IDs in the result list
+      rejected_ids_by_subset[[i]] <- rejected_ids
+    }
+
     # Assign the proper ranks in the configurations data.frame.
     configurations$.RANK. <- vector("list", nrow(configurations))
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
@@ -1495,6 +1503,7 @@ elitist_race <- function(maxExp = 0,
     irace.print.memUsed()
   }
 
+
   irace.assert(nrow(experimentLog) == totalExperimentsUsed)
   # manage results to know which instance is alive in every subset. i think having a lists of datasets per subset will do.
   list(experiments = result_list,
@@ -1503,5 +1512,5 @@ elitist_race <- function(maxExp = 0,
        nbAlive = nbAlive,
        configurations = configurations,
        subsets = subset.data,
-       rejectedIDs = configurations[is.rejected, ".ID."])
+       rejectedIDs = rejected_ids_by_subset)
 }
