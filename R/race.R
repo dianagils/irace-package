@@ -1446,6 +1446,7 @@ elitist_race <- function(maxExp = 0,
   alivePerSubset <- vector("list", length(unique_subset_numbers))
   names(alivePerSubset) <- unique_subset_numbers
   configurations$.RANK. <- vector("list", nrow(configurations))
+  configurations$isAliveInSubset <- lapply(configurations$isAliveInSubset, function(x) list())
   for (subset_number in unique_subset_numbers) {
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]

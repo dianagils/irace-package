@@ -1550,15 +1550,25 @@ irace_run <- function(scenario, parameters)
     }
 
     if (debugLevel >= 1) irace.note("Extracting elites\n")
+
+    # to ger current subsets RANK
+    update_rank_for_subset <- function(rank_list, subset_number) {
+      if (length(rank_list) >= subset_number) {
+        return(rank_list[subset_number])
+      } else {
+        return(NA)
+      }
+    }
+
     # FIXME: Since we only actually keep the alive ones, we don't need
     # to carry around rejected ones in raceResults$configurations. This
     # would reduce overhead.
     # SUBSETS: extract elites per subsets. Resultas should be separated by configs per subsets
     configs <- raceResults$configurations
     for (subset_number in unique(subsets$SubsetNumber)) {
-      print(subset_number)
       indexes <- sapply(configs$isAliveInSubset, function(lst) subset_number %in% lst)
       aliveSubsetConfigs <- configs[indexes,]
+      aliveSubsetConfigs$.RANK. <- lapply(aliveSubsetConfigs$.RANK., update_rank_for_subset, subset_number = subset_number)
       print(aliveSubsetConfigs)
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
@@ -1585,6 +1595,8 @@ irace_run <- function(scenario, parameters)
 
       # Combine all elite configurations into a single dataframe
       all_elite_configs_df <- do.call(rbind, all_elite_configs)
+      cat('All elite configs: ')
+      print(all_elite_configs_df)
       # SUBSETS: all model calls should be per subset
       if (debugLevel >= 1) irace.note("Initialise model\n")
       model <- initialiseModel(parameters, all_elite_configs_df)

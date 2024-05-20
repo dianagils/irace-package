@@ -328,7 +328,7 @@ extractElites <- function(scenario, configurations, nbElites)
 {
   # Keep only alive configurations.
   ## FIXME: Shouldn't this be done by the caller?
-  configurations <- configurations[configurations$.ALIVE., , drop = FALSE]
+  #configurations <- configurations[configurations$.ALIVE., , drop = FALSE]
   if (nbElites < 1) {
     irace.internal.error("nbElites is lower or equal to zero.") 
   }
