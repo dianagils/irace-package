@@ -1576,9 +1576,10 @@ irace_run <- function(scenario, parameters)
       irace.note("Elite configurations (first number is the configuration ID;",
                 " listed from best to worst according to the ",
                 test.type.order.str(scenario$testType), "):\n")
-      if (!quiet) configurations.print(eliteConfigurations, metadata = debugLevel >= 1L)
-      iraceResults$iterationElites <- c(iraceResults$iterationElites, eliteConfigurations[[".ID."]][1L])
-      iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[".ID."]] 
+      if (!quiet) configurations.print(eliteConfigurations[[as.character(subset_number)]], metadata = debugLevel >= 1L)
+      # TODO: FIX!
+      iraceResults$iterationElites <- c(iraceResults$iterationElites, eliteConfigurations[[as.character(subset_number)]][[".ID."]][1L])
+      iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
     }
     
     
