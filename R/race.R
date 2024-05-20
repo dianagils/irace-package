@@ -968,10 +968,10 @@ elitist_race <- function(maxExp = 0,
   cat('NO TASKS')
   print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
-    currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
-    print(currentSubsetRow)
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
+    currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
+    print(currentSubsetRow)
     print(currentSubset[1])
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     print(currentSubsetTask)
