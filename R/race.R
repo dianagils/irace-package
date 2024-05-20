@@ -1333,10 +1333,12 @@ elitist_race <- function(maxExp = 0,
         test_res_list[[i]] <- test.res
         race_ranks_list[[i]] <- test.res$ranks
         test_alive_list[[i]] <- test.res$alive
+        print(test_alive_list[[i]])
         test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
         test_done_list[[i]] <- TRUE
         prev.sum.alive <- sum(alive)
-        alive_list[[i]] <- cap.alive & test_alive_list[[i]] 
+        alive_list[[i]] <- cap.alive & test_alive_list[[i]]
+        print(alive_list[[i]])
       }
     }
     cat('cc2\n')
