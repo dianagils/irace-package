@@ -1153,6 +1153,7 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist)
+        print(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])))
         irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsed)
       
       # Check the conditions
