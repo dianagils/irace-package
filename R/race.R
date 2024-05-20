@@ -1445,7 +1445,7 @@ elitist_race <- function(maxExp = 0,
   unique_subset_numbers <- unique(subset.data$SubsetNumber)
   alivePerSubset <- vector("list", length(unique_subset_numbers))
   names(alivePerSubset) <- unique_subset_numbers
-
+  configurations$.RANK. <- vector("list", nrow(configurations))
   for (subset_number in unique_subset_numbers) {
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
@@ -1453,8 +1453,6 @@ elitist_race <- function(maxExp = 0,
     alive <- alive_list[[subset_number]]
     rejected <- rejected_list[[subset_number]]
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
-    cat('RANKS: ')
-    print(race.ranks[[as.character(subset_number)]])
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(subset_number)]] # old_best could be NA.
     best_list[[as.character(subset_number)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
@@ -1485,8 +1483,7 @@ elitist_race <- function(maxExp = 0,
       rejected_ids_by_subset[[i]] <- rejected_ids
     }
 
-    # Assign the proper ranks in the configurations data.frame.
-    configurations$.RANK. <- vector("list", nrow(configurations))
+    
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     configs <- configurations[indexes,]
     if (nrow(configs) > 0) {
@@ -1517,7 +1514,7 @@ elitist_race <- function(maxExp = 0,
   list(experiments = result_list,
        experimentLog = experimentLog,
        experimentsUsed = totalExperimentsUsed,
-       nbAlive = nbAlive,
+       nbAlive = alivePerSubset,
        configurations = configurations,
        subsets = subset.data,
        rejectedIDs = rejected_ids_by_subset)

@@ -1558,10 +1558,10 @@ irace_run <- function(scenario, parameters)
     for (subset_number in unique(subsets$SubsetNumber)) {
       print(subset_number)
       indexes <- sapply(configs$isAliveInSubset, function(lst) subset_number %in% lst)
-      aliveSubsetConfigs <- configurations[indexes,]
+      aliveSubsetConfigs <- configs[indexes,]
       print(aliveSubsetConfigs)
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
-                                          min(raceResults$nbAlive, minSurvival))
+                                          min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
       irace.note("Elite configurations (first number is the configuration ID;",
                 " listed from best to worst according to the ",
                 test.type.order.str(scenario$testType), "):\n")
