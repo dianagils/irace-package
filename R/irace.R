@@ -1569,6 +1569,7 @@ irace_run <- function(scenario, parameters)
       indexes <- sapply(configs$isAliveInSubset, function(lst) subset_number %in% lst)
       aliveSubsetConfigs <- configs[indexes,]
       aliveSubsetConfigs$.RANK. <- lapply(aliveSubsetConfigs$.RANK., update_rank_for_subset, subset_number = subset_number)
+      aliveSubsetConfigs$.RANK. <- as.numeric(aliveSubsetConfigs$.RANK.)
       print(aliveSubsetConfigs)
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
