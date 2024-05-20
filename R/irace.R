@@ -1153,7 +1153,7 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist)
-        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsed)
+        irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsed)
       
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
@@ -1585,15 +1585,25 @@ irace_run <- function(scenario, parameters)
     
     if (firstRace) {
       all_elite_configs <- list()
+      added_ids <- c()
 
-      # Iterate over each subset
       for (subset_number in unique(subsets$SubsetNumber)) {
-        # Subset elite configurations for the current subset
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
-        
-        # Append elite configurations for the current subset to the list
-        all_elite_configs[[as.character(subset_number)]] <- elite_configs_subset
+        unique_configs <- list()
+        for (config in elite_configs_subset) {
+          config_id <- config[[".ID."]]
+          if (!(config_id %in% added_ids)) {
+            added_ids <- c(added_ids, config_id)
+            unique_configs <- c(unique_configs, list(config))
+          }
+        }
+      
+        all_elite_configs[[as.character(subset_number)]] <- unique_configs
       }
+
+      # Print the resulting list of all elite configurations
+      print(all_elite_configs)
+
 
       # Combine all elite configurations into a single dataframe
       all_elite_configs_df <- do.call(rbind, all_elite_configs)
