@@ -770,7 +770,7 @@ elitist_race <- function(maxExp = 0,
   print(subsetOrder)
 
   # Initialize some variables...
-  experimentsUsed <- 0L
+  totalExperimentsUsed <- 0L
   # is.elite[i] : number of instances to be seen in this race on which i has
   # been previously evaluated.
   is.elite <- rep(0L, no.configurations)
@@ -968,7 +968,8 @@ elitist_race <- function(maxExp = 0,
   cat('NO TASKS')
   print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
-    print(current.task)
+    currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
+    print(currentSubsetRow)
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
     print(currentSubset[1])
@@ -1009,12 +1010,13 @@ elitist_race <- function(maxExp = 0,
                       include.GlobalEnv = TRUE)
           irace.assert(!is.na(best_list[[as.character(currentSubset)]]))
         }
+        
         id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
         print_task(".", result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                    race.subsets_instances[[currentSubset]][currentSubsetTask],
                    currentSubsetTask, alive = alive,
                    id_best = id_best,
-                   best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = Sys.time(),
+                   best = best_list[[as.character(currentSubset)]], currentSubsetRow$experimentsUsed, start_time = Sys.time(),
                    # FIXME: Why do we pass NA as bound? Why not pass the actual bound if any?
                    bound = NA, capping = capping)
         next
@@ -1056,12 +1058,12 @@ elitist_race <- function(maxExp = 0,
           # || (current.task > elitistNewInstances && nbAlive == 1)))) {
       # If we just did a test, check that we have enough budget to reach the
       # next test.
-      if (maxExp && ( (currentSubsetTask - 1) %% each.test) == 0
-          && experimentsUsed + length(which.exe) * each.test > maxExp
+      if (currentSubsetRow$currentBudget && ( (currentSubsetTask - 1) %% each.test) == 0
+          && currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget
           && all_elite_instances_evaluated()) {
         break.msg <- paste0("experiments for next test (",
-                            experimentsUsed + length(which.exe) * each.test,
-                            ") > max experiments (", maxExp, ")")
+                            currentSubsetRow$experimentsUsed + length(which.exe) * each.test,
+                            ") > max experiments (", currentSubsetRow$currentBudget, ")")
         cat('AQUI2\n')
         break
       }
@@ -1247,7 +1249,7 @@ elitist_race <- function(maxExp = 0,
     #                    print(mget(ls()))
     #                  })
     subset.data[currentSubset,]$experimentsUsed <- subset.data[currentSubset,]$experimentsUsed + length(which.exe)
-    experimentsUsed <- experimentsUsed + length(which.exe)
+    totalExperimentsUsed <- totalExperimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
     
@@ -1398,7 +1400,7 @@ elitist_race <- function(maxExp = 0,
     print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
-               id_best = id_best, best = best_list[[as.character(currentSubset)]], experimentsUsed, start_time = start_time, 
+               id_best = id_best, best = best_list[[as.character(currentSubset)]], subset.data[currentSubset,]$experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
     cat('cc6\n')
     if (elitist) {
@@ -1491,7 +1493,7 @@ elitist_race <- function(maxExp = 0,
   # manage results to know which instance is alive in every subset. i think having a lists of datasets per subset will do.
   list(experiments = result_list,
        experimentLog = experimentLog,
-       experimentsUsed = experimentsUsed,
+       experimentsUsed = totalExperimentsUsed,
        nbAlive = nbAlive,
        configurations = configurations,
        subsets = subset.data,
