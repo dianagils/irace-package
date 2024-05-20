@@ -1441,7 +1441,12 @@ elitist_race <- function(maxExp = 0,
   #              eval.after = { print(Results[,alive, drop=FALSE])})
   # If we stop the loop before we see all new instances, there may be new
   # instances that have not been executed by any configuration.
-  for (subset_number in unique(subset.data$SubsetNumber)) {
+
+  unique_subset_numbers <- unique(subset.data$SubsetNumber)
+  alivePerSubset <- vector("list", length(unique_subset_numbers))
+  names(alivePerSubset) <- unique_subset_numbers
+
+  for (subset_number in unique_subset_numbers) {
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
@@ -1463,6 +1468,7 @@ elitist_race <- function(maxExp = 0,
     }
 
     nbAlive <- sum(alive)
+    alivePerSubset[[as.character(subset_number)]] <- nbAlive
     for (i in 1:length(alive)) {
     if (alive[i]) {
       configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], subset_number)

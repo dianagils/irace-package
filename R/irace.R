@@ -1501,6 +1501,8 @@ irace_run <- function(scenario, parameters)
                                  )
     #assign subset to get info
     subsets <- raceResults$subsets
+    cat('Race Results')
+    print(raceResults)
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
@@ -1554,7 +1556,9 @@ irace_run <- function(scenario, parameters)
     # SUBSETS: extract elites per subsets. Resultas should be separated by configs per subsets
     configs <- raceResults$configurations
     for (subset_number in unique(subsets$SubsetNumber)) {
+      print(subsetNumber)
       aliveSubsetConfigs <- configs[subset_number %in% configs$isAliveInSubset, ]
+      print(aliveSubsetConfigs)
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive, minSurvival))
       irace.note("Elite configurations (first number is the configuration ID;",
