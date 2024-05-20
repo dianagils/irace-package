@@ -1453,6 +1453,8 @@ elitist_race <- function(maxExp = 0,
     alive <- alive_list[[subset_number]]
     rejected <- rejected_list[[subset_number]]
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
+    cat('RANKS: ')
+    print(race.ranks[[as.character(subset_number)]])
     if (!scenario$quiet) {
     old_best <- best_list[[as.character(subset_number)]] # old_best could be NA.
     best_list[[as.character(subset_number)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
