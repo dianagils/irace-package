@@ -1152,10 +1152,13 @@ irace_run <- function(scenario, parameters)
       
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
-      if (scenario$elitist)
+      if (scenario$elitist) {
+        print()
+        print(iraceResults$experiments[[as.character(subsetNumber)]])
+        print(!is.na(iraceResults$experiments[[as.character(subsetNumber)]]))
         print(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])))
         irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsed)
-      
+      }
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
         cat('SUBSET DONE WITH RACING')
