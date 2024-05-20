@@ -1593,14 +1593,13 @@ irace_run <- function(scenario, parameters)
 
       for (subset_number in unique(subsets$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
-        unique_configs <- list()
+        unique_configs <- data.frame()
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
-          print(config)
           config_id <- config$.ID.
           if (!(config_id %in% added_ids)) {
             added_ids <- c(added_ids, config_id)
-            unique_configs <- c(unique_configs, list(config))
+            unique_configs <- rbind(unique_configs, config)
           }
         }
       
