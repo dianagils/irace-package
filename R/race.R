@@ -1447,9 +1447,9 @@ elitist_race <- function(maxExp = 0,
     alive <- alive_list[[subset_number]]
     race.ranks[[as.character(subset_number)]] <- overall_ranks(Results[, alive, drop = FALSE], test = stat.test)
     if (!scenario$quiet) {
-    old_best <- best_list[[as.character(currentSubset)]] # old_best could be NA.
-    best_list[[as.character(currentSubset)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
-    mean_best <- mean(Results[, best_list[[as.character(currentSubset)]]])
+    old_best <- best_list[[as.character(subset_number)]] # old_best could be NA.
+    best_list[[as.character(subset_number)]] <- which.alive[which.min(race.ranks[[as.character(subset_number)]] )]
+    mean_best <- mean(Results[, best_list[[as.character(subset_number)]]])
     # print_footer(bestconf = configurations[best_list[[as.character(currentSubset)]], , drop = FALSE],
     #              # FIXME: This is the mean of the best, but perhaps it
     #              # should be the sum of ranks in the case of test ==
@@ -1466,12 +1466,12 @@ elitist_race <- function(maxExp = 0,
     for (i in 1:length(alive)) {
     print(i)
     if (alive[i]) {
-      configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], currentSubsetNumber)
+      configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], subset_number)
       }
     }
     # Assign the proper ranks in the configurations data.frame.
     configurations$.RANK. <- vector("list", nrow(configurations))
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     if (nrow(configs) > 0) {
       for (i in seq_len(nrow(configs))) {
         config_index <- which(rownames(configurations) == rownames(configs)[i])
