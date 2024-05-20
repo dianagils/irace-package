@@ -1328,6 +1328,7 @@ elitist_race <- function(maxExp = 0,
           t.holm = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "holm"),
           t.bonferroni = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "bonferroni")
         )
+        print(test.res)
         
         test_res_list[[i]] <- test.res
         race_ranks_list[[i]] <- test.res$ranks
