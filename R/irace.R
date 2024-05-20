@@ -1343,23 +1343,27 @@ irace_run <- function(scenario, parameters)
       nbNewConfigurations_per_subset <- nbConfigurations / length(unique(subsets$SubsetNumber))
 
       # Initialize a list to store all elite configurations
-      all_elite_configs <- list()
+      all_elite_configs <- data.frame()
+      added_ids <- c()
 
-      # Iterate over each subset
       for (subset_number in unique(subsets$SubsetNumber)) {
-        # Subset elite configurations for the current subset
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
-        
-        # Append elite configurations for the current subset to the list
-        all_elite_configs[[as.character(subset_number)]] <- elite_configs_subset
+        unique_configs <- list()
+        for (i in seq_len(nrow(elite_configs_subset))) {
+          config <- elite_configs_subset[i, ]
+          config_id <- config[[".ID."]] 
+          if (!(config_id %in% added_ids)) {
+            added_ids <- c(added_ids, config_id)
+            unique_configs <- c(unique_configs, list(config))
+          }
+        }
+      
+        all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
-
-      # Combine all elite configurations into a single dataframe
-      all_elite_configs_df <- do.call(rbind, all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
-      model <- updateModel(parameters, all_elite_configs_df, model, indexIteration,
+      model <- updateModel(parameters, all_elite_configs, model, indexIteration,
                           nbIterations, nbNewConfigurations_per_subset, scenario)
       if (debugLevel >= 2) printModel(model)
 
@@ -1584,7 +1588,7 @@ irace_run <- function(scenario, parameters)
     
     
     if (firstRace) {
-      all_elite_configs <- list()
+      all_elite_configs <- data.frame()
       added_ids <- c()
 
       for (subset_number in unique(subsets$SubsetNumber)) {
@@ -1599,20 +1603,14 @@ irace_run <- function(scenario, parameters)
           }
         }
       
-        all_elite_configs[[as.character(subset_number)]] <- unique_configs
+        all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
 
-      # Print the resulting list of all elite configurations
-      print(all_elite_configs)
-
-
-      # Combine all elite configurations into a single dataframe
-      all_elite_configs_df <- do.call(rbind, all_elite_configs)
       cat('All elite configs: ')
-      print(all_elite_configs_df)
+      print(all_elite_configs)
       # SUBSETS: all model calls should be per subset
       if (debugLevel >= 1) irace.note("Initialise model\n")
-      model <- initialiseModel(parameters, all_elite_configs_df)
+      model <- initialiseModel(parameters, all_elite_configs)
       if (debugLevel >= 2) printModel (model)
       firstRace <- FALSE
     }
