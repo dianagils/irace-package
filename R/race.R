@@ -1472,6 +1472,7 @@ elitist_race <- function(maxExp = 0,
     # Assign the proper ranks in the configurations data.frame.
     configurations$.RANK. <- vector("list", nrow(configurations))
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+    configs <- configurations[indexes,]
     if (nrow(configs) > 0) {
       for (i in seq_len(nrow(configs))) {
         config_index <- which(rownames(configurations) == rownames(configs)[i])
