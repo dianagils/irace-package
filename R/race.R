@@ -843,7 +843,8 @@ elitist_race <- function(maxExp = 0,
     # Store the matrix in the result_list
     result_list[[as.character(subset_number)]] <- subset_results
   }
-  
+  cat('first res list: ')
+  print(result_list)  
 
   if (capping)
     experimentsTime <- matrix(NA,
@@ -858,6 +859,9 @@ elitist_race <- function(maxExp = 0,
       subset_results <- result_list[[as.character(subset_num)]]
       subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
       result_list[[as.character(subset_number)]] <- subset_results
+      cat('modifying result list data:')
+      print(subset_num)
+      print(result_list[[as.character(subset_number)]])
       is.elite[[as.character(subset_number)]] <- colSums2(!is.na( result_list[[as.character(subset_number)]]))
       }
 
@@ -1088,6 +1092,8 @@ elitist_race <- function(maxExp = 0,
                                 
     if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
       result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
+      cat('rows are less: ')
+      print(result_list[[as.character(currentSubset)]])
       rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[currentSubset]][currentSubsetTask]
       print(result_list[[as.character(currentSubset)]])
       if (capping) {
@@ -1217,7 +1223,7 @@ elitist_race <- function(maxExp = 0,
     }
 
     result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps] <- vcost
-    cat('Result list\n')
+    cat('Result list post adding vcost\n')
     print(result_list[[as.character(currentSubset)]])
 
     
