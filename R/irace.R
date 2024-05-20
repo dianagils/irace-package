@@ -1596,7 +1596,8 @@ irace_run <- function(scenario, parameters)
         unique_configs <- list()
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
-          config_id <- config[[".ID."]] 
+          print(config)
+          config_id <- config$.ID.
           if (!(config_id %in% added_ids)) {
             added_ids <- c(added_ids, config_id)
             unique_configs <- c(unique_configs, list(config))
