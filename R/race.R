@@ -1458,7 +1458,10 @@ elitist_race <- function(maxExp = 0,
     }
 
     nbAlive <- sum(alive)
+    cat('ALIVE: ')
+    print(alive)
     for (i in 1:length(alive)) {
+    print(i)
     if (alive[i]) {
       configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], currentSubsetNumber)
       }
