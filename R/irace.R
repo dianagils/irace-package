@@ -1401,9 +1401,12 @@ irace_run <- function(scenario, parameters)
         # Set ID of the new configurations.
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
+        print(newly_generated_configs)
         # Append new configurations to the global table.
-        allConfigurations <- rbind(allConfigurations,  subset(newly_generated_configs, select = -c(isAliveInSubset)))
+        print(allConfigurations)
+        allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
+        print(allConfigurations)
         # Append to race configs
         raceConfigurations <- rbind(newly_generated_configs,
                                       raceConfigurations)
@@ -1581,7 +1584,6 @@ irace_run <- function(scenario, parameters)
       aliveSubsetConfigs <- configs[indexes,]
       aliveSubsetConfigs$.RANK. <- lapply(aliveSubsetConfigs$.RANK., update_rank_for_subset, subset_number = subset_number)
       aliveSubsetConfigs$.RANK. <- as.numeric(aliveSubsetConfigs$.RANK.)
-      print(aliveSubsetConfigs)
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
       irace.note("Elite configurations (first number is the configuration ID;",
@@ -1613,7 +1615,7 @@ irace_run <- function(scenario, parameters)
         all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
 
-      cat('All elite configs: ')
+      cat('All elite configs: \n')
       print(all_elite_configs)
       # SUBSETS: all model calls should be per subset
       if (debugLevel >= 1) irace.note("Initialise model\n")
