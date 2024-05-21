@@ -1383,9 +1383,6 @@ irace_run <- function(scenario, parameters)
                                           repair = scenario$repairConfiguration)
         # Set isAliveInSubset column
         new_configs_subset$isAliveInSubset <- list(subset_number)
-        cat('configs for subset: ')
-        print(subset_number)
-        print(new_configs_subset)
         for (i in seq_len(nrow(new_configs_subset))) {
             identical_index <- which(apply(newly_generated_configs, 1, function(row) all(row[-which(names(row) %in% c("isAliveInSubset"))] == new_configs_subset[i, -which(names(new_configs_subset) %in% c("isAliveInSubset"))])))
             if (length(identical_index) == 0) {
@@ -1405,6 +1402,7 @@ irace_run <- function(scenario, parameters)
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
         print(newly_generated_configs)
+        print(allConfigurations)
 
       # TODO: FIX SOFT RESTART
       if (scenario$softRestart) {
