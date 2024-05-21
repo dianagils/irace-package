@@ -753,7 +753,8 @@ elitist_race <- function(maxExp = 0,
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
-                                              sampleInstances = scenario$sampleInstances)                                         
+                                              sampleInstances = scenario$sampleInstances)    
+    print(race.subsets_instances)                                     
   }
   else {
   # TODO> DETERMINISTIC 
@@ -766,7 +767,7 @@ elitist_race <- function(maxExp = 0,
   no.tasks <- sum(lengths(race.subsets_instances))
   unique_subset_numbers <- unique(subset.data$SubsetNumber)
   subsetOrder <- rep(unique_subset_numbers, length.out = no.tasks)
-  cat('SUBSET ORDER\n')
+  cat('SUBSET ORDER: \n')
   print(subsetOrder)
 
   # Initialize some variables...
@@ -803,7 +804,6 @@ elitist_race <- function(maxExp = 0,
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
-  print(elite.instances.ID_per_subset)
   combined_elite_instances_ID <- unlist(elite.instances.ID_per_subset, recursive = FALSE)
 
   # if (is.null(elite.data)) {
