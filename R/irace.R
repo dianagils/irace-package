@@ -1429,6 +1429,8 @@ irace_run <- function(scenario, parameters)
         }
       }
       # Append new configurations to the global table.
+      print(allConfigurations)
+      print(new_configs_subset)
       allConfigurations <- rbind(allConfigurations, new_configs_subset)
 
       rownames(allConfigurations) <- allConfigurations[[".ID."]] 
@@ -1487,6 +1489,8 @@ irace_run <- function(scenario, parameters)
       }
     subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
      }
+    cat('SUBSETS: ')
+    print(subsets)
 
     if (debugLevel >= 1) irace.note("Launch race\n")
     # SUBSET: modify elitist race to receive list of instancesList and iterate the execution of one fo each list
