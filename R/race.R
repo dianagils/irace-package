@@ -36,7 +36,6 @@ createExperimentList <- function(configurations, parameters,
 {
   instances <- instances[instances.ID]
   n_configurations <- nrow(configurations)
-  print(n_configurations)
   n_instances <- length(instances)
   pnames <- parameters$names
   switches <- parameters$switches[pnames]
@@ -73,6 +72,7 @@ race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL
   irace.assert (parameters$nbVariable > 0)
   irace.assert (length(parameters$names) == parameters$nbParameters)
   # Experiment list to execute
+  print(configurations)
   experiments <- createExperimentList(configurations, parameters = parameters,
                                       instances = scenario$instances,
                                       instances.ID = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "instanceID"],
@@ -1194,8 +1194,9 @@ elitist_race <- function(maxExp = 0,
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     race.configs <- configurations[indexes,]
-    print(race.configs)
-    print(.irace$instanceSubsetList[[as.character(currentSubset)]][currentInstance, "instanceID"])
+    print(race.configs[which.alive, , drop = FALSE])
+    print(nrow(race.configs))
+    print(seq_len(nrow(race.configs)))
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
