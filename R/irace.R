@@ -1313,10 +1313,10 @@ irace_run <- function(scenario, parameters)
         allConfigurations <- rbind(allConfigurations, newConfigurations)
         rownames(allConfigurations) <- allConfigurations[[".ID."]]
         # Add a new column to 'raceConfigurations' with lists of unique subsets
-        allConfigurations$isAliveInSubset <- lapply(seq_len(nrow(allConfigurations)), function(i) {
+        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
+        raceConfigurations$isAliveInSubset <- lapply(seq_len(nrow(raceConfigurations)), function(i) {
           unique_subsets
         })
-        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
       } else if (nbNewConfigurations <= 0) {
         # We let the user know that not all configurations will be used.
         if (nbUserConfigurations > nbConfigurations) {
