@@ -1200,11 +1200,11 @@ irace_run <- function(scenario, parameters)
     num_matrices <- length(iraceResults$experiments)
 
     # Initialize a variable to store the sum of the number of rows
-    total_rows <- 0
+    totalRows <- 0
 
     # Iterate over each matrix and sum the number of rows
     for (i in 1:num_matrices) {
-      total_rows <- total_rows + nrow(iraceResults$experiments[[i]])
+      totalRows <- totalRows + nrow(iraceResults$experiments[[i]])
     }
 
     totalElites <- sum(sapply(eliteConfigurations, function(df) nrow(df)))
