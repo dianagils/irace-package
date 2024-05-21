@@ -715,6 +715,7 @@ elitist_race <- function(maxExp = 0,
     rejected_list <- lapply(rejected_list, function(x) {
     rep(TRUE, length.out = no.configurations)
   })
+  print(alive_list)
   
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
