@@ -36,6 +36,7 @@ createExperimentList <- function(configurations, parameters,
 {
   instances <- instances[instances.ID]
   n_configurations <- nrow(configurations)
+  print(n_configurations)
   n_instances <- length(instances)
   pnames <- parameters$names
   switches <- parameters$switches[pnames]
