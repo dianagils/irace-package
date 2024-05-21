@@ -804,7 +804,6 @@ elitist_race <- function(maxExp = 0,
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
-  combined_elite_instances_ID <- unlist(elite.instances.ID_per_subset, recursive = FALSE)
 
   # if (is.null(elite.data)) {
   #   elite.safe <- 0L
@@ -843,20 +842,20 @@ elitist_race <- function(maxExp = 0,
 
     # Print the lengths of dimnames lists
     cat("Length of combined_elite_instances_ID:", length(combined_elite_instances_ID), "\n")
-    cat("Length of subset_configs$ID:", length(subset_configs$.ID.), "\n")
+    cat("Length of subset_configs$ID:", length(subset_configs$ID), "\n")
 
     # Print the dimnames lists themselves
     print("combined_elite_instances_ID:")
     print(combined_elite_instances_ID)
 
     print("subset_configs$ID:")
-    print(subset_configs$.ID.)
+    print(subset_configs$ID)
 
     # Attempt to create the matrix
     subset_results <- matrix(NA, 
                             nrow = elite.safe_per_subset[[as.character(subset_number)]], 
                             ncol = nrow(subset_configs),
-                            dimnames = list(combined_elite_instances_ID, subset_configs$.ID.))
+                            dimnames = list(elite.instances.ID_per_subset[[as.character(subset_number)]], subset_configs$.ID.))
     
     # Store the matrix in the result_list
     result_list[[as.character(subset_number)]] <- subset_results
