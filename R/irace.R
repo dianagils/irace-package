@@ -1368,6 +1368,12 @@ irace_run <- function(scenario, parameters)
 
       # Iterate over each subset again to sample new configurations and update elite configurations
       newly_generated_configs <- data.frame()
+      print(all_elite_configs)
+
+      combined_elites <- do.call(rbind, eliteConfigurations)
+      raceConfigurations <- combined_elites[!duplicated(combined_elites$.ID.), ]
+      print(raceConfigurations)
+      
       for (subset_number in unique(subsets$SubsetNumber)) {
         # Subset elite configurations for the current subset
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
@@ -1390,11 +1396,6 @@ irace_run <- function(scenario, parameters)
             newly_generated_configs$isAliveInSubset[identical_index] <- existing_subset
             }
           }
-        print(raceConfigurations)
-        raceConfigurations <- elite_configs_subset[, colnames(newConfigurations)]
-        print(elite_configs_subset[, colnames(newConfigurations)])
-        rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
-        
         }
 
         # Set ID of the new configurations.
