@@ -1316,6 +1316,10 @@ irace_run <- function(scenario, parameters)
                  newConfigurations)
         allConfigurations <- rbind(allConfigurations, newConfigurations)
         rownames(allConfigurations) <- allConfigurations[[".ID."]]
+        # Add a new column to 'raceConfigurations' with lists of unique subsets
+        allConfigurations$isAliveInSubset <- lapply(seq_len(nrow(allConfigurations)), function(i) {
+          unique_subsets
+        })
         raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
       } else if (nbNewConfigurations <= 0) {
         # We let the user know that not all configurations will be used.
@@ -1336,11 +1340,6 @@ irace_run <- function(scenario, parameters)
       } # end of indexIteration == 1
       # since its the first race, add the column of alive with all of the subsets
       # Assuming 'raceConfigurations' is your dataset and 'subsets' is the dataframe containing unique subset numbers
-
-    # Add a new column to 'raceConfigurations' with lists of unique subsets
-      raceConfigurations$isAliveInSubset <- lapply(seq_len(nrow(raceConfigurations)), function(i) {
-      unique_subsets
-    })
 
     } else {
           # How many new configurations should be sampled?
@@ -1401,8 +1400,6 @@ irace_run <- function(scenario, parameters)
         # Set ID of the new configurations.
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
-        print(newly_generated_configs)
-        print(allConfigurations)
 
       # TODO: FIX SOFT RESTART
       if (scenario$softRestart) {
