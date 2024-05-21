@@ -1402,7 +1402,7 @@ irace_run <- function(scenario, parameters)
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
         # Append new configurations to the global table.
-        allConfigurations <- rbind(allConfigurations,  subset(newly_generated_configs, select = -c(.RANK., .WEIGHT.)))
+        allConfigurations <- rbind(allConfigurations,  subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
         # Append to race configs
         raceConfigurations <- rbind(newly_generated_configs,
