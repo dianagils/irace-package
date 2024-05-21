@@ -837,7 +837,25 @@ elitist_race <- function(maxExp = 0,
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     subset_configs <- configurations[indexes,]
     # Create a matrix to store results for configurations in the current subset
-    subset_results <- matrix(NA, nrow = elite.safe_per_subset[[as.character(subset_number)]], ncol = nrow(subset_configs),
+    # Print the intended number of rows and columns
+    cat("Number of rows (nrow):", elite.safe_per_subset[[as.character(subset_number)]], "\n")
+    cat("Number of columns (ncol):", nrow(subset_configs), "\n")
+
+    # Print the lengths of dimnames lists
+    cat("Length of combined_elite_instances_ID:", length(combined_elite_instances_ID), "\n")
+    cat("Length of subset_configs$ID:", length(subset_configs$ID), "\n")
+
+    # Print the dimnames lists themselves
+    print("combined_elite_instances_ID:")
+    print(combined_elite_instances_ID)
+
+    print("subset_configs$ID:")
+    print(subset_configs$ID)
+
+    # Attempt to create the matrix
+    subset_results <- matrix(NA, 
+                            nrow = elite.safe_per_subset[[as.character(subset_number)]], 
+                            ncol = nrow(subset_configs),
                             dimnames = list(combined_elite_instances_ID, subset_configs$ID))
     
     # Store the matrix in the result_list
