@@ -1154,10 +1154,10 @@ irace_run <- function(scenario, parameters)
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist) {
         print(iraceResults$experiments)
-        print(iraceResults$experiments[[as.character(subsetNumber)]])
-        print(!is.na(iraceResults$experiments[[as.character(subsetNumber)]]))
-        print(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])))
-        irace.assert(sum(!is.na(iraceResults$experiments[[as.character(subsetNumber)]])) == currentSubset$experimentsUsed)
+        print(iraceResults$experiments[[subsetNumber]])
+        print(!is.na(iraceResults$experiments[[subsetNumber]]))
+        print(sum(!is.na(iraceResults$experiments[[subsetNumber]])))
+        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsed)
       }
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
@@ -1481,9 +1481,6 @@ irace_run <- function(scenario, parameters)
       print(currentSubset)
       currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
-      cat('params\n')
-      print(n)
-      print(minSurvival)
       if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
         .irace$instanceSubsetList <- generateInstancesForOneSubset(scenario,
