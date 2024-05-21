@@ -1190,6 +1190,7 @@ elitist_race <- function(maxExp = 0,
     }
     
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
+    print(currentInstance)
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     race.configs <- configurations[indexes,]
