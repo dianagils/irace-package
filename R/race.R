@@ -863,7 +863,7 @@ elitist_race <- function(maxExp = 0,
       cat('modifying result list data:')
       print(subset_num)
       print(result_list[[as.character(subset_num)]])
-      is.elite[[as.character(subset_num)]] <- colSums2(!is.na( result_list[[as.character(subset_num)]]))
+      is.elite[[as.character(subset_num)]] <- colSums2(!is.na(result_list[[as.character(subset_num)]]))
       }
 
     if (capping) {
@@ -987,7 +987,6 @@ elitist_race <- function(maxExp = 0,
       which.exe <- which(alive & is.na(result_list[[as.character(currentSubset)]][currentSubsetTask, ]))
       if (length(which.exe) == 0) {
         is.elite[[as.character(currentSubset)]]  <- update.is.elite(is.elite[[as.character(currentSubset)]], which.exe)
-        print(is.elite)
         # LESLIE: This is the case in which there are only elite configurations alive
         # and we are still in the previous instances execution, but we can still 
         # continue with the race. (This is only possible because the early termination
@@ -1109,7 +1108,7 @@ elitist_race <- function(maxExp = 0,
     # Execution bounds calculation (capping only)
     final.bounds <- elite.bound <- NULL
     # Calculate bounds for executing if needed.
-    which.elite.exe <- intersect(which.exe, which(is.elite > 0))
+    which.elite.exe <- intersect(which.exe, which(is.elite[[as.character(currentSubset)]] > 0))
 
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
@@ -1350,10 +1349,10 @@ elitist_race <- function(maxExp = 0,
     
     # Handle elites when elimination is performed.  The elite configurations
     # can be removed only when they have no more previously-executed instances.
-    irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
-    if (!is.null(elite.data) && any(is.elite > 0)) {
-      irace.assert (length(alive) == length(is.elite))
-      alive <- alive | (is.elite > 0)
+    irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+    if (!is.null(elite.data) && any(is.elite[[as.character(currentSubset)]] > 0)) {
+      irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
+      alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
     }
 
     # It may happen that the capping and the test eliminate together all
@@ -1409,8 +1408,8 @@ elitist_race <- function(maxExp = 0,
     cat('cc6\n')
     if (elitist) {
       # Compute number of statistical tests without eliminations.
-      irace.assert(!any(is.elite > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
-      if (!any(is.elite > 0)
+      irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+      if (!any(is.elite[[as.character(currentSubset)]] > 0)
           && currentSubsetTask > first.test && (currentSubsetTask %% each.test) == 0) {
         if (length(which.alive) == length(prev.alive)) {
           no.elimination <- no.elimination + 1L
@@ -1432,8 +1431,8 @@ elitist_race <- function(maxExp = 0,
   # in irace()
   # MANUEL: Leslie, how can we reach this error in normal circumstances?
   # Can we handle this better?
-  if (current.task == 1L && !any(is.elite > 0L))
-    irace.error ("Maximum number configurations immediately rejected reached!")
+  # if (current.task == 1L && !any(is.elite > 0L))
+  #   irace.error ("Maximum number configurations immediately rejected reached!")
   
   # All instances that are not new in this race must have been evaluated by at
   # least one configuration.
