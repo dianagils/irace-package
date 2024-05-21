@@ -859,11 +859,11 @@ elitist_race <- function(maxExp = 0,
       subset_elite_data <- elite.data[[as.character(subset_num)]]
       subset_results <- result_list[[as.character(subset_num)]]
       subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
-      result_list[[as.character(subset_number)]] <- subset_results
+      result_list[[as.character(subset_num)]] <- subset_results
       cat('modifying result list data:')
       print(subset_num)
-      print(result_list[[as.character(subset_number)]])
-      is.elite[[as.character(subset_number)]] <- colSums2(!is.na( result_list[[as.character(subset_number)]]))
+      print(result_list[[as.character(subset_num)]])
+      is.elite[[as.character(subset_num)]] <- colSums2(!is.na( result_list[[as.character(subset_num)]]))
       }
 
     if (capping) {
@@ -973,9 +973,7 @@ elitist_race <- function(maxExp = 0,
     currentSubset <- subsetOrder[current.task]
     currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
     print(currentSubsetRow)
-    print(currentSubset[1])
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
-    print(currentSubsetTask)
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
@@ -989,6 +987,7 @@ elitist_race <- function(maxExp = 0,
       which.exe <- which(alive & is.na(result_list[[as.character(currentSubset)]][currentSubsetTask, ]))
       if (length(which.exe) == 0) {
         is.elite[[as.character(currentSubset)]]  <- update.is.elite(is.elite[[as.character(currentSubset)]], which.exe)
+        print(is.elite)
         # LESLIE: This is the case in which there are only elite configurations alive
         # and we are still in the previous instances execution, but we can still 
         # continue with the race. (This is only possible because the early termination
