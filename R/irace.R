@@ -1372,7 +1372,6 @@ irace_run <- function(scenario, parameters)
       # Get raceConfigurations with elites
       all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
       raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
-      print(raceConfigurations)
       
       for (subset_number in unique(subsets$SubsetNumber)) {
         # Subset elite configurations for the current subset
@@ -1403,15 +1402,14 @@ irace_run <- function(scenario, parameters)
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
         print(newly_generated_configs)
         # Append new configurations to the global table.
-        print(allConfigurations)
+
         allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
-        print(allConfigurations)
+
         # Append to race configs
         raceConfigurations <- rbind(newly_generated_configs,
                                       raceConfigurations)
-        print(raceConfigurations)
-      
+
       # TODO: FIX SOFT RESTART
       if (scenario$softRestart) {
         # Rprof("profile.out")
@@ -1459,8 +1457,8 @@ irace_run <- function(scenario, parameters)
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
         print(iraceResults$experiments[[subset_number]])
-        print(as.character(elite_configs_subset[[".ID."]]))
-        iraceResults$experiments[[subset_number]][, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
+        print(elite_configs_subset[[".ID."]])
+        print(iraceResults$experiments[[subset_number]][, elite_configs_subset[[".ID."]], drop = FALSE])
       } else {
         NULL
       }
