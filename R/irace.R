@@ -1382,7 +1382,7 @@ irace_run <- function(scenario, parameters)
                                           model, nbNewConfigurations_per_subset,
                                           repair = scenario$repairConfiguration)
         # Set isAliveInSubset column
-        $isAliveInSubset <- list(subset_number)
+        new_configs_subset$isAliveInSubset <- list(subset_number)
         cat('configs for subset: ')
         print(subset_number)
         print(new_configs_subset)
