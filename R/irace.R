@@ -1116,7 +1116,7 @@ irace_run <- function(scenario, parameters)
   doneSubsets <- data.frame()
   unique_subset_numbers <- unique(subsets$SubsetNumber)
   iraceResults$experiments <- vector("list", length(unique_subset_numbers))
-  iraceResults$experiments <- lapply(iraceResults$experiments, function(x) data.frame())
+  iraceResults$experiments <- lapply(iraceResults$experiments, function(x) matrix(nrow = 0, ncol = 0))
 
   repeat {
     # Recovery info 
@@ -1520,7 +1520,7 @@ irace_run <- function(scenario, parameters)
                                         cbind(rep(indexIteration, nrow(raceResults$experimentLog)),
                                               raceResults$experimentLog))
     
-    for (subset_number in unique(subsets$SubsetNumber)) {
+    for (iraceResults$experiments[[subset_number]]subset_number in unique(subsets$SubsetNumber)) {
       subsetResults <- raceResults$experiments[[as.character(subset_number)]]
       iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
