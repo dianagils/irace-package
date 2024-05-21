@@ -77,7 +77,7 @@ race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL
                                       instances.ID = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "instanceID"],
                                       seeds = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "seed"],
                                       bounds = bounds)
-  print(experiments)
+
   target.output <- vector("list", length(experiments))
   # Execute commands
   if (length(which.exe) > 0) {
@@ -1193,6 +1193,7 @@ elitist_race <- function(maxExp = 0,
     #filter configs from that subset only
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     race.configs <- configurations[indexes,]
+    print(race.configs)
     print(.irace$instanceSubsetList[[as.character(currentSubset)]][currentInstance, "instanceID"])
     output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
