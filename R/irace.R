@@ -1153,10 +1153,6 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist) {
-        print(iraceResults$experiments)
-        print(iraceResults$experiments[[subsetNumber]])
-        print(!is.na(iraceResults$experiments[[subsetNumber]]))
-        print(sum(!is.na(iraceResults$experiments[[subsetNumber]])))
         irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsed)
       }
       # Check the conditions
@@ -1347,6 +1343,7 @@ irace_run <- function(scenario, parameters)
 
       # Initialize a list to store all elite configurations
       all_elite_configs <- data.frame()
+      raceConfigurations <- data.frame()
       added_ids <- c()
 
       for (subset_number in unique(subsets$SubsetNumber)) {
@@ -1394,12 +1391,22 @@ irace_run <- function(scenario, parameters)
             newly_generated_configs$isAliveInSubset[identical_index] <- existing_subset
             }
           }
-
+        
+        raceConfigurations <- rbind(raceConfigurations,
+                                    elite_configs_subset[, colnames(newConfigurations)])
+        rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
+        
         }
 
         # Set ID of the new configurations.
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
+        # Append new configurations to the global table.
+        allConfigurations <- rbind(allConfigurations, newly_generated_configs)
+        rownames(allConfigurations) <- allConfigurations[[".ID."]] 
+        # Append to race configs
+        raceConfigurations <- rbind(newly_generated_configs,
+                                      raceConfigurations)
 
       # TODO: FIX SOFT RESTART
       if (scenario$softRestart) {
@@ -1428,12 +1435,7 @@ irace_run <- function(scenario, parameters)
           rownames(raceConfigurations) <- raceConfigurations[[".ID."]]
         }
       }
-      # Append new configurations to the global table.
-      print(allConfigurations)
-      print(newly_generated_configs)
-      allConfigurations <- rbind(allConfigurations, newly_generated_configs)
 
-      rownames(allConfigurations) <- allConfigurations[[".ID."]] 
       }
  
     if (debugLevel >= 2) {
@@ -1452,6 +1454,8 @@ irace_run <- function(scenario, parameters)
       
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
+        print(iraceResults$experiments[[subset_number]])
+        print(as.character(elite_configs_subset[[".ID."]]))
         iraceResults$experiments[[subset_number]][, as.character(elite_configs_subset[[".ID."]]), drop = FALSE]
       } else {
         NULL
