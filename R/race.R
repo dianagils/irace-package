@@ -1481,7 +1481,11 @@ elitist_race <- function(maxExp = 0,
     if (alive[i]) {
       ID <- subsetConfigs[i,]$.ID.
       configurationRow <- configurations[configurations$.ID. == ID,]
-      configurationRow$isAliveInSubset[[1]] <- c(configurationRow$isAliveInSubset[[1]], subset_number) 
+      if (configurationRow$isAliveInSubset[[1]]) {
+        configurationRow$isAliveInSubset[[1]] <- c(configurationRow$isAliveInSubset[[1]], subset_number) 
+      } else {
+        configurationRow$isAliveInSubset[[1]] <- subset_number
+      }
       configurations[configurations$.ID. == ID,] <- configurationRow
       } 
     }
