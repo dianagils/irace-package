@@ -116,7 +116,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show this 
 "Number of configurations to be sampled and evaluated at each iteration.", 
 "Parameter used to define the number of configurations sampled and evaluated at each iteration.", 
 "Confidence level for the elimination test.",
-"Instance subset files",)), row.names = c(".help", 
+"Instance subset files")), row.names = c(".help", 
 ".version", ".check", ".init", ".onlytest", "scenarioFile", "execDir", 
 "parameterFile", "initConfigurations", "configurationsFile", 
 "logFile", "recoveryFile", "instances", "trainInstancesDir", 
