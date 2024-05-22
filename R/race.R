@@ -956,6 +956,7 @@ elitist_race <- function(maxExp = 0,
   
   # Start main loop
   break.msg <- NULL
+  done_subsets <- list()
   best_list <- list()
   subset.data$currentSubsetTask <- 1
   nSubsets <- unique(subset.data$SubsetNumber)
@@ -963,8 +964,15 @@ elitist_race <- function(maxExp = 0,
   cat('NO TASKS')
   print(no.tasks)
   for (current.task in seq_len(no.tasks)) {
+    # check ifare any subsets left
+    terminated <- all(unique_subset_numbers %in% done_subsets)
+    if (terminated) {
+      break
+    }
     # which subset and task im executing
     currentSubset <- subsetOrder[current.task]
+    # CONTINUE IF SUBSET IS DONE
+    if (currentSubset %in% done_subsets) next
     currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
     print(currentSubsetRow)
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
@@ -1024,7 +1032,8 @@ elitist_race <- function(maxExp = 0,
                           ") <= minimum number of configurations (",
                           minSurvival, ")")
       cat('AQUI\n')
-      break
+      done_subsets <- c(done_subsets, currentSubset)
+      next 
     }
     # LESLIE: FIXME: Stopping deactivated by Thomas suggestion. Remove second
     # condition to restore.
@@ -1057,8 +1066,9 @@ elitist_race <- function(maxExp = 0,
         break.msg <- paste0("experiments for next test (",
                             currentSubsetRow$experimentsUsed + length(which.exe) * each.test,
                             ") > max experiments (", currentSubsetRow$currentBudget, ")")
+        done_subsets <- c(done_subsets, currentSubset)
         cat('AQUI2\n')
-        break
+        next
       }
     }
     
@@ -1068,7 +1078,7 @@ elitist_race <- function(maxExp = 0,
         break.msg <- paste0("tests without elimination (", no.elimination,
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
         cat('AQUI3\n')
-        break
+        next
       }    
       }
       
@@ -1220,7 +1230,7 @@ elitist_race <- function(maxExp = 0,
     }
 
     result_list[[as.character(currentSubset)]][currentSubsetTask, which.exps] <- vcost
-    cat('Result list post adding vcost\n')
+    cat('Result list post adding cost\n')
     print(result_list[[as.character(currentSubset)]])
 
     
