@@ -1450,6 +1450,7 @@ elitist_race <- function(maxExp = 0,
   names(alivePerSubset) <- unique_subset_numbers
   configurations$.RANK. <- vector("list", nrow(configurations))
   configurations$isAliveInSubset <- lapply(configurations$isAliveInSubset, function(x) list())
+  print(configurations)
   for (subset_number in unique_subset_numbers) {
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     subsetConfigs <- configurations[indexes,]
@@ -1475,11 +1476,12 @@ elitist_race <- function(maxExp = 0,
 
     nbAlive <- sum(alive)
     alivePerSubset[[as.character(subset_number)]] <- nbAlive
+    print(alivePerSubset)
     for (i in 1:length(alive)) {
     if (alive[i]) {
       ID <- subsetConfigs[i,]$.ID.
       configurationRow <- configurations[configurations$.ID. == ID,]
-      configurationRow$isAliveInSubset <- c(configurationRow$isAliveInSubset, subset_number)
+      configurationRow$isAliveInSubset[[1]] <- c(configurationRow$isAliveInSubset[[1]], subset_number) 
       configurations[configurations$.ID. == ID,] <- configurationRow
       } 
     }
