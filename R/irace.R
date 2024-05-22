@@ -1350,15 +1350,19 @@ irace_run <- function(scenario, parameters)
         unique_configs <- data.frame()
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
+          config$isAliveInSubset <- list(subset_number)
           config_id <- config$.ID.
           if (!(config_id %in% added_ids)) {
             added_ids <- c(added_ids, config_id)
             unique_configs <- rbind(unique_configs, config)
+          } else {
+            unique_configs[unique_configs$.ID. == config_id,]$isAliveInSubset <- c(unique_configs[unique_configs$.ID. == config_id,]$isAliveInSubset, subset_number)
           }
         }
       
         all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
+      print(all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
