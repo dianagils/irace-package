@@ -707,14 +707,6 @@ elitist_race <- function(maxExp = 0,
     }
   }
   }
-  # Ensure that each sublist in alive_list has the same length as the number of configurations
-  alive_list <- lapply(alive_list, function(x) {
-    rep(TRUE, length.out = no.configurations)
-  })
-
-    rejected_list <- lapply(rejected_list, function(x) {
-    rep(TRUE, length.out = no.configurations)
-  })
   print(alive_list)
   
 
