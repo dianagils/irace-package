@@ -1450,10 +1450,12 @@ elitist_race <- function(maxExp = 0,
   names(alivePerSubset) <- unique_subset_numbers
   configurations$.RANK. <- vector("list", nrow(configurations))
   configurations$isAliveInSubset <- vector("list", nrow(configurations))
-  print(configurations)
+  configurations_copy <- configurations 
+
+  print(configurations_copy)
   for (subset_number in unique_subset_numbers) {
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
-    subsetConfigs <- configurations[indexes,]
+    indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_number %in% lst)
+    subsetConfigs <- configurations_copy[indexes,]
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
@@ -1478,15 +1480,16 @@ elitist_race <- function(maxExp = 0,
     alivePerSubset[[as.character(subset_number)]] <- nbAlive
     print(alivePerSubset)
     for (i in 1:length(alive)) {
-    if (alive[i]) {
-      ID <- subsetConfigs[i,]$.ID.
-      print(ID)
-      configurationRow <- configurations[configurations$.ID. == ID,]
-      print(configurationRow)
-      configurationRow$isAliveInSubset <- c(configurationRow$isAliveInSubset, list(subset_number)) # Update the list correctly
-      print(configurationRow)
-      configurations[configurations$.ID. == ID,] <- configurationRow
-      } 
+      print(i)
+      if (alive[i]) {
+        ID <- subsetConfigs[i,]$.ID.
+        print(ID)
+        configurationRow <- configurations[configurations$.ID. == ID,]
+        print(configurationRow)
+        configurationRow$isAliveInSubset <- c(configurationRow$isAliveInSubset, list(subset_number)) # Update the list correctly
+        print(configurationRow)
+        configurations[configurations$.ID. == ID,] <- configurationRow
+        } 
     }
     rejected_ids_by_subset <- vector("list", length(rejected))
       
