@@ -1448,10 +1448,9 @@ elitist_race <- function(maxExp = 0,
   unique_subset_numbers <- unique(subset.data$SubsetNumber)
   alivePerSubset <- vector("list", length(unique_subset_numbers))
   names(alivePerSubset) <- unique_subset_numbers
+  configurations_copy <- configurations 
   configurations$.RANK. <- vector("list", nrow(configurations))
   configurations$isAliveInSubset <- vector("list", nrow(configurations))
-  configurations_copy <- configurations 
-
   print(configurations_copy)
   for (subset_number in unique_subset_numbers) {
     indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_number %in% lst)
