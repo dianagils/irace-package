@@ -1450,7 +1450,7 @@ elitist_race <- function(maxExp = 0,
   names(alivePerSubset) <- unique_subset_numbers
   configurations_copy <- configurations 
   configurations$.RANK. <- vector("list", nrow(configurations))
-  configurations$isAliveInSubset <- lapply(1:nrow(configurations), function(x) list())
+  configurations$isAliveInSubset <- lapply(seq_len(nrow(configurations)), function(i) { list() })
 
   for (subset_number in unique_subset_numbers) {
     indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_number %in% lst)
@@ -1482,13 +1482,12 @@ elitist_race <- function(maxExp = 0,
       print(i)
       if (alive[i]) {
         ID <- subsetConfigs[i,]$.ID.
-        print(ID)
-        configurationRow <- configurations[configurations$.ID. == ID,]
-        configurationRow$isAliveInSubset <- c(configurationRow$isAliveInSubset, subset_number) # Update the list correctly
-        print(configurationRow)
-        configurations[configurations$.ID. == ID,] <- configurationRow
+        index <- which(configurations$.ID. == ID)
+        index <- index[1] 
+        configurations$isAliveInSubset[[index]] <- c(configurations$isAliveInSubset[[index]], subset_number)
         } 
     }
+    
     rejected_ids_by_subset <- vector("list", length(rejected))
       
     for (i in 1:length(rejected)) {
@@ -1516,7 +1515,7 @@ elitist_race <- function(maxExp = 0,
     # if (nbAlive < nrow(configurations))
     #   irace.assert(!any(configurations[(nbAlive + 1L):nrow(configurations), ".ALIVE."]))
   }
-
+  print(configurations)
 
   if (scenario$debugLevel >= 3) {
     irace.note ("Memory used in race():\n")
