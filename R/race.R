@@ -1451,6 +1451,8 @@ elitist_race <- function(maxExp = 0,
   configurations$.RANK. <- vector("list", nrow(configurations))
   configurations$isAliveInSubset <- lapply(configurations$isAliveInSubset, function(x) list())
   for (subset_number in unique_subset_numbers) {
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+    subsetConfigs <- configurations[indexes,]
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
     result_list[[as.character(subset_number)]] <- Results
@@ -1475,8 +1477,11 @@ elitist_race <- function(maxExp = 0,
     alivePerSubset[[as.character(subset_number)]] <- nbAlive
     for (i in 1:length(alive)) {
     if (alive[i]) {
-      configurations$isAliveInSubset[[i]] <- c(configurations$isAliveInSubset[[i]], subset_number)
-      }
+      ID <- subsetConfigs[i,]$.ID.
+      configurationRow <- configurations[configurations$.ID. == ID,]
+      configurationRow$isAliveInSubset <- c(configurationRow$isAliveInSubset, subset_number)
+      configurations[configurations$.ID. == ID,] <- configurationRow
+      } 
     }
     rejected_ids_by_subset <- vector("list", length(rejected))
       
