@@ -1192,13 +1192,9 @@ elitist_race <- function(maxExp = 0,
     }
     
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
-    #filter configs from that subset only
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
-    race.configs <- configurations[indexes,]
-    print(race.configs[which.alive, , drop = FALSE])
-    print(nrow(race.configs))
-    print(seq_len(nrow(race.configs)))
-    output <- race.wrapper(configurations = race.configs[which.alive, , drop = FALSE],
+    #filter configs from that subset only, which alive is for subset
+    print(configurations[which.alive, , drop = FALSE])
+    output <- race.wrapper(configurations = configurations[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
                            # FIXME: Why are we keeping final.bounds values for configurations that are dead?
