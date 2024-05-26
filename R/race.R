@@ -1219,14 +1219,15 @@ elitist_race <- function(maxExp = 0,
     cat('vcost\n')
     print(vcost)
     print(result_list[[as.character(currentSubset)]][currentSubsetTask, ])
-    print(result_list[[as.character(currentSubset)]][, which.exps])
-    print(length(vcost) == length(which.exps))
+    
 
     # If the experiment was executed or target.evaluator exists
     # then the result is in the output.
     ## Currently, targetEvaluator always re-evaluates, which implies that the
     ## value may change without counting as an evaluation. We do this to allow online normalization.
     which.exps <- if (is.null(scenario$targetEvaluator)) which.exe else which.alive
+    print(result_list[[as.character(currentSubset)]][, which.exps])
+    print(length(vcost) == length(which.exps))
     irace.assert(length(vcost) == length(which.exps))
     # Set max execution bound to timed out executions which have execution
     # times smaller than boundMax and implement parX if required
