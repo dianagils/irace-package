@@ -1218,6 +1218,9 @@ elitist_race <- function(maxExp = 0,
     vcost <- unlist(lapply(output, "[[", "cost"))
     cat('vcost\n')
     print(vcost)
+    print(result_list[[as.character(currentSubset)]][currentSubsetTask, ])
+    print(result_list[[as.character(currentSubset)]][, which.exps])
+    print(length(vcost) == length(which.exps))
 
     # If the experiment was executed or target.evaluator exists
     # then the result is in the output.
