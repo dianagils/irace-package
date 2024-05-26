@@ -690,25 +690,35 @@ elitist_race <- function(maxExp = 0,
 
   alive_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
   rejected_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
-  # Iterate over each row of configurations
+  no.configurations <- nrow(configurations)
+  unique_subsets <- unique(subset.data$SubsetNumber)
+
   for (i in seq_len(no.configurations)) {
     # Extract the list of subsets for the current configuration
     subsets <- configurations$isAliveInSubset[[i]]
     
-    # For each subset, set the corresponding element in alive_list to TRUE
-    for (subset in subsets) {
-      alive_list[[subset]] <- c(alive_list[[subset]], TRUE)
+    # Iterate over each unique subset
+    for (subset in unique_subsets) {
+      if (subset %in% subsets) {
+        alive_list[[subset]] <- c(alive_list[[subset]], TRUE)
+      } else {
+        alive_list[[subset]] <- c(alive_list[[subset]], FALSE)
+      }
     }
-    for (subset in seq_along(rejected_list)) {
-    if (!(subset %in% subsets)) {
-      rejected_list[[subset]] <- c(rejected_list[[subset]], TRUE)
-    } else {
-      rejected_list[[subset]] <- c(rejected_list[[subset]], FALSE)
+    
+    # Update the rejected_list based on the alive_list
+    for (subset in unique_subsets) {
+      if (!(subset %in% subsets)) {
+        rejected_list[[subset]] <- c(rejected_list[[subset]], TRUE)
+      } else {
+        rejected_list[[subset]] <- c(rejected_list[[subset]], FALSE)
+      }
     }
   }
-  }
+  cat('alive and rejected lists:')
+  # Print the results
   print(alive_list)
-  
+  print(rejected_list)
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
   # Check argument: maxExp
