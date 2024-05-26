@@ -1357,12 +1357,14 @@ irace_run <- function(scenario, parameters)
             added_ids <- c(added_ids, config_id)
             unique_configs <- rbind(unique_configs, config)
           } else {
-            unique_configs[unique_configs$.ID. == config_id,]$isAliveInSubset <- c(unique_configs[unique_configs$.ID. == config_id,]$isAliveInSubset, subset_number)
+            index <- which(unique_configs$.ID. == config_id)
+            unique_configs$isAliveInSubset[[index]] <- c(unique_configs$isAliveInSubset[[index]], subset_number)
           }
         }
       
         all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
+      print(all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
@@ -1395,8 +1397,7 @@ irace_run <- function(scenario, parameters)
           } else {
             # If an identical configuration is found, append the current subset number to its isAliveInSubset list
             existing_subset <- newly_generated_configs$isAliveInSubset[identical_index]
-            existing_subset[[1]] <- paste(existing_subset[[1]], subset_number, sep = ", ")
-            newly_generated_configs$isAliveInSubset[identical_index] <- existing_subset
+            newly_generated_configs$isAliveInSubset[identical_index] <- c(newly_generated_configs$isAliveInSubset[identical_index],existing_subset)
             }
           }
         }
