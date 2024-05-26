@@ -1226,6 +1226,7 @@ elitist_race <- function(maxExp = 0,
     ## Currently, targetEvaluator always re-evaluates, which implies that the
     ## value may change without counting as an evaluation. We do this to allow online normalization.
     which.exps <- if (is.null(scenario$targetEvaluator)) which.exe else which.alive
+    print(which.exps)
     print(result_list[[as.character(currentSubset)]][, which.exps])
     print(length(vcost) == length(which.exps))
     irace.assert(length(vcost) == length(which.exps))
