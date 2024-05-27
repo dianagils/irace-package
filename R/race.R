@@ -1211,7 +1211,7 @@ elitist_race <- function(maxExp = 0,
                            # FIXME: Why are we keeping final.bounds values for configurations that are dead?
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
-                           which.alive = which.alive, which.exe = which.exe,
+                           which.alive = which.alive.all, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
     
