@@ -980,6 +980,8 @@ elitist_race <- function(maxExp = 0,
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+    currentSubsetConfigs <- configurations[indexes,]
 
     if (elitist && any(elite.instances.ID_per_subset[[as.character(currentSubset)]] > 0)) {
       # Filter configurations that do not need to be executed (elites).
@@ -1012,7 +1014,7 @@ elitist_race <- function(maxExp = 0,
           irace.assert(!is.na(best_list[[as.character(currentSubset)]]))
         }
         
-        id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
+        id_best <- currentSubsetConfigs[[".ID."]][best_list[[as.character(currentSubset)]]]
         print_task(".", result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                    race.subsets_instances[[currentSubset]][currentSubsetTask],
                    currentSubsetTask, alive = alive,
@@ -1193,8 +1195,8 @@ elitist_race <- function(maxExp = 0,
     
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only, which alive is for subset
-    print(configurations[which.alive, , drop = FALSE])
-    output <- race.wrapper(configurations = configurations[which.alive, , drop = FALSE],
+    print(currentSubsetConfigs[which.alive, , drop = FALSE])
+    output <- race.wrapper(configurations = currentSubsetConfigs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
                            # FIXME: Why are we keeping final.bounds values for configurations that are dead?
@@ -1240,7 +1242,7 @@ elitist_race <- function(maxExp = 0,
     }
     experimentLog <- rbind(experimentLog,
                            cbind(currentInstance,
-                                 configurations[which.exe, ".ID."],
+                                 currentSubsetConfigs[which.exe, ".ID."],
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
     # irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
@@ -1258,7 +1260,7 @@ elitist_race <- function(maxExp = 0,
     if (any(rejected_list[[as.character(subset_number)]])) {
       rejected <- rejected_list[[as.character(subset_number)]]
       irace.note ("Immediately rejected configurations: ",
-                  paste0(configurations[which.exe[rejected], ".ID."],
+                  paste0(currentSubsetConfigs[which.exe[rejected], ".ID."],
                          collapse = ", ") , "\n")
       is.rejected[which.exe] <- rejected
       is.elite[is.rejected] <- 0
@@ -1399,7 +1401,7 @@ elitist_race <- function(maxExp = 0,
     # Remove the ranks of those that are not alive anymore
     race.ranks[[as.character(currentSubset)]] <- race.ranks[[as.character(currentSubset)]][which.alive]
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == sum(alive))
-    id_best <- configurations[[".ID."]][best_list[[as.character(currentSubset)]]]
+    id_best <- currentSubsetConfigs[[".ID."]][best_list[[as.character(currentSubset)]]]
     print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
