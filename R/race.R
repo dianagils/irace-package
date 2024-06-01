@@ -980,7 +980,7 @@ elitist_race <- function(maxExp = 0,
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     currentSubsetConfigs <- configurations[indexes,]
 
     if (elitist && any(elite.instances.ID_per_subset[[as.character(currentSubset)]] > 0)) {
