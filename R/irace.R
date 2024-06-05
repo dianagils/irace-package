@@ -1299,7 +1299,7 @@ irace_run <- function(scenario, parameters)
     # Sample for the first time.
     if (firstRace) {
       # If we need more configurations, sample uniformly.
-      nbNewConfigurations <- nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)
+      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)) / length(unique(subsets$SubsetNumber))
       if (nbNewConfigurations > 0) {
         # Sample new configurations.
         if (debugLevel >= 1) {
