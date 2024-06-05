@@ -1346,18 +1346,24 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- data.frame()
       added_ids <- c()
 
+
       for (subset_number in unique(subsets$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         unique_configs <- data.frame()
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
           config$isAliveInSubset <- list(subset_number)
+          print(config)
           config_id <- config$.ID.
+          print(config_id)
           if (!(config_id %in% added_ids)) {
+            cat('New elite\n')
             added_ids <- c(added_ids, config_id)
             unique_configs <- rbind(unique_configs, config)
+            print(unique_configs)
           } else {
             index <- which(unique_configs$.ID. == config_id)
+            print(index)
             unique_configs$isAliveInSubset[[index]] <- c(unique_configs$isAliveInSubset[[index]], subset_number)
           }
         }
