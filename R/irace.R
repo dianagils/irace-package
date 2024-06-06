@@ -1362,8 +1362,8 @@ irace_run <- function(scenario, parameters)
           }
         }
       
-        all_elite_configs <- rbind(all_elite_configs, unique_configs)
       }
+      all_elite_configs <- rbind(all_elite_configs, unique_configs)
       print(all_elite_configs)
 
       # Update the model based on all elite configurations
