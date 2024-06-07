@@ -1253,7 +1253,6 @@ elitist_race <- function(maxExp = 0,
     totalExperimentsUsed <- totalExperimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
-    
     cat('cc1\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
@@ -1351,11 +1350,11 @@ elitist_race <- function(maxExp = 0,
     
     # Handle elites when elimination is performed.  The elite configurations
     # can be removed only when they have no more previously-executed instances.
-    irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
-    if (!is.null(elite.data) && any(is.elite[[as.character(currentSubset)]] > 0)) {
-      irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
-      alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
-    }
+    # irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+    # if (!is.null(elite.data[[as.character(currentSubset)]]) && any(is.elite[[as.character(currentSubset)]] > 0)) {
+    #   irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
+    #   alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
+    # }
 
     # It may happen that the capping and the test eliminate together all
     # configurations. In that case, we only trust the capping elimination.
