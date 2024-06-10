@@ -859,6 +859,8 @@ elitist_race <- function(maxExp = 0,
       print(result_list[[as.character(subset_num)]])
       is.elite[[as.character(subset_num)]] <- colSums2(!is.na(result_list[[as.character(subset_num)]]))
       }
+    cat('is elite:')
+    print(is.elite)
 
     if (capping) {
       tmp <- generateTimeMatrix(elite_ids = colnames(elite.data), 
@@ -991,6 +993,8 @@ elitist_race <- function(maxExp = 0,
       which.exe <- which(alive & is.na(result_list[[as.character(currentSubset)]][currentSubsetTask, ]))
       if (length(which.exe) == 0) {
         is.elite[[as.character(currentSubset)]]  <- update.is.elite(is.elite[[as.character(currentSubset)]], which.exe)
+        cat('is elite:')
+        print(is.elite)
         # LESLIE: This is the case in which there are only elite configurations alive
         # and we are still in the previous instances execution, but we can still 
         # continue with the race. (This is only possible because the early termination
@@ -1160,12 +1164,12 @@ elitist_race <- function(maxExp = 0,
           }
           which.alive <- which(alive)
           nbAlive     <- length(which.alive)
-          elite.safe <- update.elite.safe(Results, is.elite)
+          elite.safe <- update.elite.safe(Results, is.elite[[as.character(currentSubset)]])
         }
         which.exe <- setdiff(which.exe, which.elite.exe)
         # FIXME: There is similar code above.
         if (length(which.exe) == 0L) {
-          is.elite <- update.is.elite(is.elite, which.elite.exe)
+          is.elite[[as.character(currentSubset)]] <- update.is.elite(is.elite[[as.character(currentSubset)]], which.elite.exe)
           if (is.na(best)) {
             dump.frames(dumpto = "best_crash", to.file = TRUE,
                         include.GlobalEnv = TRUE)
@@ -1269,7 +1273,7 @@ elitist_race <- function(maxExp = 0,
       which.alive <- which(alive)
       nbAlive     <- length(which.alive)
       # FIXME: Should we stop  if (nbAlive <= minSurvival) ???
-      elite.safe <- update.elite.safe(result_list[[currentSubset]], is.elite)  
+      elite.safe <- update.elite.safe(result_list[[currentSubset]], is.elite[[as.character(currentSubset)]])  
     }
     irace.assert(!anyNA(result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), alive, drop=FALSE]))
     irace.assert(!any(is.infinite(result_list[[as.character(currentSubset)]][, alive, drop=FALSE])))
@@ -1350,11 +1354,13 @@ elitist_race <- function(maxExp = 0,
     
     # Handle elites when elimination is performed.  The elite configurations
     # can be removed only when they have no more previously-executed instances.
-    # irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
-    # if (!is.null(elite.data[[as.character(currentSubset)]]) && any(is.elite[[as.character(currentSubset)]] > 0)) {
-    #   irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
-    #   alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
-    # }
+    print(is.elite[[as.character(currentSubset)]])
+    print(elite.safe_per_subset)
+    irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+    if (!is.null(elite.data[[as.character(currentSubset)]]) && any(is.elite[[as.character(currentSubset)]] > 0)) {
+      irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
+      alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
+    }
 
     # It may happen that the capping and the test eliminate together all
     # configurations. In that case, we only trust the capping elimination.
