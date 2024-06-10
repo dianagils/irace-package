@@ -965,6 +965,11 @@ elitist_race <- function(maxExp = 0,
   race.ranks <- vector("list", length(nSubsets))
   cat('NO TASKS')
   print(no.tasks)
+  test_res_list <- vector("list", length(nSubsets))
+  race_ranks_list <- vector("list", length(nSubsets))
+  test_alive_list <- vector("list", length(nSubsets))
+  test_dropped_list <- vector("list", length(nSubsets))
+  test_done_list <- vector("list", length(nSubsets))
   for (current.task in seq_len(no.tasks)) {
     # check ifare any subsets left
     terminated <- all(unique_subset_numbers %in% done_subsets)
@@ -1302,49 +1307,39 @@ elitist_race <- function(maxExp = 0,
     # case, this will only do the first test after the first multiple
     # of each.test that is larger than first.test.
     # SUBSETS: MODIFY TO PERFORM N ELIMINATION TESTS
-    nSubsets <- unique(subset.data$SubsetNumber)
-    test_res_list <- vector("list", length(nSubsets))
-    race_ranks_list <- vector("list", length(nSubsets))
-    test_alive_list <- vector("list", length(nSubsets))
-    test_dropped_list <- vector("list", length(nSubsets))
-    test_done_list <- vector("list", length(nSubsets))
-    for (i in nSubsets) {
-      subset <- subset.data[as.character(i),]
-      if (subset$currentSubsetTask >= first.test && 
-          (subset$currentSubsetTask %% each.test) == 0 && 
-          nbAlive > 1L) {
-        
-        irace.assert(sum(alive) == nbAlive)
-        # Get unique instance IDs from .irace$instanceSubsetList
-        unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(subset_num)]]$instanceID)
+    if (currentSubsetTask >= first.test && 
+        (currentSubsetTask %% each.test) == 0 && 
+        nbAlive > 1L) {
+      
+      irace.assert(sum(alive) == nbAlive)
+      # Get unique instance IDs from .irace$instanceSubsetList
+      unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(currentSubset)]]$instanceID)
 
-        filteredResults <-  result_list[[as.character(currentSubset)]]
-        cat('filtered results')
-        print(filteredResults)
-        print(alive)
-        print(which.alive)
-        print(conf.level)
+      filteredResults <-  result_list[[as.character(currentSubset)]]
+      cat('filtered results')
+      print(filteredResults)
+      print(alive)
+      print(which.alive)
+      print(conf.level)
 
-        # Perform the test based on the condition
-        test.res <- switch(
-          stat.test,
-          friedman = aux_friedman(filteredResults, alive, which.alive, conf.level),
-          t.none = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "none"),
-          t.holm = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "holm"),
-          t.bonferroni = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "bonferroni")
-        )
-        print(test.res)
-        
-        test_res_list[[i]] <- test.res
-        race_ranks_list[[i]] <- test.res$ranks
-        test_alive_list[[i]] <- test.res$alive
-        print(test_alive_list[[i]])
-        test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
-        test_done_list[[i]] <- TRUE
-        prev.sum.alive <- sum(alive)
-        alive_list[[i]] <- cap.alive & test_alive_list[[i]]
-        print(alive_list[[i]])
-      }
+      # Perform the test based on the condition
+      test.res <- switch(
+        stat.test,
+        friedman = aux_friedman(filteredResults, alive, which.alive, conf.level),
+        t.none = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "none"),
+        t.holm = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "holm"),
+        t.bonferroni = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "bonferroni")
+      )
+      
+      test_res_list[[i]] <- test.res
+      race_ranks_list[[i]] <- test.res$ranks
+      test_alive_list[[i]] <- test.res$alive
+      print(test_alive_list[[i]])
+      test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
+      test_done_list[[i]] <- TRUE
+      prev.sum.alive <- sum(alive)
+      alive_list[[i]] <- cap.alive & test_alive_list[[i]]
+      print(alive_list[[i]])
     }
     cat('cc2\n')
     # Merge the result of both eliminations.
