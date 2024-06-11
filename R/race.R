@@ -937,7 +937,10 @@ elitist_race <- function(maxExp = 0,
     #is.elite[is.rejected] <- 0L
   }
 
-  no.elimination <- 0 # number of tasks without elimination.
+  no.elimination <- list()
+  for (subset_num in unique(subset.data$SubsetNumber)) {
+    no.elimination[[as.character(subset_num)]] <- 0L
+  }
   print_header()
 
   if (elitist) {
@@ -1084,9 +1087,9 @@ elitist_race <- function(maxExp = 0,
     }
     
     if (elitist) {
-      if (scenario$elitistLimit != 0 && no.elimination >= scenario$elitistLimit
+      if (scenario$elitistLimit != 0 && no.elimination[[as.character(currentSubset)]]  >= scenario$elitistLimit
           && all_elite_instances_evaluated()) {
-        break.msg <- paste0("tests without elimination (", no.elimination,
+        break.msg <- paste0("tests without elimination (", no.elimination[[as.character(currentSubset)]],
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
         cat('AQUI3\n')
         next
@@ -1414,9 +1417,9 @@ elitist_race <- function(maxExp = 0,
       if (!any(is.elite[[as.character(currentSubset)]] > 0)
           && currentSubsetTask > first.test && (currentSubsetTask %% each.test) == 0) {
         if (length(which.alive) == length(prev.alive)) {
-          no.elimination <- no.elimination + 1L
+          no.elimination[[as.character(currentSubset)]] <- no.elimination[[as.character(currentSubset)]] + 1L
         } else {
-          no.elimination <- 0L
+          no.elimination[[as.character(currentSubset)]] <- 0L
         }
       }
     } 
