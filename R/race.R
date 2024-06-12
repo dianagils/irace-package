@@ -780,7 +780,7 @@ elitist_race <- function(maxExp = 0,
     # Check if elite data is NULL
     if (is.null(elite_data_subset)) {
       # If elite data is NULL, set elite.safe to elitistNewInstances and elite.instances.ID to NULL
-      elite.safe_per_subset[[as.character(subset_number)]] <- race.env$elitistNewInstances
+      elite.safe_per_subset[[as.character(subset_number)]] <- 0L
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- NULL
     } else {
       # Check if the number of instances in elite data matches the expected count
@@ -1125,7 +1125,8 @@ elitist_race <- function(maxExp = 0,
     final.bounds <- elite.bound <- NULL
     # Calculate bounds for executing if needed.
     which.elite.exe <- intersect(which.exe, which(is.elite[[as.character(currentSubset)]] > 0))
-
+    cat('which elite exe\n')
+    print(which.elite.exe)
     #irace.assert(setequal(which.elite.exe, which(is.elite & is.na(result_list[[as.character(subset_number)]][currentSubsetTask,]))))
     if (capping) {
       # Pre-execute elite configurations that are not yet executed in the current instance.
