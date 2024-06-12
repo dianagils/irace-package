@@ -1000,6 +1000,7 @@ elitist_race <- function(maxExp = 0,
       # Execute everything that is alive and not yet executed.
       which.exe <- which(alive & is.na(result_list[[as.character(currentSubset)]][currentSubsetTask, ]))
       if (length(which.exe) == 0) {
+        cat('Execute everything that is alive and not yet executed')
         is.elite[[as.character(currentSubset)]]  <- update.is.elite(is.elite[[as.character(currentSubset)]], which.exe)
         cat('is elite:')
         print(is.elite)
@@ -1176,9 +1177,13 @@ elitist_race <- function(maxExp = 0,
           elite.safe <- update.elite.safe(Results, is.elite[[as.character(currentSubset)]])
         }
         which.exe <- setdiff(which.exe, which.elite.exe)
+        cat('which.exe')
+        print(which.exe)
         # FIXME: There is similar code above.
         if (length(which.exe) == 0L) {
           is.elite[[as.character(currentSubset)]] <- update.is.elite(is.elite[[as.character(currentSubset)]], which.elite.exe)
+          cat('is elite after:')
+          print(is.elite)
           if (is.na(best)) {
             dump.frames(dumpto = "best_crash", to.file = TRUE,
                         include.GlobalEnv = TRUE)
@@ -1265,12 +1270,12 @@ elitist_race <- function(maxExp = 0,
     subset.data[currentSubset,]$experimentsUsed <- subset.data[currentSubset,]$experimentsUsed + length(which.exe)
     totalExperimentsUsed <- totalExperimentsUsed + length(which.exe)
     # We update the elites that have been executed.
-    is.elite[[as.character(subset_number)]] <- update.is.elite(is.elite[[as.character(subset_number)]], which.elite.exe)
+    is.elite[[as.character(currentSubset)]] <- update.is.elite(is.elite[[as.character(currentSubset)]], which.elite.exe)
     cat('cc1\n')
     ## Drop bad configurations.
     ## Infinite values denote immediate rejection of a configuration.
-    if (any(rejected_list[[as.character(subset_number)]])) {
-      rejected <- rejected_list[[as.character(subset_number)]]
+    if (any(rejected_list[[as.character(currentSubset)]])) {
+      rejected <- rejected_list[[as.character(currentSubset)]]
       irace.note ("Immediately rejected configurations: ",
                   paste0(currentSubsetConfigs[which.exe[rejected], ".ID."],
                          collapse = ", ") , "\n")
@@ -1335,15 +1340,15 @@ elitist_race <- function(maxExp = 0,
         t.bonferroni = aux.ttest(filteredResults, alive, which.alive, conf.level, adjust = "bonferroni")
       )
       
-      test_res_list[[i]] <- test.res
-      race_ranks_list[[i]] <- test.res$ranks
-      test_alive_list[[i]] <- test.res$alive
-      print(test_alive_list[[i]])
-      test_dropped_list[[i]] <- sum(alive) > sum(test.res$alive)
-      test_done_list[[i]] <- TRUE
+      test_res_list[[as.character(currentSubset)]] <- test.res
+      race_ranks_list[[as.character(currentSubset)]] <- test.res$ranks
+      test_alive_list[[as.character(currentSubset)]] <- test.res$alive
+      print(test_alive_list[[as.character(currentSubset)]])
+      test_dropped_list[[as.character(currentSubset)]] <- sum(alive) > sum(test.res$alive)
+      test_done_list[[as.character(currentSubset)]] <- TRUE
       prev.sum.alive <- sum(alive)
-      alive_list[[i]] <- cap.alive & test_alive_list[[i]]
-      print(alive_list[[i]])
+      alive_list[[as.character(currentSubset)]] <- cap.alive & test_alive_list[[i]]
+      print(alive_list[[as.character(currentSubset)]])
     }
     cat('cc2\n')
     # Merge the result of both eliminations.
