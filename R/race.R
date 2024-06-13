@@ -1347,7 +1347,7 @@ elitist_race <- function(maxExp = 0,
       test_dropped_list[[as.character(currentSubset)]] <- sum(alive) > sum(test.res$alive)
       test_done_list[[as.character(currentSubset)]] <- TRUE
       prev.sum.alive <- sum(alive)
-      alive_list[[as.character(currentSubset)]] <- cap.alive & test_alive_list[[i]]
+      alive_list[[as.character(currentSubset)]] <- cap.alive & test_alive_list[[as.character(currentSubset)]]
       print(alive_list[[as.character(currentSubset)]])
     }
     cat('cc2\n')
