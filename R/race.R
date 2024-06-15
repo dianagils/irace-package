@@ -1324,7 +1324,7 @@ elitist_race <- function(maxExp = 0,
       # Get unique instance IDs from .irace$instanceSubsetList
       unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(currentSubset)]]$instanceID)
 
-      filteredResults <-  result_list[[as.character(currentSubset)]]
+      filteredResults <-  result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), ]
       cat('filtered results')
       print(filteredResults)
       print(alive)
