@@ -947,7 +947,7 @@ elitist_race <- function(maxExp = 0,
     all_elite_instances_evaluated <- function() {
         for (subset_number in unique(subset.data$SubsetNumber)) {
           if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) return(TRUE)
-          evaluated <- !is.na(Results[, alive, drop=FALSE])
+          evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
           # All instances that have been previously seen have been evaluated by at
           # least one configuration.
           if (!all(rowAnys(evaluated))) return(FALSE)
