@@ -947,16 +947,12 @@ elitist_race <- function(maxExp = 0,
     all_elite_instances_evaluated <- function() {
         for (subset_number in unique(subset.data$SubsetNumber)) {
           if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) return(TRUE)
-          cat('all_elite_instances_evaluated')
-          print(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
           evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
-          print(evaluated)
           # All instances that have been previously seen have been evaluated by at
           # least one configuration.
           if (!all(rowAnys(evaluated))) return(FALSE)
           # And the number of instances evaluated per configuration is a multiple of blockSize
           all(colSums2(evaluated) %% blockSize == 0)
-          print(all(colSums2(evaluated) %% blockSize == 0))
       }
     }
   } else {
@@ -1079,7 +1075,7 @@ elitist_race <- function(maxExp = 0,
           # || (current.task > elitistNewInstances && nbAlive == 1)))) {
       # If we just did a test, check that we have enough budget to reach the
       # next test.
-      if (currentSubsetRow$currentBudget && ( (currentSubsetTask - 1) %% each.test) == 0
+      if ((currentSubsetRow$currentBudget > 0) && ( (currentSubsetTask - 1) %% each.test) == 0
           && currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget
           && all_elite_instances_evaluated()) {
         break.msg <- paste0("experiments for next test (",
