@@ -961,6 +961,8 @@ elitist_race <- function(maxExp = 0,
         # Ensure colSums2 % blockSize returns logical
         if (!all(colSums2(evaluated) %% blockSize == 0)) {
             return(FALSE)
+        } else {
+          return(TRUE)
         }
     }
   } else {
