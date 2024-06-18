@@ -1075,6 +1075,26 @@ elitist_race <- function(maxExp = 0,
           # || (current.task > elitistNewInstances && nbAlive == 1)))) {
       # If we just did a test, check that we have enough budget to reach the
       # next test.
+      # Ensure `currentSubsetRow$currentBudget` is numeric
+      print(is.numeric(currentSubsetRow$currentBudget))
+
+      # Check the value of `currentSubsetRow$currentBudget`
+      print(currentSubsetRow$currentBudget)
+
+      # Check if the comparison is valid and logical
+      print(currentSubsetRow$currentBudget > 0)
+
+      # Check the modulo condition
+      print((currentSubsetTask - 1) %% each.test == 0)
+
+      # Check the budget comparison condition
+      print(currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget)
+
+      # Ensure `all_elite_instances_evaluated()` returns a logical value
+      result <- all_elite_instances_evaluated()
+      print(result)
+      print(is.logical(result))
+
       if ((currentSubsetRow$currentBudget > 0) && ( (currentSubsetTask - 1) %% each.test) == 0
           && currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget
           && all_elite_instances_evaluated()) {
