@@ -944,19 +944,27 @@ elitist_race <- function(maxExp = 0,
   print_header()
 
   if (elitist) {
-    all_elite_instances_evaluated <- function() {
-        for (subset_number in unique(subset.data$SubsetNumber)) {
-          if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) return(TRUE)
-          evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
-          # All instances that have been previously seen have been evaluated by at
-          # least one configuration.
-          if (!all(rowAnys(evaluated))) return(FALSE)
-          # And the number of instances evaluated per configuration is a multiple of blockSize
-          all(colSums2(evaluated) %% blockSize == 0)
-      }
+  all_elite_instances_evaluated <- function(subset_number) {
+        if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) {
+            return(TRUE)
+        }
+        cat('all_elite_instances_evaluated')
+        print(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
+        evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
+        print(evaluated)
+        
+        # Ensure all rowAnys returns a logical value
+        if (!all(rowAnys(evaluated))) {
+            return(FALSE)
+        }
+        
+        # Ensure colSums2 % blockSize returns logical
+        if (!all(colSums2(evaluated) %% blockSize == 0)) {
+            return(FALSE)
+        }
     }
   } else {
-    all_elite_instances_evaluated <- function() TRUE
+    all_elite_instances_evaluated <- function(subset_number) TRUE
   }
   
   # Start main loop
@@ -1040,7 +1048,7 @@ elitist_race <- function(maxExp = 0,
     }
 
     # We always stop when we have less configurations than required.
-    if (nbAlive <= minSurvival && all_elite_instances_evaluated()) {
+    if (nbAlive <= minSurvival && all_elite_instances_evaluated(currentSubset)) {
       # Stop race if we have less or equal than the minimum number of
       # configurations.
       break.msg <- paste0("number of alive configurations (", nbAlive,
@@ -1075,29 +1083,10 @@ elitist_race <- function(maxExp = 0,
           # || (current.task > elitistNewInstances && nbAlive == 1)))) {
       # If we just did a test, check that we have enough budget to reach the
       # next test.
-      # Ensure `currentSubsetRow$currentBudget` is numeric
-      print(is.numeric(currentSubsetRow$currentBudget))
-
-      # Check the value of `currentSubsetRow$currentBudget`
-      print(currentSubsetRow$currentBudget)
-
-      # Check if the comparison is valid and logical
-      print(currentSubsetRow$currentBudget > 0)
-
-      # Check the modulo condition
-      print((currentSubsetTask - 1) %% each.test == 0)
-
-      # Check the budget comparison condition
-      print(currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget)
-
-      # Ensure `all_elite_instances_evaluated()` returns a logical value
-      result <- all_elite_instances_evaluated()
-      print(result)
-      print(is.logical(result))
-
+      
       if ((currentSubsetRow$currentBudget > 0) && ( (currentSubsetTask - 1) %% each.test) == 0
           && currentSubsetRow$experimentsUsed + length(which.exe) * each.test > currentSubsetRow$currentBudget
-          && all_elite_instances_evaluated()) {
+          && all_elite_instances_evaluated(currentSubset)) {
         break.msg <- paste0("experiments for next test (",
                             currentSubsetRow$experimentsUsed + length(which.exe) * each.test,
                             ") > max experiments (", currentSubsetRow$currentBudget, ")")
@@ -1109,7 +1098,7 @@ elitist_race <- function(maxExp = 0,
     
     if (elitist) {
       if (scenario$elitistLimit != 0 && no.elimination[[as.character(currentSubset)]]  >= scenario$elitistLimit
-          && all_elite_instances_evaluated()) {
+          && all_elite_instances_evaluated(currentSubset)) {
         break.msg <- paste0("tests without elimination (", no.elimination[[as.character(currentSubset)]],
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
         cat('AQUI3\n')
