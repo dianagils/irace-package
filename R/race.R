@@ -1003,7 +1003,7 @@ elitist_race <- function(maxExp = 0,
     indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
     currentSubsetConfigs <- configurations[indexes,]
 
-    if (elitist && any(elite.instances.ID_per_subset[[as.character(currentSubset)]] > 0)) {
+    if (elitist && any(is.elite[[as.character(currentSubset)]] > 0)) {
       # Filter configurations that do not need to be executed (elites).
       # This is valid only for previous iteration instances.
       irace.assert(currentSubsetTask <= elite.safe_per_subset[[as.character(currentSubset)]])
