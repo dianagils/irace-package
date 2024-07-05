@@ -805,7 +805,7 @@ irace_run <- function(scenario, parameters)
       cat ("# Iteration: ", indexIteration, "\n",
            "# nbIterations: ", nbIterations, "\n",
            "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
-           "# timeUsed: ", subsets$timeUsed,, "\n",
+           "# timeUsed: ", subsets$timeUsed, "\n",
            "# remainingBudget: ", subsets$remainingBudget, "\n",
            "# currentBudget: ", subsets$currentBudget, "\n",
            "# number of elites: ", nrow(eliteConfigurations), "\n",
