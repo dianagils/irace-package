@@ -814,9 +814,6 @@ irace_run <- function(scenario, parameters)
     }
   }
 
-  iraceResults$iterationElitesPerSubset <- list()
-  iraceResults$allElites <- list()
-
   irace_finish <- function(iraceResults, scenario, reason) {
     elapsed <- timer$elapsed()
     if (!quiet)
@@ -877,6 +874,7 @@ irace_run <- function(scenario, parameters)
       scenario = scenario,
       irace.version = irace.version,
       parameters = parameters,
+      iterationElitesPerSubset = list(),
       allElites = list(),
       experiments = matrix(nrow = 0, ncol = 0),
       experimentLog = matrix(nrow = 0, ncol = 5,
@@ -890,6 +888,8 @@ irace_run <- function(scenario, parameters)
     for (subset_number in subsets$SubsetNumber) {
       df <- data.frame(stringsAsFactors = FALSE)
       eliteConfigurations[[as.character(subset_number)]] <- df
+      iraceResults$allElites[[as.character(subset_number)]] <- df
+      iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- df
     }
     cat("Elite configs: \n")
     print(eliteConfigurations)
