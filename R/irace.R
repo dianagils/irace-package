@@ -814,6 +814,9 @@ irace_run <- function(scenario, parameters)
     }
   }
 
+  iraceResults$iterationElitesPerSubset <- list()
+  iraceResults$allElites <- list()
+
   irace_finish <- function(iraceResults, scenario, reason) {
     elapsed <- timer$elapsed()
     if (!quiet)
@@ -919,6 +922,7 @@ irace_run <- function(scenario, parameters)
     .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
                                                     n = ceiling(maxExperimentsPerSubset / minSurvival),
                                                     instanceSubsets)
+                  
     print(.irace$instanceSubsetList)
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
@@ -1189,10 +1193,6 @@ irace_run <- function(scenario, parameters)
     # or take the value given as parameter.
 
     
-    # Compute the number of configurations for this race.
-    cat('CURRENT BUDGET')
-    print(currentBudget)
-
     # Get the number of matrices in the iraceResults$experiments list
     num_matrices <- length(iraceResults$experiments)
 
@@ -1238,6 +1238,7 @@ irace_run <- function(scenario, parameters)
         indexIteration <- indexIteration + 1L
         next
       } else {
+
         catInfo("Stopped because ",
                 "there is not enough budget to enforce the value of nbConfigurations.")
         return(irace_finish(iraceResults, scenario, reason = "Not enough budget to enforce the value of nbConfigurations"))
@@ -1252,7 +1253,9 @@ irace_run <- function(scenario, parameters)
       return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race more than the minimum configurations"))
     }
 
-
+      # Compute the number of configurations for this race.
+    cat('CURRENT BUDGET')
+    print(currentBudget)
     # If we have too many eliteConfigurations, reduce their number. This can
     # happen before the first race due to the initial budget estimation.
 
@@ -1626,7 +1629,8 @@ irace_run <- function(scenario, parameters)
       if (!quiet) configurations.print(eliteConfigurations[[as.character(subset_number)]], metadata = debugLevel >= 1L)
       # TODO: FIX!
       iraceResults$iterationElites <- c(iraceResults$iterationElites, eliteConfigurations[[as.character(subset_number)]][[".ID."]][1L])
-      iraceResults$allElites[[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
+      iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], eliteConfigurations[[as.character(subset_number)]][[".ID."]][1L])
+      iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
     }
     
     
