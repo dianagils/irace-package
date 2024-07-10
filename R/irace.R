@@ -888,7 +888,7 @@ irace_run <- function(scenario, parameters)
     for (subset_number in subsets$SubsetNumber) {
       df <- data.frame(stringsAsFactors = FALSE)
       eliteConfigurations[[as.character(subset_number)]] <- df
-      iraceResults$allElites[[as.character(subset_number)]] <- df
+      iraceResults$allElites[[as.character(subset_number)]] <- list()
       iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- df
     }
     cat("Elite configs: \n")
