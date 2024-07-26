@@ -844,6 +844,7 @@ irace_run <- function(scenario, parameters)
   subsets$currentBudget <- rep(0, nrow(subsets))  
   subsets$remainingBudget <- rep(0, nrow(subsets))  
   subsets$experimentsUsed <- rep(0, nrow(subsets))  
+  subsets$experimentsUsedSoFar <- rep(0, nrow(subsets))  
   subsets$timeUsed <- rep(0, nrow(subsets))  
   subsets$NextInstance <- 1L
 
