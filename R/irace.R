@@ -1149,6 +1149,17 @@ irace_run <- function(scenario, parameters)
 
     # Consistency checks
     # irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
+    
+    if (indexIteration > nbIterations) {
+      if (scenario$nbIterations == 0) {
+        nbIterations <- indexIteration
+      } else {
+        if (debugLevel >= 1) {
+          catInfo("Limit of iterations reached", verbose = FALSE)
+        }
+        return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
+      }
+    }
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
@@ -1179,18 +1190,6 @@ irace_run <- function(scenario, parameters)
 
     # Keep only the rows that meet the criteria
     subsets <- subsets[rows_to_keep, ]
-
-
-    if (indexIteration > nbIterations) {
-      if (scenario$nbIterations == 0) {
-        nbIterations <- indexIteration
-      } else {
-        if (debugLevel >= 1) {
-          catInfo("Limit of iterations reached", verbose = FALSE)
-        }
-        return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
-      }
-    }
     # Compute the current budget (nb of experiments for this iteration),
     # or take the value given as parameter.
 
