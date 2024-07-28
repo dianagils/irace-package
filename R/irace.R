@@ -783,10 +783,11 @@ irace_common <- function(scenario, parameters, simple, output.width = 9999L)
     order_str <- test.type.order.str(scenario$testType)
     cat("# Best configurations (first number is the configuration ID;",
         " listed from best to worst according to the ", order_str, "):\n", sep = "")
-    configurations.print(eliteConfigurations)
+    sapply(eliteConfigurations, function(df) configurations.print(df))
   
     cat("# Best configurations as commandlines (first number is the configuration ID;", " listed from best to worst according to the ", order_str, "):\n", sep = "")
-    configurations.print.command (eliteConfigurations, parameters)
+    sapply(eliteConfigurations, function(df) configurations.print.command(df, parameters))
+
   }
   
   if (scenario$postselection > 0) 
