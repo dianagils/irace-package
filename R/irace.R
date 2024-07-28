@@ -1436,8 +1436,6 @@ irace_run <- function(scenario, parameters)
           #cat("# ", format(Sys.time(), usetz=TRUE), " sampleModel()\n")
                 newly_generated_configs <- data.frame()
 
-        # Get raceConfigurations with elites
-        all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
         raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
         
         for (subset_number in unique(subsets$SubsetNumber)) {
