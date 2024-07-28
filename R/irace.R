@@ -1491,6 +1491,7 @@ irace_run <- function(scenario, parameters)
     for (subset_number in unique(subsets$SubsetNumber)) {
       # Subset elite configurations for the current subset
       elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
+      elite_configs_subset[[".ID."]] <- as.numeric(elite_configs_subset[[".ID."]])
       cat('Elite configs per subset: ')
       print(subset_number)
       cat('\n')
