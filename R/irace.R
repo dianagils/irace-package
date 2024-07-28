@@ -1491,6 +1491,13 @@ irace_run <- function(scenario, parameters)
     # Iterate over each subset
     for (subset_number in unique(subsets$SubsetNumber)) {
       # Subset elite configurations for the current subset
+      
+      cat('Elite configs per subset: ')
+      print(subset_number)
+      cat('\n')
+      print(elite_configs_subset)
+      # Extract elite data for the current subset
+      elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
       cat("Column names type:")
       print(typeof(colnames(iraceResults$experiments[[subset_number]])))
       cat("Elite config IDs type:")
@@ -1513,12 +1520,6 @@ irace_run <- function(scenario, parameters)
       } else {
         cat("All IDs are valid.")
       }
-      cat('Elite configs per subset: ')
-      print(subset_number)
-      cat('\n')
-      print(elite_configs_subset)
-      # Extract elite data for the current subset
-      elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
         cat('iraceResults$experiments')
         print(iraceResults$experiments[[subset_number]])
         print(colnames(iraceResults$experiments[[subset_number]]))
