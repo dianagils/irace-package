@@ -1499,6 +1499,10 @@ irace_run <- function(scenario, parameters)
       print(elite_configs_subset)
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
+        cat('iraceResults$experiments')
+        print(iraceResults$experiments[[subset_number]])
+        print(colnames(iraceResults$experiments[[subset_number]]))
+        print(elite_configs_subset[[".ID."]])
         iraceResults$experiments[[subset_number]][, elite_configs_subset[[".ID."]], drop = FALSE]
       } else {
         NULL
