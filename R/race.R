@@ -766,11 +766,13 @@ elitist_race <- function(maxExp = 0,
 
   # Initialize some variables...
   totalExperimentsUsed <- 0L
+  subset.data$experimentsUsed <- 0L
   # is.elite[i] : number of instances to be seen in this race on which i has
   # been previously evaluated.
   is.elite <- rep(0L, no.configurations)
   elite.safe_per_subset <- list()
   elite.instances.ID_per_subset <- list()
+  
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
     subset.data[subset_number,]$experimentsUsed <- 0

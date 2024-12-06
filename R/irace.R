@@ -783,10 +783,11 @@ irace_common <- function(scenario, parameters, simple, output.width = 9999L)
     order_str <- test.type.order.str(scenario$testType)
     cat("# Best configurations (first number is the configuration ID;",
         " listed from best to worst according to the ", order_str, "):\n", sep = "")
-    configurations.print(eliteConfigurations)
+    sapply(eliteConfigurations, function(df) configurations.print(df))
   
     cat("# Best configurations as commandlines (first number is the configuration ID;", " listed from best to worst according to the ", order_str, "):\n", sep = "")
-    configurations.print.command (eliteConfigurations, parameters)
+    sapply(eliteConfigurations, function(df) configurations.print.command(df, parameters))
+
   }
   
   if (scenario$postselection > 0) 
@@ -844,6 +845,7 @@ irace_run <- function(scenario, parameters)
   subsets$currentBudget <- rep(0, nrow(subsets))  
   subsets$remainingBudget <- rep(0, nrow(subsets))  
   subsets$experimentsUsed <- rep(0, nrow(subsets))  
+  subsets$experimentsUsedSoFar <- rep(0, nrow(subsets))  
   subsets$timeUsed <- rep(0, nrow(subsets))  
   subsets$NextInstance <- 1L
 
@@ -1147,6 +1149,17 @@ irace_run <- function(scenario, parameters)
 
     # Consistency checks
     # irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
+    
+    if (indexIteration > nbIterations) {
+      if (scenario$nbIterations == 0) {
+        nbIterations <- indexIteration
+      } else {
+        if (debugLevel >= 1) {
+          catInfo("Limit of iterations reached", verbose = FALSE)
+        }
+        return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
+      }
+    }
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
@@ -1158,7 +1171,7 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
       if (scenario$elitist) {
-        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsed)
+        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == currentSubset$experimentsUsedSoFar)
       }
       # Check the conditions
       if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
@@ -1177,18 +1190,6 @@ irace_run <- function(scenario, parameters)
 
     # Keep only the rows that meet the criteria
     subsets <- subsets[rows_to_keep, ]
-
-
-    if (indexIteration > nbIterations) {
-      if (scenario$nbIterations == 0) {
-        nbIterations <- indexIteration
-      } else {
-        if (debugLevel >= 1) {
-          catInfo("Limit of iterations reached", verbose = FALSE)
-        }
-        return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
-      }
-    }
     # Compute the current budget (nb of experiments for this iteration),
     # or take the value given as parameter.
 
@@ -1436,8 +1437,6 @@ irace_run <- function(scenario, parameters)
           #cat("# ", format(Sys.time(), usetz=TRUE), " sampleModel()\n")
                 newly_generated_configs <- data.frame()
 
-        # Get raceConfigurations with elites
-        all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
         raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
         
         for (subset_number in unique(subsets$SubsetNumber)) {
@@ -1492,14 +1491,42 @@ irace_run <- function(scenario, parameters)
     # Iterate over each subset
     for (subset_number in unique(subsets$SubsetNumber)) {
       # Subset elite configurations for the current subset
-      elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
+      
       cat('Elite configs per subset: ')
       print(subset_number)
       cat('\n')
-      print(elite_configs_subset)
+      elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
+    
+      
       # Extract elite data for the current subset
       elite_data_subset <- if (scenario$elitist && nrow(elite_configs_subset) > 0) {
-        iraceResults$experiments[[subset_number]][, elite_configs_subset[[".ID."]], drop = FALSE]
+        elite_configs_subset[[".ID."]] <- as.numeric(elite_configs_subset[[".ID."]])
+        cat("Column names type:")
+        print(typeof(colnames(iraceResults$experiments[[subset_number]])))
+        cat("Elite config IDs type:")
+        print(typeof(elite_configs_subset[[".ID."]]))
+        
+        invalid_ids <- elite_configs_subset[[".ID."]][!(elite_configs_subset[[".ID."]] %in% colnames(iraceResults$experiments[[subset_number]]))]
+        if (length(invalid_ids) > 0) {
+          cat("Invalid IDs:")
+          print(invalid_ids)
+        } else {
+          cat("All IDs are valid.")
+        }
+        cat('as character')
+        elite_configs_subset[[".ID."]] <- as.character(elite_configs_subset[[".ID."]])
+        invalid_ids <- elite_configs_subset[[".ID."]][!(elite_configs_subset[[".ID."]] %in% colnames(iraceResults$experiments[[subset_number]]))]
+        if (length(invalid_ids) > 0) {
+          cat("Invalid IDs:")
+          print(invalid_ids)
+        } else {
+          cat("All IDs are valid.")
+        }
+          cat('iraceResults$experiments')
+          print(iraceResults$experiments[[subset_number]])
+          print(colnames(iraceResults$experiments[[subset_number]]))
+          print(elite_configs_subset[[".ID."]])
+          iraceResults$experiments[[subset_number]][, elite_configs_subset[[".ID."]], drop = FALSE]
       } else {
         NULL
       }
@@ -1590,6 +1617,7 @@ irace_run <- function(scenario, parameters)
       for (subset_number in unique(subsets$SubsetNumber)) {
         currentSubset <- subsets[subsets$SubsetNumber == subset_number,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
+        currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
         subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
       }
     }
