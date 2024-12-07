@@ -1373,7 +1373,7 @@ irace_run <- function(scenario, parameters)
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
       model <- updateModel(parameters, all_elite_configs, model, indexIteration,
-                          nbIterations, nbNewConfigurations_per_subset, scenario)
+                          nbIterations, nbNewConfigurations_per_subset, scenario, 2)
       if (debugLevel >= 2) printModel(model)
 
       # Iterate over each subset again to sample new configurations and update elite configurations

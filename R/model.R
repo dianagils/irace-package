@@ -43,7 +43,7 @@ initialiseModel <- function (parameters, configurations)
 ## FIXME (MANUEL): This function needs a description.
 ## Update the model 
 updateModel <- function (parameters, eliteConfigurations, oldModel,
-                         indexIteration, nbIterations, nbNewConfigurations, scenario)
+                         indexIteration, nbIterations, nbNewConfigurations, scenario, increaseFactor)
 {
   newModel <- list()
   
@@ -87,7 +87,7 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
         } else {
           possibleValues <- parameters$domain[[currentParameter]]
           # Decrease first all values in the vector:
-          probVector <- probVector * (1 - ((indexIteration - 1) / nbIterations))
+          probVector <- probVector * (1 - ((indexIteration - 1) * increaseFactor / nbIterations))
           # cat("new probVector after decrease: ", probVector)
           
           # Find the value that has been "chosen" to increase its probability.
@@ -112,7 +112,7 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
         }
       } else {
         irace.assert(type %in% c("i", "r", "o"))
-        probVector[1] <- probVector[1] * ((1 / nbNewConfigurations)^(1 / parameters$nbVariable))
+        probVector[1] <- probVector[1] * ((1 / nbNewConfiguration * increaseFactor)^(1 / parameters$nbVariable))
       }
       newModel[[currentParameter]][[idCurrentConfiguration]] <- probVector
     }
