@@ -112,7 +112,7 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
         }
       } else {
         irace.assert(type %in% c("i", "r", "o"))
-        probVector[1] <- probVector[1] * ((1 / nbNewConfiguration * increaseFactor)^(1 / parameters$nbVariable))
+        probVector[1] <- probVector[1] * ((1 / nbNewConfigurations * increaseFactor)^(1 / parameters$nbVariable))
       }
       newModel[[currentParameter]][[idCurrentConfiguration]] <- probVector
     }
