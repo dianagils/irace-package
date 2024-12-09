@@ -87,13 +87,13 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
         } else {
           possibleValues <- parameters$domain[[currentParameter]]
           # Decrease first all values in the vector:
-          probVector <- probVector * (1 - ((indexIteration - 1) * increaseFactor / nbIterations))
+          probVector <- probVector * (1 - ((indexIteration - 1) / nbIterations))
           # cat("new probVector after decrease: ", probVector)
           
           # Find the value that has been "chosen" to increase its probability.
           indexValue <- which (possibleValues == actualValue)
           probVector[indexValue] <- (probVector[indexValue]
-                                      + ((indexIteration - 1) / nbIterations))
+                                      + ( increaseFactor * ((indexIteration - 1)  / nbIterations))
 #                 cat("The value found for the configuration n.",
 #                 idxConfiguration, "(ID=",
 #                 idCurrentConfiguration, ") is the ", indexValue,
