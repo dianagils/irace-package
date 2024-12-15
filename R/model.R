@@ -93,7 +93,7 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
           # Find the value that has been "chosen" to increase its probability.
           indexValue <- which (possibleValues == actualValue)
           probVector[indexValue] <- (probVector[indexValue]
-                                      + ( increaseFactor * ((indexIteration - 1)  / nbIterations))
+                                      +  ( increaseFactor * ((indexIteration - 1)  / nbIterations)))
 #                 cat("The value found for the configuration n.",
 #                 idxConfiguration, "(ID=",
 #                 idCurrentConfiguration, ") is the ", indexValue,
@@ -101,9 +101,10 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
 
           # Prevent probabilities from growing too much.
           if (scenario$elitist) {
-            probVector <- probVector / sum(probVector)
-            probMax    <- 0.2^(1 / parameters$nbVariable)
-            probVector <- pmin(probVector, probMax)
+            cat("Preventing Probb. to grow")
+            # probVector <- probVector / sum(probVector)
+            # probMax    <- 0.2^(1 / parameters$nbVariable)
+            # probVector <- pmin(probVector, probMax)
           }
           # Normalize probabilities.
           probVector <- probVector / sum(probVector)
@@ -196,3 +197,4 @@ init.model.numeric <- function(param, parameters)
   irace.assert(is.finite(value))
   return(value)
 }
+
