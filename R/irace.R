@@ -925,7 +925,8 @@ irace_run <- function(scenario, parameters)
                                                     n = ceiling(maxExperimentsPerSubset / minSurvival),
                                                     instanceSubsets)
                   
-    print(.irace$instanceSubsetList)
+    # matrix of length(unique_subsets) x length(unique_subsets) to save how many iterations are configs equal and merge subsets
+    equal_configs <- matrix(0, nrow = length(unique_subsets), ncol = length(unique_subsets))
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
@@ -971,8 +972,6 @@ irace_run <- function(scenario, parameters)
           scenario$boundMax <- boundEstimate
         }
       }
-      # matrix of length(unique_subsets) x length(unique_subsets) to save how many iterations are configs equal and merge subsets
-      equal_configs <- matrix(0, nrow = length(unique_subsets), ncol = length(unique_subsets))
       repeat {
         # Sample new configurations if needed
         if (nrow(allConfigurations) < nconfigurations) {
@@ -1510,6 +1509,16 @@ irace_run <- function(scenario, parameters)
         }
 
       }
+
+    # check if any subsets has more than 2 iterations with equal configurations
+    for (i in seq_len(nrow(equal_configs))) {
+      for (j in seq_len(ncol(equal_configs))) {
+        if (equal_configs[i, j] > 2) {
+          # TODO: merge subsets
+          cat('Merging subsets: ')
+        }
+      }
+    }
  
     if (debugLevel >= 2) {
       irace.note("Configurations for the race n ", indexIteration,
