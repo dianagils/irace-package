@@ -971,7 +971,8 @@ irace_run <- function(scenario, parameters)
           scenario$boundMax <- boundEstimate
         }
       }
-        
+      # matrix of length(unique_subsets) x length(unique_subsets) to save how many iterations are configs equal and merge subsets
+      equal_configs <- matrix(0, nrow = length(unique_subsets), ncol = length(unique_subsets))
       repeat {
         # Sample new configurations if needed
         if (nrow(allConfigurations) < nconfigurations) {
@@ -1372,6 +1373,7 @@ irace_run <- function(scenario, parameters)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
+      # TODO: set increase factor to be an hyperparameter
       model <- updateModel(parameters, all_elite_configs, model, indexIteration,
                           nbIterations, nbNewConfigurations_per_subset, scenario, 2)
       if (debugLevel >= 2) printModel(model)
@@ -1391,6 +1393,7 @@ irace_run <- function(scenario, parameters)
         new_configs_subset <- sampleModel(parameters, elite_configs_subset,
                                           model, nbNewConfigurations_per_subset,
                                           repair = scenario$repairConfiguration)
+
         # Set isAliveInSubset column
         new_configs_subset$isAliveInSubset <- list(subset_number)
         for (i in seq_len(nrow(new_configs_subset))) {
@@ -1410,8 +1413,38 @@ irace_run <- function(scenario, parameters)
         newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
         print(newly_generated_configs)
-        # Append new configurations to the global table.
 
+        #check if generated configurations are equal between subsets
+        # for each subset
+        for (subset_number in unique(subsets$SubsetNumber)) {
+            for (subset_number2 in unique(subsets$SubsetNumber)) {
+              if (subset_number != subset_number2) {
+                # get new configurations for each subset
+                new_configs_subset <- newly_generated_configs[newly_generated_configs$isAliveInSubset == subset_number, ]
+                new_configs_subset2 <- newly_generated_configs[newly_generated_configs$isAliveInSubset == subset_number2, ]
+                all_configs <- rbind(new_configs_subset, new_configs_subset2)
+                # check if configurations are equal
+                similar_ids <- similarConfigurations(all_configs, parameters, threshold = 0)
+                if (!is.null(similar_ids) && length(similar_ids) > 3) {
+                  # if configurations are equal, merge subsets
+                  equal_configs[subset_number, subset_number2] <- equal_configs[subset_number, subset_number2] + 1
+                  cat('Equal configs found between subsets: ')
+                  print(subset_number)
+                  print(subset_number2)
+                  print(similar_ids)
+                }
+              }
+            }
+        }
+        cat('Equal configs matrix: ')
+        print(equal_configs)
+
+        # Set ID of the new configurations.
+        newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
+                                    seq(nrow(newly_generated_configs)), newly_generated_configs)
+        print(newly_generated_configs)
+
+        # Append new configurations to the global table.
         allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
 

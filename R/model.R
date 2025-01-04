@@ -196,5 +196,9 @@ init.model.numeric <- function(param, parameters)
   value <- (domain[2] - domain[1]) / 2.0
   irace.assert(is.finite(value))
   return(value)
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> 84cbb41a65105b591c58df1a2d31b59623baedda

@@ -775,6 +775,7 @@ elitist_race <- function(maxExp = 0,
   
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
+    subset.data[subset_number,]$experimentsUsed <- 0
     # Subset elite data for the current subset
     elite_data_subset <- elite.data[[as.character(subset_number)]]
     next_instance <- subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"]
