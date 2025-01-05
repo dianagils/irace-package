@@ -1438,11 +1438,6 @@ irace_run <- function(scenario, parameters)
         cat('Equal configs matrix: ')
         print(equal_configs)
 
-        # Set ID of the new configurations.
-        newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
-                                    seq(nrow(newly_generated_configs)), newly_generated_configs)
-        print(newly_generated_configs)
-
         # Append new configurations to the global table.
         allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
