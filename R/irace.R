@@ -1511,7 +1511,25 @@ irace_run <- function(scenario, parameters)
         if (equal_configs[i, j] > 2) {
           # TODO: merge subsets
           cat('Merging subsets: ')
+          print(i)
+          print(j)
+          # edit subsets dataframe and remove subset j
+          subsets <- subsets[subsets$SubsetNumber != j, ]
+          # edit elite configurations and remove subset j
+          eliteConfigurations[[as.character(i)]] <- rbind(eliteConfigurations[[as.character(i)]], eliteConfigurations[[as.character(j)]])
+          # edit instances and remove subset j, mix instances
+          .irace$instanceSubsetList[[as.character(i)]] <- rbind(.irace$instanceSubsetList[[as.character(i)]], .irace$instanceSubsetList[[as.character(j)]])
+          # edit experiments and remove subset j
+          iraceResults$experiments[[i]] <- merge.matrix(iraceResults$experiments[[i]], iraceResults$experiments[[j]])
+          # edit subsets dataframe and remove subset j
+          # print all results
+          print(subsets)
+          print(eliteConfigurations)
+          print(.irace$instanceSubsetList)
+          print(iraceResults$experiments)
+          
         }
+
       }
     }
  
