@@ -1513,14 +1513,20 @@ irace_run <- function(scenario, parameters)
           cat('Merging subsets: ')
           print(i)
           print(j)
-          # edit subsets dataframe and remove subset j
-          subsets <- subsets[subsets$SubsetNumber != j, ]
+          
           # edit elite configurations and remove subset j
           eliteConfigurations[[as.character(i)]] <- rbind(eliteConfigurations[[as.character(i)]], eliteConfigurations[[as.character(j)]])
           # edit instances and remove subset j, mix instances
           .irace$instanceSubsetList[[as.character(i)]] <- rbind(.irace$instanceSubsetList[[as.character(i)]], .irace$instanceSubsetList[[as.character(j)]])
           # edit experiments and remove subset j
           iraceResults$experiments[[i]] <- merge.matrix(iraceResults$experiments[[i]], iraceResults$experiments[[j]])
+          # merge budgets, experiments used so far and time used
+          subsets[subsets$SubsetNumber == i, ]$remainingBudget <- subsets[subsets$SubsetNumber == i, ]$remainingBudget + subsets[subsets$SubsetNumber == j, ]$remainingBudget
+          subsets[subsets$SubsetNumber == i, ]$currentBudget <- subsets[subsets$SubsetNumber == i, ]$currentBudget + subsets[subsets$SubsetNumber == j, ]$currentBudget
+          subsets[subsets$SubsetNumber == i, ]$experimentsUsedSoFar <- subsets[subsets$SubsetNumber == i, ]$experimentsUsedSoFar + subsets[subsets$SubsetNumber == j, ]$experimentsUsedSoFar
+          subsets[subsets$SubsetNumber == i, ]$timeUsed <- subsets[subsets$SubsetNumber == i, ]$timeUsed + subsets[subsets$SubsetNumber == j, ]$timeUsed
+          # edit subsets dataframe and remove subset j
+          subsets <- subsets[subsets$SubsetNumber != j, ]
           # edit subsets dataframe and remove subset j
           # print all results
           print(subsets)
