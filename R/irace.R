@@ -1432,9 +1432,11 @@ irace_run <- function(scenario, parameters)
           if (!is.null(tmp.ids)) {
             irace.note("Soft restart: ", length(tmp.ids), " configurations are similar to previous ones\n")
             irace.note("This subset has converged and can pass budget to other subsets\n")
+
       }
         }
       }
+    }
 
     
     if (debugLevel >= 2) {
