@@ -925,8 +925,7 @@ irace_run <- function(scenario, parameters)
                                                     n = ceiling(maxExperimentsPerSubset / minSurvival),
                                                     instanceSubsets)
                   
-    # matrix of length(unique_subsets) x length(unique_subsets) to save how many iterations are configs equal and merge subsets
-    equal_configs <- matrix(0, nrow = length(unique_subsets), ncol = length(unique_subsets))
+   
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
@@ -1413,31 +1412,6 @@ irace_run <- function(scenario, parameters)
                                     seq(nrow(newly_generated_configs)), newly_generated_configs)
         print(newly_generated_configs)
 
-        #check if generated configurations are equal between subsets
-        # for each subset
-        for (subset_number in unique(subsets$SubsetNumber)) {
-            for (subset_number2 in unique(subsets$SubsetNumber)) {
-              if (subset_number != subset_number2) {
-                # get new configurations for each subset
-                new_configs_subset <- newly_generated_configs[newly_generated_configs$isAliveInSubset == subset_number, ]
-                new_configs_subset2 <- newly_generated_configs[newly_generated_configs$isAliveInSubset == subset_number2, ]
-                all_configs <- rbind(new_configs_subset, new_configs_subset2)
-                # check if configurations are equal
-                similar_ids <- similarConfigurations(all_configs, parameters, threshold = 0)
-                if (!is.null(similar_ids) && length(similar_ids) > 3) {
-                  # if configurations are equal, merge subsets
-                  equal_configs[subset_number, subset_number2] <- equal_configs[subset_number, subset_number2] + 1
-                  cat('Equal configs found between subsets: ')
-                  print(subset_number)
-                  print(subset_number2)
-                  print(similar_ids)
-                }
-              }
-            }
-        }
-        cat('Equal configs matrix: ')
-        print(equal_configs)
-
         # Append new configurations to the global table.
         allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
         rownames(allConfigurations) <- allConfigurations[[".ID."]] 
@@ -1505,40 +1479,7 @@ irace_run <- function(scenario, parameters)
 
       }
 
-    # check if any subsets has more than 2 iterations with equal configurations
-    for (i in seq_len(nrow(equal_configs))) {
-      for (j in seq_len(ncol(equal_configs))) {
-        if (equal_configs[i, j] > 2) {
-          # TODO: merge subsets
-          cat('Merging subsets: ')
-          print(i)
-          print(j)
-          
-          # edit elite configurations and remove subset j
-          eliteConfigurations[[as.character(i)]] <- rbind(eliteConfigurations[[as.character(i)]], eliteConfigurations[[as.character(j)]])
-          # edit instances and remove subset j, mix instances
-          .irace$instanceSubsetList[[as.character(i)]] <- rbind(.irace$instanceSubsetList[[as.character(i)]], .irace$instanceSubsetList[[as.character(j)]])
-          # edit experiments and remove subset j
-          iraceResults$experiments[[i]] <- merge.matrix(iraceResults$experiments[[i]], iraceResults$experiments[[j]])
-          # merge budgets, experiments used so far and time used
-          subsets[subsets$SubsetNumber == i, ]$remainingBudget <- subsets[subsets$SubsetNumber == i, ]$remainingBudget + subsets[subsets$SubsetNumber == j, ]$remainingBudget
-          subsets[subsets$SubsetNumber == i, ]$currentBudget <- subsets[subsets$SubsetNumber == i, ]$currentBudget + subsets[subsets$SubsetNumber == j, ]$currentBudget
-          subsets[subsets$SubsetNumber == i, ]$experimentsUsedSoFar <- subsets[subsets$SubsetNumber == i, ]$experimentsUsedSoFar + subsets[subsets$SubsetNumber == j, ]$experimentsUsedSoFar
-          subsets[subsets$SubsetNumber == i, ]$timeUsed <- subsets[subsets$SubsetNumber == i, ]$timeUsed + subsets[subsets$SubsetNumber == j, ]$timeUsed
-          # edit subsets dataframe and remove subset j
-          subsets <- subsets[subsets$SubsetNumber != j, ]
-          # edit subsets dataframe and remove subset j
-          # print all results
-          print(subsets)
-          print(eliteConfigurations)
-          print(.irace$instanceSubsetList)
-          print(iraceResults$experiments)
-          
-        }
-
-      }
-    }
- 
+    
     if (debugLevel >= 2) {
       irace.note("Configurations for the race n ", indexIteration,
                  "\n")
