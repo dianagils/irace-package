@@ -1422,61 +1422,18 @@ irace_run <- function(scenario, parameters)
 
       # TODO: FIX SOFT RESTART
       if (scenario$softRestart) {
-        # Rprof("profile.out")
-        tmp.ids <- similarConfigurations (raceConfigurations, parameters,
-                                          threshold = scenario$softRestartThreshold)
-        # Rprof(NULL)
-        if (!is.null(tmp.ids)) {
-          if (debugLevel >= 1)
-            irace.note("Soft restart: ", paste(collapse = " ", tmp.ids), " !\n")
-          model <- restartConfigurations (raceConfigurations, tmp.ids, model,
-                                          parameters, nbNewConfigurations)
-          iraceResults$softRestart[indexIteration] <- TRUE
-          if (debugLevel >= 2) { printModel (model) }
-          # Re-sample after restart like above
-          #cat("# ", format(Sys.time(), usetz=TRUE), " sampleModel()\n")
-                newly_generated_configs <- data.frame()
-
-        raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
-        
         for (subset_number in unique(subsets$SubsetNumber)) {
-          # Subset elite configurations for the current subset
-          elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
-
-          # Sample new configurations for the current subset
-          new_configs_subset <- sampleModel(parameters, elite_configs_subset,
-                                            model, nbNewConfigurations_per_subset,
-                                            repair = scenario$repairConfiguration)
-          # Set isAliveInSubset column
-          new_configs_subset$isAliveInSubset <- list(subset_number)
-          for (i in seq_len(nrow(new_configs_subset))) {
-              identical_index <- which(apply(newly_generated_configs, 1, function(row) all(row[-which(names(row) %in% c("isAliveInSubset"))] == new_configs_subset[i, -which(names(new_configs_subset) %in% c("isAliveInSubset"))])))
-              if (length(identical_index) == 0) {
-              # If the configuration is new, add it to the newly_generated_configs dataframe
-              newly_generated_configs <- rbind(newly_generated_configs, new_configs_subset[i, ])
-            } else {
-              # If an identical configuration is found, append the current subset number to its isAliveInSubset list
-              existing_subset <- newly_generated_configs$isAliveInSubset[identical_index]
-              newly_generated_configs$isAliveInSubset[identical_index] <- c(newly_generated_configs$isAliveInSubset[identical_index],existing_subset)
-              }
-            }
-          }
-
-          # Set ID of the new configurations.
-          newly_generated_configs <- cbind(.ID. = max(0L, allConfigurations[[".ID."]]) +
-                                      seq(nrow(newly_generated_configs)), newly_generated_configs)
-          print(newly_generated_configs)
-          # Append new configurations to the global table.
-
-          allConfigurations <- rbind(allConfigurations, subset(newly_generated_configs, select = -c(isAliveInSubset)))
-          rownames(allConfigurations) <- allConfigurations[[".ID."]] 
-
-          # Append to race configs
-          raceConfigurations <- rbind(newly_generated_configs,
-                                        raceConfigurations)
-          }
+          # configs for the current subset
+          configs_subset <- raceConfigurations[raceConfigurations$isAliveInSubset == subset_number, ]
+          
+          tmp.ids <- similarConfigurations (configs_subset, parameters,
+                                            threshold = scenario$softRestartThreshold)
+          # Rprof(NULL)
+          if (!is.null(tmp.ids)) {
+            irace.note("Soft restart: ", length(tmp.ids), " configurations are similar to previous ones\n")
+            irace.note("This subset has converged and can pass budget to other subsets\n")
+      }
         }
-
       }
 
     
