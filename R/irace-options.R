@@ -133,7 +133,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show t
 "elitistLimit", "repairConfiguration", "capping", "cappingType", 
 "boundType", "boundMax", "boundDigits", "boundPar", "boundAsTimeout", 
 "postselection", "aclib", "nbIterations", "nbExperimentsPerIteration", 
-"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights"), class = "data.frame"))
+"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights")), class = "data.frame")
 .irace.params.names <- c("scenarioFile", "execDir", "parameterFile", "initConfigurations", 
 "configurationsFile", "logFile", "recoveryFile", "instances", 
 "trainInstancesDir", "trainInstancesFile", "sampleInstances", 
