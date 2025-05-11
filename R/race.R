@@ -75,8 +75,8 @@ race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL
   print(configurations)
   experiments <- createExperimentList(configurations, parameters = parameters,
                                       instances = scenario$instances,
-                                      instances.ID = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "instanceID"],
-                                      seeds = .irace$instanceSubsetList[[as.character(subset.idx)]][instance.idx, "seed"],
+                                      instances.ID = .irace$instancesList[[as.character(subset.idx)]][instance.idx, "instanceID"],
+                                      seeds = .irace$instancesList[[as.character(subset.idx)]][instance.idx, "seed"],
                                       bounds = bounds)
 
   target.output <- vector("list", length(experiments))
@@ -304,7 +304,7 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
   subsets.numbers <- subsets$objective_id
   for (subset_num in subsets.numbers) {
     next_instance <- subsets[subsets$objective_id == subset_num, "NextInstance"]
-    max_instances <- nrow(.irace$instanceSubsetList[[as.character(subset_num)]])
+    max_instances <- nrow(.irace$instancesList[[as.character(subset_num)]])
 
     if (next_instance == 1) {
       subset_instances <- seq_len(max_instances)
@@ -1338,8 +1338,8 @@ elitist_race <- function(maxExp = 0,
         nbAlive > 1L) {
       
       irace.assert(sum(alive) == nbAlive)
-      # Get unique instance IDs from .irace$instanceSubsetList
-      unique_instance_ids <- unique(.irace$instanceSubsetList[[as.character(currentSubset)]]$instanceID)
+      # Get unique instance IDs from .irace$instancesList
+      unique_instance_ids <- unique(.irace$instancesList[[as.character(currentSubset)]]$instanceID)
 
       filteredResults <-  result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), ]
       cat('filtered results')

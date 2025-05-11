@@ -1520,7 +1520,7 @@ irace_run <- function(scenario, parameters)
                                  subset.data = objectives
                                  )
     #assign subset to get info
-    objectives <- raceResults$subsets
+    subsets <- raceResults$subsets
     cat('Race Results')
     print(raceResults)
     # Update experiments
