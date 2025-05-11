@@ -853,13 +853,20 @@ irace_run <- function(scenario, parameters)
     cat('BUDGET PER SUBSET:')
     print(maxExperimentsPerObjective)
 
-    # Generate initial instance + seed list
-    .irace$instancesList <- generateInstances(scenario,
+    # Generate initial instance + seed list 
+    instancesList <- generateInstances(scenario,
                                               n = if (scenario$maxExperiments != 0)
                                                     ceiling(scenario$maxExperiments / minSurvival)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)))
-   
+
+    # add to each objective the instances 
+    .irace$instancesList <- list()
+    for (objective_id in unique_objectives) {
+      .irace$instancesList[[as.character(objective_id)]] <- instancesList
+    }
+    
+
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
