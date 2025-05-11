@@ -46,8 +46,7 @@
 "--elitist-limit", "", "--capping", "--capping-type", "--bound-type", 
 "--bound-max", "--bound-digits", "--bound-par", "--bound-as-timeout", 
 "--postselection", "--aclib", "--iterations", "--experiments-per-iteration", 
-"--min-survival", "--num-configurations", "--mu", "--confidence", "--nObjectives", "--weights") 
-), default = c(NA, NA, NA, "", "", "./scenario.txt", "./", "./parameters.txt", 
+"--min-survival", "--num-configurations", "--mu", "--confidence", "--nObjectives", "--weights"), default = c(NA, NA, NA, "", "", "./scenario.txt", "./", "./parameters.txt", 
 "", "", "./irace.Rdata", "", "", "./Instances", "", "1", "", 
 "", "", "1", "0", "", "5", "1", "1", "./target-runner", "", "{configurationID} {instanceID} {seed} {instance} {bound} {targetRunnerArgs}", 
 "0", "0", "", "", "", "0", "0", NA, "0", "0.02", "0.01", "0", 
@@ -134,7 +133,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show t
 "elitistLimit", "repairConfiguration", "capping", "cappingType", 
 "boundType", "boundMax", "boundDigits", "boundPar", "boundAsTimeout", 
 "postselection", "aclib", "nbIterations", "nbExperimentsPerIteration", 
-"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights"), class = "data.frame")
+"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights"), class = "data.frame"))
 .irace.params.names <- c("scenarioFile", "execDir", "parameterFile", "initConfigurations", 
 "configurationsFile", "logFile", "recoveryFile", "instances", 
 "trainInstancesDir", "trainInstancesFile", "sampleInstances", 
