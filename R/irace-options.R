@@ -53,7 +53,7 @@
 "0", "0", "", "", "", "0", "0", NA, "0", "0.02", "0.01", "0", 
 "1", "0", "0", "4", "0", "0", NA, "1", "", "1", "1", "2", "", 
 NA, "median", "candidate", "0", "0", "1", "1", "0", "0", "0", 
-"0", "0", "0", "5", "0.95", "1", NA), domain = c(NA, NA, NA, NA, NA, NA, 
+"0", "0", "0", "5", "0.95", "1", NA, NA), domain = c(NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "F-test,t-test,t-test-holm,t-test-bonferroni", 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, "sge,pbs,torque,slurm,htcondor", NA, NA, NA, 
