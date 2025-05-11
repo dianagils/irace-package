@@ -353,23 +353,17 @@ parse_objective_weights <- function(weight_string) {
   # Split the string into individual weight sets
   weight_sets <- strsplit(weight_string, ",")[[1]]
   
-  # Initialize vectors to store results
-  objective_id <- integer()
-  weight <- numeric()
+  # Parse each weight set into a numeric vector
+  weights <- lapply(weight_sets, function(set) {
+    as.numeric(strsplit(set, "_")[[1]])
+  })
   
-  # Loop through each set
-  for (set in weight_sets) {
-    values <- as.numeric(strsplit(set, "_")[[1]])
-    for (i in seq_along(values)) {
-      objective_id <- c(objective_id, i)
-      weight <- c(weight, values[i])
-    }
-  }
+  # Assign objective_id as sequential indices
+  objective_id <- seq_along(weights)
   
-  # Create a data frame with objective_id and weight
-  data.frame(objective_id = objective_id, weight = weight)
+  # Create a data frame with a list-column for weights
+  data.frame(objective_id = objective_id, weight = I(weights))
 }
-
 
 setup_test_instances <- function(scenario)
 {
