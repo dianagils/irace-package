@@ -30,7 +30,7 @@
 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "-q", 
 "", "", "", "", "-e", "", "", "", "", "", "", "", "", "", "", 
-"", "", "", "", "", "", "", "", "", "") long = c("--help", "--version", 
+"", "", "", "", "", "", "", "", "", ""), long = c("--help", "--version", 
 "--check", "--init", "--only-test", "--scenario", "--exec-dir", 
 "--parameter-file", "", "--configurations-file", "--log-file", 
 "--recovery-file", "", "--train-instances-dir", "--train-instances-file", 
