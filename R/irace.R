@@ -1517,10 +1517,10 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog,
-                                 subset.data = subsets 
+                                 subset.data = objectives
                                  )
     #assign subset to get info
-    subsets <- raceResults$subsets
+    objectives <- raceResults$subsets
     cat('Race Results')
     print(raceResults)
     # Update experiments
