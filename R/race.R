@@ -67,7 +67,7 @@ createExperimentList <- function(configurations, parameters,
 race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL,
                          # FIXME: we actually only need which.exps, not
                          # which.alive nor which.exe
-                         which.alive, which.exe, parameters, scenario)
+                         which.alive, which.exe, parameters, scenario, weights)
 {
   irace.assert (parameters$nbVariable > 0)
   irace.assert (length(parameters$names) == parameters$nbParameters)
@@ -87,7 +87,7 @@ race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL
     # from one to the other.
     which.exps <- which(which.alive %in% which.exe)
     irace.assert(length(which.exps) == length(which.exe))
-    target.output[which.exps] <- execute.experiments (experiments[which.exps], scenario)
+    target.output[which.exps] <- execute.experiments (experiments[which.exps], scenario, weights)
   }
 
   # targetEvaluator may be NULL. If so, target.output must
@@ -95,7 +95,7 @@ race.wrapper <- function(configurations, instance.idx, subset.idx, bounds = NULL
   # Otherwise, targetEvaluator always re-evaluates.
   if (!is.null(scenario$targetEvaluator))
     target.output <- execute.evaluator (experiments, scenario, target.output,
-                                        configurations[[".ID."]])
+                                        configurations[[".ID."]], weights)
   target.output
 }
 
@@ -301,9 +301,9 @@ elitrace.init.instances <- function(race.env, deterministic, max_instances, samp
 
 elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sampleInstances) {
   all_instances <- list()
-  subsets.numbers <- subsets$SubsetNumber
+  subsets.numbers <- subsets$objective_id
   for (subset_num in subsets.numbers) {
-    next_instance <- subsets[subsets$SubsetNumber == subset_num, "NextInstance"]
+    next_instance <- subsets[subsets$objective_id == subset_num, "NextInstance"]
     max_instances <- nrow(.irace$instanceSubsetList[[as.character(subset_num)]])
 
     if (next_instance == 1) {
@@ -688,12 +688,12 @@ elitist_race <- function(maxExp = 0,
   experimentLog <- matrix(nrow = 0, ncol = 4,
                           dimnames = list(NULL, c("instance", "configuration", "time", "bound")))
 
-  alive_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
-  rejected_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
+  alive_list <- vector("list", length = max(unlist(configurations$isAliveInObjective)))
+  rejected_list <- vector("list", length = max(unlist(configurations$isAliveInObjective)))
   # Iterate over each row of configurations
   for (i in seq_len(no.configurations)) {
     # Extract the list of subsets for the current configuration
-    subsets <- configurations$isAliveInSubset[[i]]
+    subsets <- configurations$isAliveInObjective[[i]]
     
     # For each subset, set the corresponding element in alive_list to TRUE
     for (subset in subsets) {
@@ -759,7 +759,7 @@ elitist_race <- function(maxExp = 0,
   # irace.assert(!anyDuplicated(race.instances))
   # irace.assert(identical(sort(race.instances), seq_along(race.instances)))
   no.tasks <- sum(lengths(race.subsets_instances))
-  unique_subset_numbers <- unique(subset.data$SubsetNumber)
+  unique_subset_numbers <- unique(subset.data$objective_id)
   subsetOrder <- rep(unique_subset_numbers, length.out = no.tasks)
   cat('SUBSET ORDER: \n')
   print(subsetOrder)
@@ -774,11 +774,11 @@ elitist_race <- function(maxExp = 0,
   elite.instances.ID_per_subset <- list()
   
   # Iterate over each subset
-  for (subset_number in unique(subset.data$SubsetNumber)) {
+  for (subset_number in unique(subset.data$objective_id)) {
     subset.data[subset_number,]$experimentsUsed <- 0
     # Subset elite data for the current subset
     elite_data_subset <- elite.data[[as.character(subset_number)]]
-    next_instance <- subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"]
+    next_instance <- subset.data[subset.data$objective_id == subset_number, "NextInstance"]
     
     # Check if elite data is NULL
     if (is.null(elite_data_subset)) {
@@ -829,8 +829,8 @@ elitist_race <- function(maxExp = 0,
   result_list <- list()
 
   # Iterate over each subset
-  for (subset_number in unique(subset.data$SubsetNumber)) {
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+  for (subset_number in unique(subset.data$objective_id)) {
+    indexes <- sapply(configurations$isAliveInObjective, function(lst) subset_number %in% lst)
     subset_configs <- configurations[indexes,]
     # Attempt to create the matrix
     subset_results <- matrix(NA, 
@@ -851,7 +851,7 @@ elitist_race <- function(maxExp = 0,
                               dimnames = list(elite.instances.ID, configurations.ID))
 
     is.elite <- list()
-    for (subset_num in unique(subset.data$SubsetNumber)) {
+    for (subset_num in unique(subset.data$objective_id)) {
       if (! is.null(elite.data[[as.character(subset_num)]])) {
       subset_elite_data <- elite.data[[as.character(subset_num)]]
       subset_results <- result_list[[as.character(subset_num)]]
@@ -886,7 +886,8 @@ elitist_race <- function(maxExp = 0,
                                 which.alive = which.elites, 
                                 which.exe = which.elites,
                                 parameters = parameters, 
-                                scenario = scenario)
+                                scenario = scenario,
+                                weights = subset.data[subset_number,]$weights)
         # Extract results
         # FIXME: check what would happen in case of having the target evaluator
         # MANUEL: Note how similar is this to what we do in do.experiments(),
@@ -941,14 +942,14 @@ elitist_race <- function(maxExp = 0,
   }
 
   no.elimination <- list()
-  for (subset_num in unique(subset.data$SubsetNumber)) {
+  for (subset_num in unique(subset.data$objective_id)) {
     no.elimination[[as.character(subset_num)]] <- 0L
   }
   print_header()
 
   if (elitist) {
   all_elite_instances_evaluated <- function(subset_number) {
-        if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) {
+        if (subset.data[subset.data$objective_id == subset_number, "NextInstance"] == 1L) {
             return(TRUE)
         }
         cat('all_elite_instances_evaluated')
@@ -977,7 +978,7 @@ elitist_race <- function(maxExp = 0,
   done_subsets <- list()
   best_list <- list()
   subset.data$currentSubsetTask <- 1
-  nSubsets <- unique(subset.data$SubsetNumber)
+  nSubsets <- unique(subset.data$objective_id)
   race.ranks <- vector("list", length(nSubsets))
   cat('NO TASKS')
   print(no.tasks)
@@ -996,14 +997,14 @@ elitist_race <- function(maxExp = 0,
     currentSubset <- subsetOrder[current.task]
     # CONTINUE IF SUBSET IS DONE
     if (currentSubset %in% done_subsets) next
-    currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
+    currentSubsetRow <- subset.data[subset.data$objective_id == currentSubset, ]
     print(currentSubsetRow)
     currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
     which.exe   <- which.alive
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) currentSubset %in% lst)
+    indexes <- sapply(configurations$isAliveInObjective, function(lst) currentSubset %in% lst)
     currentSubsetConfigs <- configurations[indexes,]
 
     if (elitist && any(is.elite[[as.character(currentSubset)]] > 0)) {
@@ -1155,7 +1156,8 @@ elitist_race <- function(maxExp = 0,
                                 which.alive = which.elite.exe, 
                                 which.exe = which.elite.exe,
                                 parameters = parameters,
-                                scenario = scenario)
+                                scenario = scenario,
+                                weights = subset.data[subset_number,]$weights)
         # Extract results
         vcost <- unlist(lapply(output, "[[", "cost"))
         irace.assert(length(vcost) == length(which.elite.exe))
@@ -1234,7 +1236,7 @@ elitist_race <- function(maxExp = 0,
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
-                           parameters = parameters, scenario = scenario)
+                           parameters = parameters, scenario = scenario, weights = subset.data[subset_number,]$weights)
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
     
     # Extract results
@@ -1465,15 +1467,15 @@ elitist_race <- function(maxExp = 0,
   # If we stop the loop before we see all new instances, there may be new
   # instances that have not been executed by any configuration.
 
-  unique_subset_numbers <- unique(subset.data$SubsetNumber)
+  unique_subset_numbers <- unique(subset.data$objective_id)
   alivePerSubset <- vector("list", length(unique_subset_numbers))
   names(alivePerSubset) <- unique_subset_numbers
   configurations_copy <- configurations 
   configurations$.RANK. <- vector("list", nrow(configurations))
-  configurations$isAliveInSubset <- lapply(seq_len(nrow(configurations)), function(i) { list() })
+  configurations$isAliveInObjective <- lapply(seq_len(nrow(configurations)), function(i) { list() })
 
   for (subset_number in unique_subset_numbers) {
-    indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_number %in% lst)
+    indexes <- sapply(configurations_copy$isAliveInObjective, function(lst) subset_number %in% lst)
     subsetConfigs <- configurations_copy[indexes,]
     Results <- result_list[[as.character(subset_number)]]
     Results <- Results[rowAnys(!is.na(Results)), , drop = FALSE]
@@ -1504,7 +1506,7 @@ elitist_race <- function(maxExp = 0,
         ID <- subsetConfigs[i,]$.ID.
         index <- which(configurations$.ID. == ID)
         index <- index[1] 
-        configurations$isAliveInSubset[[index]] <- c(configurations$isAliveInSubset[[index]], subset_number)
+        configurations$isAliveInObjective[[index]] <- c(configurations$isAliveInObjective[[index]], subset_number)
         } 
     }
     
@@ -1518,7 +1520,7 @@ elitist_race <- function(maxExp = 0,
     }
 
     
-    indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
+    indexes <- sapply(configurations$isAliveInObjective, function(lst) subset_number %in% lst)
     configs <- configurations[indexes,]
     if (nrow(configs) > 0) {
       for (i in seq_len(nrow(configs))) {

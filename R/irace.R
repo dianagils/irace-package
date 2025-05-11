@@ -1494,14 +1494,6 @@ irace_run <- function(scenario, parameters)
       currentObjective <- objectives[objectives$objective_id == objective_id,]
       currentObjective$NextInstance <- nrow(iraceResults$experiments[[objective_id]]) + 1
       n <- nrow(.irace$instancesList[[as.character(objective_id)]])
-      cat('N')
-      print(n)
-      cat('Current Objective')
-      print(currentObjective)
-      cat('Current Objective Next Instance')
-      print(currentObjective$NextInstance)
-      cat('Current Objective Remaining Budget')
-      print(currentObjective$remainingBudget)
       if (n - (currentObjective$NextInstance  - 1)
           < ceiling(currentObjective$remainingBudget / minSurvival)) {
         .irace$instancesList <- generateInstances(scenario,

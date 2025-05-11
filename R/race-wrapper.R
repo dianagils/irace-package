@@ -297,11 +297,13 @@ check_output_target_runner <- function (output, scenario)
 # This function invokes target.runner.  When used on a remote node by Rmpi,
 # environments do not seem to be shared and the default value is evaluated too
 # late, thus we have to pass .irace$target.runner explicitly.
-exec.target.runner <- function(experiment, scenario, target.runner)
+exec.target.runner <- function(experiment, scenario, target.runner, weights = NULL)
 {
   doit <- function(experiment, scenario)
   {
     x <- target.runner(experiment, scenario)
+    cat("target.runner returned:\n")
+    print(x)
     return (check_output_target_runner(x, scenario))
   }
   
@@ -502,7 +504,7 @@ target.runner.default <- function(experiment, scenario)
        call = paste(cmd, args, collapse = " "))
 }
 
-execute.experiments <- function(experiments, scenario)
+execute.experiments <- function(experiments, scenario, weights)
 {
   parallel <- scenario$parallel
   mpi <- scenario$mpi
@@ -599,12 +601,14 @@ execute.experiments <- function(experiments, scenario)
     # One process, all sequential
     target.output <- lapply(experiments, exec.target.runner,
                             scenario = scenario,
-                            target.runner = target_runner)
+                            target.runner = target_runner,
+                            weights = weights)
+  
   }
   target.output
 }
 
-execute.evaluator <- function(experiments, scenario, target.output, configurations.id)
+execute.evaluator <- function(experiments, scenario, target.output, configurations.id, weights)
 {
   ## FIXME: We do not need the configurations.id argument:
   irace.assert(isTRUE(all.equal(configurations.id,
