@@ -439,6 +439,8 @@ checkScenario <- function(scenario = defaultScenario())
 {
   quote.param <- function(name)
   {
+    print(.irace.params.def)
+    print(name)
     print(.irace.params.def[name, ])
     print(.irace.params.def[name, "long"])
 
