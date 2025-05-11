@@ -46,7 +46,7 @@
 "--elitist-limit", "", "--capping", "--capping-type", "--bound-type", 
 "--bound-max", "--bound-digits", "--bound-par", "--bound-as-timeout", 
 "--postselection", "--aclib", "--iterations", "--experiments-per-iteration", 
-"--min-survival", "--num-configurations", "--mu", "--confidence", "--nObjectives", "--weights"), 
+"--min-survival", "--num-configurations", "--mu", "--confidence", "--nObjectives", "--weights") 
 ), default = c(NA, NA, NA, "", "", "./scenario.txt", "./", "./parameters.txt", 
 "", "", "./irace.Rdata", "", "", "./Instances", "", "1", "", 
 "", "", "1", "0", "", "5", "1", "1", "./target-runner", "", "{configurationID} {instanceID} {seed} {instance} {bound} {targetRunnerArgs}", 
