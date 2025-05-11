@@ -52,7 +52,7 @@
 "0", "0", "", "", "", "0", "0", NA, "0", "0.02", "0.01", "0", 
 "1", "0", "0", "4", "0", "0", NA, "1", "", "1", "1", "2", "", 
 NA, "median", "candidate", "0", "0", "1", "1", "0", "0", "0", 
-"0", "0", "0", "5", "0.95", "1", NA, NA), domain = c(NA, NA, NA, NA, NA, NA, 
+"0", "0", "0", "5", "0.95", "1", NA), domain = c(NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, "F-test,t-test,t-test-holm,t-test-bonferroni", 
 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 
 NA, NA, NA, NA, "sge,pbs,torque,slurm,htcondor", NA, NA, NA, 
@@ -117,7 +117,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show t
 "Confidence level for the elimination test.",
 "Number of objectives to tune",
 "Weights for each objective. The weights are used to calculate the weighted sum of the objectives. The default value is 1 for all objectives."
-), row.names = c(".help", 
+)), row.names = c(".help", 
 ".version", ".check", ".init", ".onlytest", "scenarioFile", "execDir", 
 "parameterFile", "initConfigurations", "configurationsFile", 
 "logFile", "recoveryFile", "instances", "trainInstancesDir", 
@@ -133,7 +133,7 @@ NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), description = c("Show t
 "elitistLimit", "repairConfiguration", "capping", "cappingType", 
 "boundType", "boundMax", "boundDigits", "boundPar", "boundAsTimeout", 
 "postselection", "aclib", "nbIterations", "nbExperimentsPerIteration", 
-"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights")), class = "data.frame")
+"minNbSurvival", "nbConfigurations", "mu", "confidence", "nObjectives", "weights"), class = "data.frame")
 .irace.params.names <- c("scenarioFile", "execDir", "parameterFile", "initConfigurations", 
 "configurationsFile", "logFile", "recoveryFile", "instances", 
 "trainInstancesDir", "trainInstancesFile", "sampleInstances", 
