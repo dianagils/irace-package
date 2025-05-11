@@ -777,8 +777,7 @@ irace_run <- function(scenario, parameters)
   nObjectives <- scenario$nObjectives
   print(nObjectives)
   objectives <- parse_objective_weights(scenario$weights)
-  cat("Objective weights:")
-  print(objectives)
+  
   unique_objectives <- unique(objectives$objective_id)
 
   objectives$currentBudget <- rep(0, nrow(objectives))
@@ -787,7 +786,8 @@ irace_run <- function(scenario, parameters)
   objectives$experimentsUsedSoFar <- rep(0, nrow(objectives))  
   objectives$timeUsed <- rep(0, nrow(objectives))  
   objectives$NextInstance <- 1L
-
+  cat("Objective weights:")
+  print(objectives)
   # Recover state from file?
   if (!is.null.or.empty(scenario$recoveryFile)) {
     irace.note ("Resuming from file: '", scenario$recoveryFile,"'\n")
@@ -1487,6 +1487,14 @@ irace_run <- function(scenario, parameters)
       currentObjective <- objectives[objectives$objective_id == objective_id,]
       currentObjective$NextInstance <- nrow(iraceResults$experiments[[objective_id]]) + 1
       n <- nrow(.irace$instancesList[[as.character(objective_id)]])
+      cat('N')
+      print(n)
+      cat('Current Objective')
+      print(currentObjective)
+      cat('Current Objective Next Instance')
+      print(currentObjective$NextInstance)
+      cat('Current Objective Remaining Budget')
+      print(currentObjective$remainingBudget)
       if (n - (currentObjective$NextInstance  - 1)
           < ceiling(currentObjective$remainingBudget / minSurvival)) {
         .irace$instancesList <- generateInstances(scenario,
