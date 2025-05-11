@@ -45,4 +45,4 @@ digits = 2
 ## more verbose debug messages.
 debugLevel = 2
 
-instanceSubsetsFile = "./1M3M-subsets.txt"
+nObjectives = 2

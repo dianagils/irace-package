@@ -349,49 +349,27 @@ readScenario <- function(filename = "", scenario = list(),
   
 }
 
-readInstanceSubsets <- function(filename = "") {
+parse_objective_weights <- function(weight_string) {
+  # Split the string into individual weight sets
+  weight_sets <- strsplit(weight_string, ",")[[1]]
   
-  # Initialize an empty data frame to store instance names, subset numbers, and unique IDs
-  all_instances <- data.frame(InstanceName = character(), SubsetNumber = integer(), UniqueID = integer())
+  # Initialize vectors to store results
+  objective_id <- integer()
+  weight <- numeric()
   
-  # First find out which file...
-  filename_given <- filename != ""
-  if (!filename_given) {
-    # Handle default filename logic here
-  } else {
-    filename <- path_rel2abs(filename)
-  }
-  
-  if (file.exists(filename)) {
-    file_content <- readLines(filename)
-    unique_id <- 1 # Initialize unique ID counter
-
-    for (line in file_content) {
-
-      parts <- strsplit(line, ":")[[1]]
-      if (length(parts) == 2) {
-        instance_name <- trimws(parts[1])
-        subset_number <- as.integer(trimws(parts[2]))
-        
-        # Create a data frame for the current instance and subset
-        instance_df <- data.frame(InstanceName = instance_name, SubsetNumber = subset_number, UniqueID = unique_id)
-        
-        # Increment unique ID counter
-        unique_id <- unique_id + 1
-        
-        # Append the data frame to the all_instances data frame
-        all_instances <- rbind(all_instances, instance_df)
-        
-      } else {
-        cat("Invalid format in line:", line, "\n")
-      }
+  # Loop through each set
+  for (set in weight_sets) {
+    values <- as.numeric(strsplit(set, "_")[[1]])
+    for (i in seq_along(values)) {
+      objective_id <- c(objective_id, i)
+      weight <- c(weight, values[i])
     }
-  } else if (filename_given) {
-    irace.error("The instance subset file ", shQuote(filename), " does not exist.")
   }
-
-  return(all_instances)
+  
+  # Create a data frame with objective_id and weight
+  data.frame(objective_id = objective_id, weight = weight)
 }
+
 
 setup_test_instances <- function(scenario)
 {
