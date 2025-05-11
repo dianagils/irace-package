@@ -993,16 +993,16 @@ irace_run <- function(scenario, parameters)
     # Compute the total initial budget, that is, the maximum number of
     # experiments that we can perform.
     for (objective_id in unique(objectives$objective_id)) {
-       objectives[objectives$SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                       computeComputationalBudget(objectives[objectives$SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
+       objectives[objectives$objective_id == objective_id, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                       computeComputationalBudget(objectives[objectives$objective_id == objective_id, ]$remainingBudget, indexIteration,
                                                   nbIterations)
                      else scenario$nbExperimentsPerIteration
 
     # Check that the budget is enough, for the time estimation case we reduce
     # the number of iterations.
     warn_msg <- NULL
-    while (!checkMinimumBudget(scenario, objectives[objectives$SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
-                               boundEstimate, objectives[objectives$SubsetNumber == subset_num, ]$timeUsed))
+    while (!checkMinimumBudget(scenario, objectives[objectives$objective_id == objective_id, ]$remainingBudget, minSurvival, nbIterations,
+                               boundEstimate, objectives[objectives$objective_id == objective_id, ]$timeUsed))
    
     {
       if (is.null(warn_msg))
@@ -1549,10 +1549,10 @@ irace_run <- function(scenario, parameters)
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
     } else {
       for (objective_id in unique_objectives) {
-        currentSubset <- subsets[subsets$SubsetNumber == objective_id,]
+        currentSubset <- subsets[objectives$objective_id == objective_id,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
         currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
-        subsets[subsets$SubsetNumber == objective_id,] <- currentSubset
+        subsets[objectives$objective_id == objective_id,] <- currentSubset
       }
     }
 
