@@ -477,6 +477,8 @@ run_target_runner <- function(experiment, scenario)
 target.runner.default <- function(experiment, scenario)
 {
   res <- run_target_runner(experiment, scenario)
+  cat("RES")
+  print(res)
   cmd <- res$cmd
   output <- res$output
   args <- res$args
