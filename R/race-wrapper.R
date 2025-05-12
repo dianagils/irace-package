@@ -301,9 +301,7 @@ exec.target.runner <- function(experiment, scenario, target.runner, weights = NU
 {
   doit <- function(experiment, scenario)
   {
-    x <- target.runner(experiment, scenario)
-    cat("target.runner returned:\n")
-    print(x)
+    x <- target.runner(experiment, scenario, weights)
     return (check_output_target_runner(x, scenario))
   }
   
@@ -474,8 +472,9 @@ run_target_runner <- function(experiment, scenario)
 #' 
 #' @author Manuel López-Ibáñez and Jérémie Dubois-Lacoste
 #' @export
-target.runner.default <- function(experiment, scenario)
+target.runner.default <- function(experiment, scenario, weights)
 {
+  nObjectives <- scenario$nObjectives
   res <- run_target_runner(experiment, scenario)
   cat("RES")
   print(res)
@@ -488,20 +487,22 @@ target.runner.default <- function(experiment, scenario)
   err.msg <- output$error
   if (is.null(err.msg)) {
     v.output <- parse.output(output$output, verbose = (debugLevel >= 2))
-    if (length(v.output) > 2) {
-      err.msg <- "The output of targetRunner should not be more than two numbers!"
+    if (length(v.output) > nObjectives) {
+      err.msg <- paste0("The output of targetRunner should not be more than ", nObjectives, " numbers!")
     } else if (length(v.output) == 1) {
       if (!is.null(scenario$targetEvaluator)) {
         time <- v.output[1]
       } else {
         cost <- v.output[1]
       }
-    } else if (length(v.output) == 2) {
-      cost <- v.output[1]
-      time <- v.output[2]
+    } else if (length(v.output) == nObjectives) {
+      totalCost = 0
+      for (i in seq_along(weights)) {
+        totalCost = totalCost + weights[i] * v.output[i]
+      }
     }
   }
-  list(cost = cost, time = time,
+  list(cost = totalCost, time = time,
        error = err.msg, outputRaw = output$output,
        call = paste(cmd, args, collapse = " "))
 }
@@ -605,7 +606,6 @@ execute.experiments <- function(experiments, scenario, weights)
                             scenario = scenario,
                             target.runner = target_runner,
                             weights = weights)
-  
   }
   target.output
 }
