@@ -1513,7 +1513,7 @@ irace_run <- function(scenario, parameters)
                                  parameters = parameters,
                                  maxExp = currentBudget,
                                  minSurvival = minSurvival,
-                                 elite.data = elite_data_per_subset,
+                                 elite.data = elite_data_per_objective,
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog,
