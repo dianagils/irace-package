@@ -1547,6 +1547,11 @@ elitist_race <- function(maxExp = 0,
     irace.print.memUsed()
   }
 
+  #update experiments used so far
+  for (i in seq_len(nrow(subset.data))) {
+    subset.data[i,]$experimentsUsedSoFar <- subset.data[i,]$experimentsUsed + subset.data[i,]$experimentsUsedSoFar
+  }
+
 
   irace.assert(nrow(experimentLog) == totalExperimentsUsed)
   # manage results to know which instance is alive in every subset. i think having a lists of datasets per subset will do.
