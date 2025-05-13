@@ -889,7 +889,7 @@ elitist_race <- function(maxExp = 0,
                                 which.exe = which.elites,
                                 parameters = parameters, 
                                 scenario = scenario,
-                                weights = subset.data[subset_num,]$weights)
+                                weights = subset.data[subset_num,]$weights[[1]])
         # Extract results
         # FIXME: check what would happen in case of having the target evaluator
         # MANUEL: Note how similar is this to what we do in do.experiments(),
@@ -1159,7 +1159,7 @@ elitist_race <- function(maxExp = 0,
                                 which.exe = which.elite.exe,
                                 parameters = parameters,
                                 scenario = scenario,
-                                weights = subset.data[currentSubset,]$weights)
+                                weights = subset.data[currentSubset,]$weight[[1]])
         # Extract results
         vcost <- unlist(lapply(output, "[[", "cost"))
         irace.assert(length(vcost) == length(which.elite.exe))
@@ -1239,7 +1239,7 @@ elitist_race <- function(maxExp = 0,
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
-                           parameters = parameters, scenario = scenario, weights = subset.data[currentSubset,]$weights)
+                           parameters = parameters, scenario = scenario, weights = subset.data[currentSubset,]$weights[[1]])
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
     
     # Extract results
