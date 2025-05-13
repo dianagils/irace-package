@@ -1231,6 +1231,8 @@ elitist_race <- function(maxExp = 0,
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only, which alive is for subset
     print(currentSubsetConfigs[which.alive, , drop = FALSE])
+    print(subset.data[subset_number,])
+    print(currentSubset$weights)
     output <- race.wrapper(configurations = currentSubsetConfigs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
