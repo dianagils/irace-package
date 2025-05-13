@@ -496,10 +496,13 @@ target.runner.default <- function(experiment, scenario, weights)
         cost <- v.output[1]
       }
     } else if (length(v.output) == nObjectives) {
+      cat("Getting total cost")
       totalCost = 0
       for (i in seq_along(weights)) {
         totalCost = totalCost + weights[i] * v.output[i]
       }
+      cat("Total cost: ")
+      print(totalCost)
     }
   }
   list(cost = totalCost, time = time,
