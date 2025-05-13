@@ -477,10 +477,6 @@ run_target_runner <- function(experiment, scenario)
 target.runner.default <- function(experiment, scenario, weights)
 {
   nObjectives <- scenario$nObjectives
-  cat("Number of objectives: ")
-  print(nObjectives)
-  cat("Weights: ")
-  print(weights)
   res <- run_target_runner(experiment, scenario)
 
   cmd <- res$cmd
@@ -501,9 +497,12 @@ target.runner.default <- function(experiment, scenario, weights)
         cost <- v.output[1]
       }
     } else if (length(v.output) == nObjectives) {
+      print(v.output)
       cat("Getting total cost")
       totalCost = 0
       for (i in seq_along(weights)) {
+        print(paste("weights[i]:", weights[i]))
+        print(paste("v.output[i]:", v.output[i]))
         totalCost = totalCost + weights[i] * v.output[i]
       }
       cat("Total cost: ")
@@ -517,8 +516,6 @@ target.runner.default <- function(experiment, scenario, weights)
 
 execute.experiments <- function(experiments, scenario, weights)
 {
-  cat("First Weights print: ")
-  print(weights)
   parallel <- scenario$parallel
   mpi <- scenario$mpi
   target_runner <- .irace$target.runner
