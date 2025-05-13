@@ -362,7 +362,7 @@ parse_objective_weights <- function(weight_string) {
   objective_id <- seq_along(weights)
   
   # Create a data frame with a list-column for weights
-  data.frame(objective_id = objective_id, weight = I(weights))
+  data.frame(objective_id = objective_id, weights = I(weights))
 }
 
 setup_test_instances <- function(scenario)

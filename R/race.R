@@ -889,7 +889,7 @@ elitist_race <- function(maxExp = 0,
                                 which.exe = which.elites,
                                 parameters = parameters, 
                                 scenario = scenario,
-                                weights = subset.data[subset_number,]$weights)
+                                weights = subset.data[subset_num,]$weights)
         # Extract results
         # FIXME: check what would happen in case of having the target evaluator
         # MANUEL: Note how similar is this to what we do in do.experiments(),
@@ -1159,7 +1159,7 @@ elitist_race <- function(maxExp = 0,
                                 which.exe = which.elite.exe,
                                 parameters = parameters,
                                 scenario = scenario,
-                                weights = subset.data[subset_number,]$weights)
+                                weights = subset.data[currentSubset,]$weights)
         # Extract results
         vcost <- unlist(lapply(output, "[[", "cost"))
         irace.assert(length(vcost) == length(which.elite.exe))
@@ -1231,8 +1231,7 @@ elitist_race <- function(maxExp = 0,
     currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
     #filter configs from that subset only, which alive is for subset
     print(currentSubsetConfigs[which.alive, , drop = FALSE])
-    print(subset.data[subset_number,])
-    print(currentSubset$weights)
+    print(subset.data[currentSubset,])
     output <- race.wrapper(configurations = currentSubsetConfigs[which.alive, , drop = FALSE],
                            instance.idx = currentInstance,
                            subset.idx = currentSubset,
@@ -1240,7 +1239,7 @@ elitist_race <- function(maxExp = 0,
                            # Also, do we use the final.bounds of which.alive or only the ones of which.exe?
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
-                           parameters = parameters, scenario = scenario, weights = subset.data[subset_number,]$weights)
+                           parameters = parameters, scenario = scenario, weights = subset.data[currentSubset,]$weights)
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
     
     # Extract results
