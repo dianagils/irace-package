@@ -299,6 +299,8 @@ check_output_target_runner <- function (output, scenario)
 # late, thus we have to pass .irace$target.runner explicitly.
 exec.target.runner <- function(experiment, scenario, target.runner, weights = NULL)
 {
+  cat("second weights print: ")
+  print(weights)
   doit <- function(experiment, scenario)
   {
     x <- target.runner(experiment, scenario, weights)
@@ -475,9 +477,12 @@ run_target_runner <- function(experiment, scenario)
 target.runner.default <- function(experiment, scenario, weights)
 {
   nObjectives <- scenario$nObjectives
+  cat("Number of objectives: ")
+  print(nObjectives)
+  cat("Weights: ")
+  print(weights)
   res <- run_target_runner(experiment, scenario)
-  cat("RES")
-  print(res)
+
   cmd <- res$cmd
   output <- res$output
   args <- res$args
@@ -512,6 +517,8 @@ target.runner.default <- function(experiment, scenario, weights)
 
 execute.experiments <- function(experiments, scenario, weights)
 {
+  cat("First Weights print: ")
+  print(weights)
   parallel <- scenario$parallel
   mpi <- scenario$mpi
   target_runner <- .irace$target.runner
