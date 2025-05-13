@@ -775,7 +775,6 @@ irace_run <- function(scenario, parameters)
   timer <- Timer$new()
   debugLevel <- scenario$debugLevel
   nObjectives <- scenario$nObjectives
-  print(nObjectives)
   objectives <- parse_objective_weights(scenario$weights)
   
   unique_objectives <- unique(objectives$objective_id)
@@ -849,7 +848,7 @@ irace_run <- function(scenario, parameters)
     minSurvival <- floor(minSurvival)
 
     # divide equally the budget
-    maxExperimentsPerObjective <- scenario$maxExperiments / nObjectives
+    maxExperimentsPerObjective <- scenario$maxExperiments / length(unique_objectives)
     cat('BUDGET PER SUBSET:')
     print(maxExperimentsPerObjective)
 
