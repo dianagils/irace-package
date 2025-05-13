@@ -478,7 +478,9 @@ target.runner.default <- function(experiment, scenario, weights)
 {
   nObjectives <- scenario$nObjectives
   res <- run_target_runner(experiment, scenario)
-
+  print(weights)
+  print(weights[1])
+  print(weights[[1]])
   cmd <- res$cmd
   output <- res$output
   args <- res$args
