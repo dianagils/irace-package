@@ -482,22 +482,23 @@ target.runner.default <- function(experiment, scenario, weights)
   debugLevel <- scenario$debugLevel
   cost <- time <- NULL
   err.msg <- output$error
-  if (is.null(err.msg)) {utput(output$output, verbose = (debugLevel >= 2))
-    print(v.output)
+  totalCost = 0
+  if (is.null(err.msg)) {
+    v.output <- parse.output(output$output, verbose = (debugLevel >= 2))
     if (length(v.output) > nObjectives) {
       err.msg <- paste0("The output of targetRunner should not be more than ", nObjectives, " numbers!")
     } else if (length(v.output) == 1) {
+      print(v.output[1])
       if (!is.null(scenario$targetEvaluator)) {
         time <- v.output[1]
       } else {
-        cost <- v.output[1]
+        totalCost <- v.output[1]
       }
     } else if (length(v.output) == nObjectives) {
-      totalCost = 0
+      
       for (i in seq_along(weights)) {
         totalCost = totalCost + weights[i] * v.output[i]
       }
-      print(totalCost)
     }
   }
   list(cost = totalCost, time = time,
