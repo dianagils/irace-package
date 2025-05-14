@@ -481,7 +481,7 @@ target.runner.default <- function(experiment, scenario, weights)
   cmd <- res$cmd
   output <- res$output
   args <- res$args
-  
+  print(output)
   debugLevel <- scenario$debugLevel
   cost <- time <- NULL
   err.msg <- output$error
