@@ -1108,6 +1108,9 @@ irace_run <- function(scenario, parameters)
       # Extract the subset rows
       currentObjective <- objectives[current_indices, ]
       if (scenario$elitist) {
+        cat('Current objective:')
+        print(currentObjective)
+        
         irace.assert(sum(!is.na(iraceResults$experiments[[objective]])) == currentObjective$experimentsUsedSoFar)
       }
       # Check the conditions
@@ -1556,7 +1559,6 @@ irace_run <- function(scenario, parameters)
       for (objective_id in unique_objectives) {
         currentSubset <- subsets[objectives$objective_id == objective_id,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
-        currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
         subsets[objectives$objective_id == objective_id,] <- currentSubset
       }
     }
