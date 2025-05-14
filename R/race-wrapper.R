@@ -487,6 +487,7 @@ target.runner.default <- function(experiment, scenario, weights)
   err.msg <- output$error
   if (is.null(err.msg)) {
     v.output <- parse.output(output$output, verbose = (debugLevel >= 2))
+    print(v.output)
     if (length(v.output) > nObjectives) {
       err.msg <- paste0("The output of targetRunner should not be more than ", nObjectives, " numbers!")
     } else if (length(v.output) == 1) {
