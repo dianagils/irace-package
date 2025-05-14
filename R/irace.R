@@ -1085,8 +1085,6 @@ irace_run <- function(scenario, parameters)
     iraceResults$allConfigurations <- allConfigurations
     irace_save_logfile(iraceResults, scenario)
 
-    # Consistency checks
-    # irace.assert(nrow(iraceResults$experimentLog) == experimentsUsedSoFar)
     
     if (indexIteration > nbIterations) {
       if (scenario$nbIterations == 0) {
@@ -1521,7 +1519,7 @@ irace_run <- function(scenario, parameters)
                                  subset.data = objectives
                                  )
     #assign subset to get info
-    subsets <- raceResults$subsets
+    objectives <- raceResults$subsets
     cat('Race Results')
     print(raceResults)
     # Update experiments
@@ -1557,9 +1555,9 @@ irace_run <- function(scenario, parameters)
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
     } else {
       for (objective_id in unique_objectives) {
-        currentSubset <- subsets[objectives$objective_id == objective_id,]
+        currentSubset <- objectives[objectives$objective_id == objective_id,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
-        subsets[objectives$objective_id == objective_id,] <- currentSubset
+        objectives[objectives$objective_id == objective_id,] <- currentSubset
       }
     }
 
