@@ -299,8 +299,6 @@ check_output_target_runner <- function (output, scenario)
 # late, thus we have to pass .irace$target.runner explicitly.
 exec.target.runner <- function(experiment, scenario, target.runner, weights = NULL)
 {
-  cat("second weights print: ")
-  print(weights)
   doit <- function(experiment, scenario)
   {
     x <- target.runner(experiment, scenario, weights)
@@ -481,12 +479,10 @@ target.runner.default <- function(experiment, scenario, weights)
   cmd <- res$cmd
   output <- res$output
   args <- res$args
-  print(output)
   debugLevel <- scenario$debugLevel
   cost <- time <- NULL
   err.msg <- output$error
-  if (is.null(err.msg)) {
-    v.output <- parse.output(output$output, verbose = (debugLevel >= 2))
+  if (is.null(err.msg)) {utput(output$output, verbose = (debugLevel >= 2))
     print(v.output)
     if (length(v.output) > nObjectives) {
       err.msg <- paste0("The output of targetRunner should not be more than ", nObjectives, " numbers!")
@@ -497,12 +493,10 @@ target.runner.default <- function(experiment, scenario, weights)
         cost <- v.output[1]
       }
     } else if (length(v.output) == nObjectives) {
-      cat("Getting total cost")
       totalCost = 0
       for (i in seq_along(weights)) {
         totalCost = totalCost + weights[i] * v.output[i]
       }
-      cat("Total cost: ")
       print(totalCost)
     }
   }

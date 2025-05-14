@@ -774,7 +774,6 @@ irace_run <- function(scenario, parameters)
 
   timer <- Timer$new()
   debugLevel <- scenario$debugLevel
-  nObjectives <- scenario$nObjectives
   objectives <- parse_objective_weights(scenario$weights)
   
   unique_objectives <- unique(objectives$objective_id)
