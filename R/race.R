@@ -672,6 +672,7 @@ elitist_race <- function(maxExp = 0,
                  elitistNewInstances,
                  full_experiment_log)
 {
+  print(subset.data)
   race.env <- new.env(parent = emptyenv())
   blockSize <- scenario$blockSize
   # FIXME: We should take this from scenario. However, this value should be
@@ -707,8 +708,6 @@ elitist_race <- function(maxExp = 0,
     }
   }
   }
-  print(alive_list)
-  
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
   # Check argument: maxExp
@@ -745,6 +744,7 @@ elitist_race <- function(maxExp = 0,
   #SUBSETS: maybe build the stream (with alternation here)
   cat('SUBSET DATA: \n')
   print(subset.data)
+
   if (elitist) {
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,

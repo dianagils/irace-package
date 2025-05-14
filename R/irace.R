@@ -1501,10 +1501,10 @@ irace_run <- function(scenario, parameters)
 
     objectives[objectives$objective_id == objective_id,] <- currentObjective
      }
+    
+    }
     cat('OBJECTIVES SUSBETS: ')
     print(objectives)
-    }
-
     if (debugLevel >= 1) irace.note("Launch race\n")
     # SUBSET: modify elitist race to receive list of instancesList and iterate the execution of one fo each list
     raceResults <- elitist_race (scenario = scenario,
