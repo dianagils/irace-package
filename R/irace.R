@@ -1497,12 +1497,10 @@ irace_run <- function(scenario, parameters)
           < ceiling(currentObjective$remainingBudget / minSurvival)) {
         .irace$instancesList <- generateInstances(scenario,
                                                       n = ceiling(remainingBudget / minSurvival))
-
-
-    objectives[objectives$objective_id == objective_id,] <- currentObjective
      }
-    
+    objectives[objectives$objective_id == objective_id,] <- currentObjective
     }
+
     cat('OBJECTIVES SUSBETS: ')
     print(objectives)
     if (debugLevel >= 1) irace.note("Launch race\n")
