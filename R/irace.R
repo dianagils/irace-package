@@ -42,6 +42,23 @@ recoverFromFile <- function(filename)
   }))
 }
 
+# check convergence in iteration elites
+checkConvergenceInSubset <- function(indexIteration, iterationElites) {
+ # check if the elites for the past iteration are all the same
+  if (length(iterationElites) == 0L) {
+    return(FALSE)
+  }
+  # Check if all elites are the same
+  allSame <- all(sapply(iterationElites, function(x) identical(x, iterationElites[[1]])))
+  if (allSame) {
+    if (getOption(".irace.debug.level", 0) >= 1) {
+      irace.note("Convergence reached at iteration ", indexIteration, ".")
+    }
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
 ##
 ## Numerical configurations similarity function
 ##
@@ -902,6 +919,9 @@ irace_run <- function(scenario, parameters)
                     else scenario$nbIterations
 
     nbIterations <- floor(nbIterations)
+
+    # calculate the half of iterations
+    checkConvergence <- ceiling(nbIterations / 2)
     
     #minSurvival is global
     minSurvival <- if (scenario$minNbSurvival == 0)
@@ -927,6 +947,7 @@ irace_run <- function(scenario, parameters)
                   
    
     indexIteration <- 1L
+    flagForCheck <- FALSE
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
     boundEstimate <- NA 
@@ -1124,6 +1145,21 @@ irace_run <- function(scenario, parameters)
   iraceResults$experiments <- vector("list", length(unique_subset_numbers))
   iraceResults$experiments <- lapply(iraceResults$experiments, function(x) matrix(nrow = 0, ncol = 0))
 
+
+  # check convergence in iteration elites
+  if (flagForCheck) {
+    catInfo("Checking convergence in iteration elites\n")
+  for (subset_number in unique_subset_numbers) {
+    iterationElites <- iraceResults$iterationElitesPerSubset[[as.character(subset_number)]]
+    if (nrow(iterationElites) > 0) {
+      # Check convergence
+        if (checkConvergenceElites(indexIteration, iterationElites)) {
+          catInfo("Convergence reached in subset ", subset_number, "\n")
+        }
+    }
+    }
+  }
+
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
@@ -1158,6 +1194,14 @@ irace_run <- function(scenario, parameters)
         }
         return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
       }
+    }
+
+    if (indexIteration == checkConvergence) {
+      if (debugLevel >= 1) {
+        catInfo("Reached the convergence check point", verbose = FALSE)
+      }
+      # Check convergence
+      flagForCheck <- TRUE
     }
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
