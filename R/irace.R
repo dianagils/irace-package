@@ -1351,6 +1351,7 @@ irace_run <- function(scenario, parameters)
           }
       }
     }
+    }
 
     # for (subset_number in unique(subsets$SubsetNumber)) {
     #   subsetConfigs
