@@ -922,7 +922,10 @@ irace_run <- function(scenario, parameters)
 
     # calculate the half of iterations
     checkConvergence <- ceiling(nbIterations / 2)
-    
+    cat("Convergence check point at iteration:\n")
+    print(checkConvergence)
+    cat("\n")
+
     #minSurvival is global
     minSurvival <- if (scenario$minNbSurvival == 0)
                      computeTerminationOfRace(parameters$nbVariable)
