@@ -354,6 +354,17 @@ extractElites <- function(scenario, configurations, nbElites)
   elites
 }
 
+## getSumOfRanks 
+# for a set of configurations, return the sum of their ranks.
+getSumOfRanks <- function(configurations)
+{
+  if (is.null.or.empty(configurations)) return(0)
+  if (!".RANK." %in% colnames(configurations))
+    irace.internal.error("getSumOfRanks: No '.RANK.' column in configurations.")
+  sum(configurations[[".RANK."]], na.rm = TRUE)
+}
+
+
 #' removeConfigurationsMetaData
 #'
 #' Remove the columns with "metadata" of a data frame containing

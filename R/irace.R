@@ -919,7 +919,6 @@ irace_run <- function(scenario, parameters)
                     else scenario$nbIterations
 
     nbIterations <- floor(nbIterations)
-    print(nbIterations)  # Ensure it's not NULL or NA
 
     cat("Convergence check point at iteration:\n")
     # calculate the half of iterations
@@ -1149,21 +1148,6 @@ irace_run <- function(scenario, parameters)
   iraceResults$experiments <- vector("list", length(unique_subset_numbers))
   iraceResults$experiments <- lapply(iraceResults$experiments, function(x) matrix(nrow = 0, ncol = 0))
 
-
-  # check convergence in iteration elites
-  if (flagForCheck) {
-    catInfo("Checking convergence in iteration elites\n")
-  for (subset_number in unique_subset_numbers) {
-    iterationElites <- iraceResults$iterationElitesPerSubset[[as.character(subset_number)]]
-    if (nrow(iterationElites) > 0) {
-      # Check convergence
-        if (checkConvergenceElites(indexIteration, iterationElites)) {
-          catInfo("Convergence reached in subset ", subset_number, "\n")
-        }
-    }
-    }
-  }
-
   repeat {
     # Recovery info 
     iraceResults$state <- list(.Random.seed = get(".Random.seed", .GlobalEnv),
@@ -1198,14 +1182,6 @@ irace_run <- function(scenario, parameters)
         }
         return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
       }
-    }
-
-    if (indexIteration == checkConvergence) {
-        catInfo("Reached the convergence check point", verbose = FALSE)
-      # Check convergence
-      flagForCheck <- TRUE
-    } else {
-      catInfo("No convergence check point reached", verbose = FALSE)
     }
 
 
@@ -1346,6 +1322,38 @@ irace_run <- function(scenario, parameters)
             "# currentBudget: ", subsets$currentBudget, "\n",
             "# nbConfigurations: ", nbConfigurations,
             verbose = FALSE)
+
+    if (indexIteration == checkConvergence) {
+        catInfo("Reached the convergence check point", verbose = FALSE)
+      # Check convergence
+      flagForCheck <- TRUE
+    } else {
+      if (indexIteration > checkConvergence) {
+        catInfo("Still checking convergence", verbose = FALSE)
+      } else {
+        catInfo("No convergence check at iteration ", indexIteration, "\n",
+                verbose = FALSE)
+      }
+    }
+
+      # check convergence in iteration elites
+    if (flagForCheck) {
+      catInfo("Checking convergence in iteration elites\n")
+    for (subset_number in unique_subset_numbers) {
+      iterationElites <- iraceResults$iterationElitesPerSubset[[as.character(subset_number)]]
+      if (nrow(iterationElites) > 0) {
+        # Check convergence
+          if (checkConvergenceElites(indexIteration, iterationElites)) {
+            catInfo("Convergence reached in subset ", subset_number, "\n")
+          }
+      }
+      }
+    }
+
+    # for (subset_number in unique(subsets$SubsetNumber)) {
+    #   subsetConfigs
+    # }
+
             
     iraceResults$softRestart[indexIteration] <- FALSE
     # Sample for the first time.
@@ -1700,6 +1708,7 @@ irace_run <- function(scenario, parameters)
       aliveSubsetConfigs <- configs[indexes,]
       aliveSubsetConfigs$.RANK. <- lapply(aliveSubsetConfigs$.RANK., update_rank_for_subset, subset_number = subset_number)
       aliveSubsetConfigs$.RANK. <- as.numeric(aliveSubsetConfigs$.RANK.)
+
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
       irace.note("Elite configurations (first number is the configuration ID;",
