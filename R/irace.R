@@ -919,10 +919,11 @@ irace_run <- function(scenario, parameters)
                     else scenario$nbIterations
 
     nbIterations <- floor(nbIterations)
+    print(nbIterations)  # Ensure it's not NULL or NA
 
+    cat("Convergence check point at iteration:\n")
     # calculate the half of iterations
     checkConvergence <- ceiling(nbIterations / 2)
-    cat("Convergence check point at iteration:\n")
     print(checkConvergence)
     cat("\n")
 
@@ -1200,12 +1201,13 @@ irace_run <- function(scenario, parameters)
     }
 
     if (indexIteration == checkConvergence) {
-      if (debugLevel >= 1) {
         catInfo("Reached the convergence check point", verbose = FALSE)
-      }
       # Check convergence
       flagForCheck <- TRUE
+    } else {
+      catInfo("No convergence check point reached", verbose = FALSE)
     }
+
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
