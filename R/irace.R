@@ -1336,17 +1336,19 @@ irace_run <- function(scenario, parameters)
       }
     }
 
+    print(iraceResults$iterationElitesPerSubset)
+
       # check convergence in iteration elites
     if (flagForCheck) {
       catInfo("Checking convergence in iteration elites\n")
-    for (subset_number in unique_subset_numbers) {
+    for (subset_number in unique(subsets$SubsetNumber)) {
       iterationElites <- iraceResults$iterationElitesPerSubset[[as.character(subset_number)]]
-      if (nrow(iterationElites) > 0) {
+  
+      if (iterationElites) {
         # Check convergence
           if (checkConvergenceElites(indexIteration, iterationElites)) {
             catInfo("Convergence reached in subset ", subset_number, "\n")
           }
-      }
       }
     }
 
