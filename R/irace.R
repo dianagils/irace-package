@@ -1340,8 +1340,6 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    print(iraceResults$allElites)
-
       # check convergence in iteration elites
     if (flagForCheck) {
       catInfo("Checking convergence in iteration elites\n")
@@ -1349,10 +1347,10 @@ irace_run <- function(scenario, parameters)
       iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
       print(iterationElites)
       if (length(iterationElites) > 1) {
-        # Check convergence
-          # if (checkConvergenceInSubset(indexIteration, iterationElites)) {
+        # Check convergenceConvergence reached in subset
+          if (checkConvergenceInSubset(indexIteration, iterationElites)) {
             cat("Convergence reached in subset ", subset_number, "\n")
-          # }
+          }
       } else {
         cat("Cant check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
       }
@@ -1360,7 +1358,8 @@ irace_run <- function(scenario, parameters)
     }
 
     # for (subset_number in unique(subsets$SubsetNumber)) {
-    #   subsetConfigs
+    #    # get configs for the current subset
+       
     # }
 
             
@@ -1433,7 +1432,6 @@ irace_run <- function(scenario, parameters)
       
       }
       all_elite_configs <- rbind(all_elite_configs, unique_configs)
-      print(all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
