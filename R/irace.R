@@ -43,20 +43,9 @@ recoverFromFile <- function(filename)
 }
 
 # check convergence in iteration elites
-checkConvergenceInSubset <- function(indexIteration, allElites) {
- # check if the elites for the past iteration are all the same
-  if (length(allElites) == 0L) {
-    return(FALSE)
-  }
-  # Check if all elites are the same
-  allSame <- all(sapply(allElites, function(x) identical(x, allElites[[1]])))
-  if (allSame) {
-    if (getOption(".irace.debug.level", 0) >= 1) {
-      irace.note("Convergence reached at iteration ", indexIteration, ".")
-    }
-    return(TRUE)
-  }
-  return(FALSE)
+checkConvergenceInSubset <- function(allElites) {
+  first <- sort(allElites[[1]])
+  all(sapply(allElites, function(x) identical(sort(x), first)))
 }
 
 ##
@@ -910,9 +899,6 @@ irace_run <- function(scenario, parameters)
       iraceResults$allElites[[as.character(subset_number)]] <- list()
       iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- df
     }
-    cat("Elite configs: \n")
-    print(eliteConfigurations)
-
     #nbIterations is global
     nbIterations <- if (scenario$nbIterations == 0)
                       computeNbIterations(parameters$nbVariable)
@@ -1339,14 +1325,17 @@ irace_run <- function(scenario, parameters)
 
       # check convergence in iteration elites
     if (flagForCheck) {
-      catInfo("Checking convergence in iteration elites\n")
+      cat("Checking convergence in iteration elites\n")
     for (subset_number in unique(subsets$SubsetNumber)) {
       iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
+      cat("Iteration elites for subset ", subset_number, ":\n")
       print(iterationElites)
       if (length(iterationElites) > 1) {
         # Check convergenceConvergence reached in subset
-          if (checkConvergenceInSubset(indexIteration, iterationElites)) {
+          if (checkConvergenceInSubset(iterationElites)) {
             cat("Convergence reached in subset ", subset_number, "\n")
+          } else {
+            cat("Convergence not reached in subset ", subset_number, "\n")
           }
       } else {
         cat("Cant check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
