@@ -1324,15 +1324,19 @@ irace_run <- function(scenario, parameters)
             verbose = FALSE)
 
     if (indexIteration == checkConvergence) {
-        catInfo("Reached the convergence check point", verbose = FALSE)
+        cat("Reached the convergence check point")
       # Check convergence
       flagForCheck <- TRUE
     } else {
-      if (indexIteration > checkConvergence) {
-        catInfo("Still checking convergence", verbose = FALSE)
+      if (indexIteration == nbIterations) {
+        cat("Reached the last iteration, no convergence check will be performed")
+        flagForCheck <- FALSE
+      } else if (indexIteration < checkConvergence) {
+        cat("No convergence check at iteration ")
+        print(indexIteration)
       } else {
-        catInfo("No convergence check at iteration ", indexIteration, "\n",
-                verbose = FALSE)
+        cat("Still checking at iteration ")
+        print(indexIteration)
       }
     }
 
@@ -1343,12 +1347,14 @@ irace_run <- function(scenario, parameters)
       catInfo("Checking convergence in iteration elites\n")
     for (subset_number in unique(subsets$SubsetNumber)) {
       iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
-
-      if (iterationElites) {
+      print(iterationElites)
+      if (length(iterationElites) > 1) {
         # Check convergence
           # if (checkConvergenceInSubset(indexIteration, iterationElites)) {
-            catInfo("Convergence reached in subset ", subset_number, "\n")
+            cat("Convergence reached in subset ", subset_number, "\n")
           # }
+      } else {
+        cat("Cant check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
       }
     }
     }
