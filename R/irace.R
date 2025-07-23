@@ -1328,10 +1328,7 @@ irace_run <- function(scenario, parameters)
       # Check convergence
       flagForCheck <- TRUE
     } else {
-      if (indexIteration == nbIterations) {
-        cat("Reached the last iteration, no convergence check will be performed")
-        flagForCheck <- FALSE
-      } else if (indexIteration < checkConvergence) {
+      if (indexIteration < checkConvergence) {
         cat("No convergence check at iteration ")
         print(indexIteration)
       } else {
@@ -1357,10 +1354,12 @@ irace_run <- function(scenario, parameters)
     }
     }
 
-    # for (subset_number in unique(subsets$SubsetNumber)) {
-    #    # get configs for the current subset
-       
-    # }
+    for (subset_number in unique(subsets$SubsetNumber)) {
+       # get configs for the current subset
+      configs <- eliteConfigurations[[as.character(subset_number)]]
+      cat("Sum of ranks for subset ", subset_number, ": ")
+      print(getSumOfRanks(configs))
+    }
 
             
     iraceResults$softRestart[indexIteration] <- FALSE
