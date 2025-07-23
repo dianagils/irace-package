@@ -43,13 +43,13 @@ recoverFromFile <- function(filename)
 }
 
 # check convergence in iteration elites
-checkConvergenceInSubset <- function(indexIteration, iterationElites) {
+checkConvergenceInSubset <- function(indexIteration, allElites) {
  # check if the elites for the past iteration are all the same
-  if (length(iterationElites) == 0L) {
+  if (length(allElites) == 0L) {
     return(FALSE)
   }
   # Check if all elites are the same
-  allSame <- all(sapply(iterationElites, function(x) identical(x, iterationElites[[1]])))
+  allSame <- all(sapply(allElites, function(x) identical(x, allElites[[1]])))
   if (allSame) {
     if (getOption(".irace.debug.level", 0) >= 1) {
       irace.note("Convergence reached at iteration ", indexIteration, ".")
@@ -1336,19 +1336,19 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    print(iraceResults$iterationElitesPerSubset)
+    print(iraceResults$allElites)
 
       # check convergence in iteration elites
     if (flagForCheck) {
       catInfo("Checking convergence in iteration elites\n")
     for (subset_number in unique(subsets$SubsetNumber)) {
-      iterationElites <- iraceResults$iterationElitesPerSubset[[as.character(subset_number)]]
-  
+      iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
+
       if (iterationElites) {
         # Check convergence
-          if (checkConvergenceElites(indexIteration, iterationElites)) {
+          # if (checkConvergenceInSubset(indexIteration, iterationElites)) {
             catInfo("Convergence reached in subset ", subset_number, "\n")
-          }
+          # }
       }
     }
     }
