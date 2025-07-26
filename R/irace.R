@@ -911,6 +911,8 @@ irace_run <- function(scenario, parameters)
     checkConvergence <- ceiling(nbIterations / 2)
     print(checkConvergence)
     cat("\n")
+    convergenceMatrix <- matrix(0, nrow = nbIterations, ncol = length(unique_subsets),
+                                 dimnames = list(seq_len(nbIterations), unique_subsets))
 
     #minSurvival is global
     minSurvival <- if (scenario$minNbSurvival == 0)
@@ -1299,16 +1301,6 @@ irace_run <- function(scenario, parameters)
       return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
     }
 
-    catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
-            "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
-            if (scenario$maxTime == 0) ""
-            else paste0("# timeUsed: ", subsets$timeUsed, "\n",
-                        "# boundEstimate: ", boundEstimate, "\n"),
-            "# remainingBudget: ", subsets$remainingBudget, "\n",
-            "# currentBudget: ", subsets$currentBudget, "\n",
-            "# nbConfigurations: ", nbConfigurations,
-            verbose = FALSE)
-
     if (indexIteration == checkConvergence) {
         cat("Reached the convergence check point")
       # Check convergence
@@ -1334,8 +1326,10 @@ irace_run <- function(scenario, parameters)
         # Check convergenceConvergence reached in subset
           if (checkConvergenceInSubset(iterationElites)) {
             cat("Convergence reached in subset ", subset_number, "\n")
+            convergenceMatrix[indexIteration, as.character(subset_number)] <- 1
           } else {
             cat("Convergence not reached in subset ", subset_number, "\n")
+            convergenceMatrix[indexIteration, as.character(subset_number)] <- 0
           }
       } else {
         cat("Cant check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
@@ -1343,12 +1337,33 @@ irace_run <- function(scenario, parameters)
     }
     }
 
+    maxSubsetRank <- 0
+    worstSubset <- NULL
     for (subset_number in unique(subsets$SubsetNumber)) {
        # get configs for the current subset
       configs <- eliteConfigurations[[as.character(subset_number)]]
-      cat("Sum of ranks for subset ", subset_number, ": ")
-      print(getSumOfRanks(configs))
+      subset_ranks <- getSumOfRanks(configs)
+      if (subset_ranks > maxSubsetRank) {
+        maxSubsetRank <- subset_ranks
+        worstSubset <- subset_number
+      }
     }
+
+    ## sum all of the current buget of the subsets that converged on this iteration
+    totalBudget <- sum(subsets$remainingBudget[subsets$SubsetNumber %in% unique_subsets[convergenceMatrix[indexIteration, ] == 1]])
+    # add it to the budget of worst subset
+    subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget <-
+      subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget + totalBudget
+    
+    catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
+            "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
+            if (scenario$maxTime == 0) ""
+            else paste0("# timeUsed: ", subsets$timeUsed, "\n",
+                        "# boundEstimate: ", boundEstimate, "\n"),
+            "# remainingBudget: ", subsets$remainingBudget, "\n",
+            "# currentBudget: ", subsets$currentBudget, "\n",
+            "# nbConfigurations: ", nbConfigurations,
+            verbose = FALSE)
 
             
     iraceResults$softRestart[indexIteration] <- FALSE
