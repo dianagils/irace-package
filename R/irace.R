@@ -1314,27 +1314,33 @@ irace_run <- function(scenario, parameters)
         print(indexIteration)
       }
     }
-
-      # check convergence in iteration elites
+    # check convergence in iteration elites
     if (flagForCheck) {
       cat("Checking convergence in iteration elites\n")
-    for (subset_number in unique(subsets$SubsetNumber)) {
-      iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
-      cat("Iteration elites for subset ", subset_number, ":\n")
-      print(iterationElites)
-      if (length(iterationElites) > 1) {
-        # Check convergenceConvergence reached in subset
+      for (subset_number in unique(subsets$SubsetNumber)) {
+        iterationElites <- iraceResults$allElites[[as.character(subset_number)]]
+        cat("Iteration elites for subset ", subset_number, ":\n")
+        print(iterationElites)
+        if (length(iterationElites) > 1) {
+          # Check if all elite configurations in this subset are identical (converged)
           if (checkConvergenceInSubset(iterationElites)) {
-            cat("Convergence reached in subset ", subset_number, "\n")
-            convergenceMatrix[indexIteration, as.character(subset_number)] <- 1
+            # If this is not the first iteration and the previous iteration was converged
+            if (convergenceMatrix[indexIteration - 1, as.character(subset_number)] == 1) {
+              cat("Can't converge in subset ", subset_number, " because it was already converged in the previous iteration\n")
+            } else {
+              cat("Convergence reached in subset ", subset_number, "\n")
+              convergenceMatrix[indexIteration, as.character(subset_number)] <- 1
+            }
           } else {
+            # Not converged: mark as not converged in the matrix
             cat("Convergence not reached in subset ", subset_number, "\n")
             convergenceMatrix[indexIteration, as.character(subset_number)] <- 0
           }
-      } else {
-        cat("Cant check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
+        } else {
+          # Not enough elite configurations to check for convergence
+          cat("Can't check convergence in subset ", subset_number, " because there is only one set of elite configurations\n")
+        }
       }
-    }
     }
 
     maxSubsetRank <- 0
@@ -1770,5 +1776,9 @@ irace_run <- function(scenario, parameters)
       }
     }
     indexIteration <- indexIteration + 1L
+    # add one row to convergence matrix
+    if (nrow(convergenceMatrix) < indexIteration) {
+      convergenceMatrix <- rbind(convergenceMatrix, rep(NA, ncol(convergenceMatrix)))
+    }
   } # end of repeat
 }
