@@ -913,6 +913,8 @@ irace_run <- function(scenario, parameters)
     cat("\n")
     convergenceMatrix <- matrix(0, nrow = nbIterations, ncol = length(unique_subsets),
                                  dimnames = list(seq_len(nbIterations), unique_subsets))
+    print("Convergence matrix:")
+    print(convergenceMatrix)
 
     #minSurvival is global
     minSurvival <- if (scenario$minNbSurvival == 0)
@@ -1356,20 +1358,37 @@ irace_run <- function(scenario, parameters)
     }
 
     ## sum all of the current buget of the subsets that converged on this iteration
-    totalBudget <- sum(subsets$remainingBudget[subsets$SubsetNumber %in% unique_subsets[convergenceMatrix[indexIteration, ] == 1]])
+    convergedSubsets <- unique(subsets$SubsetNumber[convergenceMatrix[indexIteration, ] == 1])
+    totalBudget <- sum(subsets$remainingBudget[subsets$SubsetNumber %in% convergedSubsets])
     # add it to the budget of worst subset
     subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget <-
       subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget + totalBudget
+    # we need to update the current budget of the converged subsets
+    for (subset_number in convergedSubsets) {
+      subsets[subsets$SubsetNumber == subset_number, ]$currentBudget <-
+        computeComputationalBudget(subsets[subsets$SubsetNumber == subset_number, ]$remainingBudget,
+                                  indexIteration, nbIterations)
+    }
+
     
     catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
-            "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
-            if (scenario$maxTime == 0) ""
-            else paste0("# timeUsed: ", subsets$timeUsed, "\n",
-                        "# boundEstimate: ", boundEstimate, "\n"),
-            "# remainingBudget: ", subsets$remainingBudget, "\n",
-            "# currentBudget: ", subsets$currentBudget, "\n",
-            "# nbConfigurations: ", nbConfigurations,
-            verbose = FALSE)
+        "# nbConfigurations: ", nbConfigurations,
+        verbose = FALSE)
+
+    for (subset_number in unique(subsets$SubsetNumber)) {
+      subset_row <- subsets[subsets$SubsetNumber == subset_number, ]
+      cat(
+      "# Subset: ", subset_number, "\n",
+      "#   experimentsUsedSoFar: ", subset_row$experimentsUsedSoFar, "\n",
+      if (scenario$maxTime == 0) "" else paste0(
+        "#   timeUsed: ", subset_row$timeUsed, "\n",
+        "#   boundEstimate: ", boundEstimate, "\n"
+      ),
+      "#   remainingBudget: ", subset_row$remainingBudget, "\n",
+      "#   currentBudget: ", subset_row$currentBudget, "\n",
+      sep = ""
+      )
+    }
 
             
     iraceResults$softRestart[indexIteration] <- FALSE
@@ -1778,7 +1797,8 @@ irace_run <- function(scenario, parameters)
     indexIteration <- indexIteration + 1L
     # add one row to convergence matrix
     if (nrow(convergenceMatrix) < indexIteration) {
-      convergenceMatrix <- rbind(convergenceMatrix, rep(NA, ncol(convergenceMatrix)))
+      convergenceMatrix <- rbind(convergenceMatrix, rep(0, ncol(convergenceMatrix)))
     }
+    print(convergenceMatrix)
   } # end of repeat
 }
