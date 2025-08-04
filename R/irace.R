@@ -1115,9 +1115,13 @@ irace_run <- function(scenario, parameters)
           "# nbIterations: ", nbIterations, "\n",
           "# minNbSurvival: ", minSurvival, "\n",
           "# nbParameters: ", parameters$nbVariable, "\n",
+          for (subset_number in unique(subsets$SubsetNumber)) {
+            catInfo(paste0("# Subset ", subset_number, ":\n"),
+                    paste0("#   remainingBudget: ", subsets$remainingBudget[subsets$SubsetNumber == subset_number], "\n")
+            )
+          },
           "# seed: ", scenario$seed, "\n",
           "# confidence level: ", scenario$confidence, "\n",
-          "# budget: ", subsets$remainingBudget, "\n",
           if (scenario$maxTime == 0) ""
           else paste0("# time budget: ", scenario$maxTime - subsets$timeUsed, "\n"),
           "# mu: ", scenario$mu, "\n",
@@ -1361,16 +1365,13 @@ irace_run <- function(scenario, parameters)
     convergedSubsets <- unique(subsets$SubsetNumber[convergenceMatrix[indexIteration, ] == 1])
     totalBudget <- sum(subsets$remainingBudget[subsets$SubsetNumber %in% convergedSubsets])
     # add it to the budget of worst subset
-    subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget <-
-      subsets[subsets$SubsetNumber == worstSubset, ]$remainingBudget + totalBudget
+    subsets$currentBudget[subsets$SubsetNumber == worstSubset] <- 
+      subsets$currentBudget[subsets$SubsetNumber == worstSubset] + totalBudget
     # we need to update the current budget of the converged subsets
     for (subset_number in convergedSubsets) {
-      subsets[subsets$SubsetNumber == subset_number, ]$currentBudget <-
-        computeComputationalBudget(subsets[subsets$SubsetNumber == subset_number, ]$remainingBudget,
-                                  indexIteration, nbIterations)
+      subsets$currentBudget[subsets$SubsetNumber == subset_number] <- 0
     }
 
-    
     catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
         "# nbConfigurations: ", nbConfigurations,
         verbose = FALSE)

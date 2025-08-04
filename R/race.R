@@ -951,10 +951,8 @@ elitist_race <- function(maxExp = 0,
         if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) {
             return(TRUE)
         }
-        cat('all_elite_instances_evaluated')
         print(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
         evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
-        print(evaluated)
         
         # Ensure all rowAnys returns a logical value
         if (!all(rowAnys(evaluated))) {
