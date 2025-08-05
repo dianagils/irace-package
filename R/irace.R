@@ -1656,8 +1656,11 @@ irace_run <- function(scenario, parameters)
       }
     subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
      }
+  
+    # create a copy of subsets to pass, w/o the subsets that have 0 currentBudget
+    subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
     cat('SUBSETS: ')
-    print(subsets)
+    print(subsets_to_pass)
 
     if (debugLevel >= 1) irace.note("Launch race\n")
     # SUBSET: modify elitist race to receive list of instancesList and iterate the execution of one fo each list
@@ -1670,10 +1673,17 @@ irace_run <- function(scenario, parameters)
                                  elitistNewInstances = if (firstRace) 0L
                                                        else scenario$elitistNewInstances,
                                  full_experiment_log = iraceResults$experimentLog,
-                                 subset.data = subsets 
+                                 subset.data = subsets_to_pass, 
                                  )
-    #assign subset to get info
-    subsets <- raceResults$subsets
+    # update subsets with new subsets
+    new_subsets <- raceResults$subsets
+    for (subset_number in unique(new_subsets$SubsetNumber)) {
+      currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
+      currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
+      currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
+      subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
+    }
+
     cat('Race Results')
     print(raceResults)
     # Update experiments

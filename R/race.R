@@ -707,7 +707,6 @@ elitist_race <- function(maxExp = 0,
     }
   }
   }
-  print(alive_list)
   
 
   ## FIXME: Remove argument checking. This must have been done by the caller.
@@ -747,8 +746,7 @@ elitist_race <- function(maxExp = 0,
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
-                                              sampleInstances = scenario$sampleInstances)    
-    print(race.subsets_instances)                                     
+                                              sampleInstances = scenario$sampleInstances)                                 
   }
   else {
   # TODO> DETERMINISTIC 
@@ -951,7 +949,6 @@ elitist_race <- function(maxExp = 0,
         if (subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"] == 1L) {
             return(TRUE)
         }
-        print(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
         evaluated <- !is.na(result_list[[as.character(subset_number)]][, alive_list[[as.character(subset_number)]], drop=FALSE])
         
         # Ensure all rowAnys returns a logical value
@@ -1057,7 +1054,6 @@ elitist_race <- function(maxExp = 0,
       break.msg <- paste0("number of alive configurations (", nbAlive,
                           ") <= minimum number of configurations (",
                           minSurvival, ")")
-      cat('AQUI\n')
       done_subsets <- c(done_subsets, currentSubset)
       next 
     }
@@ -1093,7 +1089,6 @@ elitist_race <- function(maxExp = 0,
                             currentSubsetRow$experimentsUsed + length(which.exe) * each.test,
                             ") > max experiments (", currentSubsetRow$currentBudget, ")")
         done_subsets <- c(done_subsets, currentSubset)
-        cat('AQUI2\n')
         next
       }
     }
@@ -1103,7 +1098,7 @@ elitist_race <- function(maxExp = 0,
           && all_elite_instances_evaluated(currentSubset)) {
         break.msg <- paste0("tests without elimination (", no.elimination[[as.character(currentSubset)]],
                             ") >= elitistLimit (", scenario$elitistLimit, ")")
-        cat('AQUI3\n')
+        done_subsets <- c(done_subsets, currentSubset)
         next
       }    
       }
