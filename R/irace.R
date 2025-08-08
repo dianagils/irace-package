@@ -1188,6 +1188,7 @@ irace_run <- function(scenario, parameters)
       
       # Extract the subset rows
       currentSubset <- subsets[current_indices, ]
+      print(currentSubset)
       if (scenario$elitist) {
         print(sum(!is.na(iraceResults$experiments[[subsetNumber]])))
         print(currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed)
@@ -1677,14 +1678,6 @@ irace_run <- function(scenario, parameters)
                                  full_experiment_log = iraceResults$experimentLog,
                                  subset.data = subsets_to_pass
                                  )
-    # update subsets with new subsets
-    new_subsets <- raceResults$subsets
-    for (subset_number in unique(new_subsets$SubsetNumber)) {
-      currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
-      currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
-      currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
-      subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
-    }
 
     cat('Race Results')
     print(raceResults)
