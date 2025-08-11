@@ -1681,6 +1681,13 @@ irace_run <- function(scenario, parameters)
 
     cat('Race Results')
     print(raceResults)
+
+    new_subsets <- raceResults$subsets
+    for (subset_number in unique(new_subsets$SubsetNumber)) {
+      currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
+      subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
+    }
+
     # Update experiments
     # LESLIE: Maybe we can think is make iraceResults an environment, so these values
     # can be updated in the race function.
