@@ -1382,7 +1382,10 @@ irace_run <- function(scenario, parameters)
       print(subsets$currentBudget[subsets$SubsetNumber == worstSubset])
       # we need to update the current budget of the converged subsets
       for (subset_number in convergedSubsets) {
-        subsets$currentBudget[subsets$SubsetNumber == subset_number] <- 0
+        subset_to_update <- subsets[subsets$SubsetNumber == subset_number, ]
+        subset_to_update$remainingBudget <- subset_to_update$remainingBudget - subset_to_update$currentBudget
+        subset_to_update$currentBudget <- 0
+        subsets[subsets$SubsetNumber == subset_number, ] <- subset_to_update
       }
     }
     }
