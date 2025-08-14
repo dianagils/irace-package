@@ -1376,8 +1376,11 @@ irace_run <- function(scenario, parameters)
       totalBudget <- sum(subsets$currentBudget[subsets$SubsetNumber %in% convergedSubsets])
       cat("Total budget to reassign: ", totalBudget, "\n")
       # add it to the budget of worst subset
-      subsets$currentBudget[subsets$SubsetNumber == worstSubset] <- 
-        subsets$currentBudget[subsets$SubsetNumber == worstSubset] + totalBudget
+      subset_to_add <- subsets[subsets$SubsetNumber == worstSubset, ]
+      subset_to_add$currentBudget <- 
+        subset_to_add$currentBudget + totalBudget
+      subset_to_add$remainingBudget <- 
+        subset_to_add$remainingBudget + totalBudget
       cat("Added budget to worst subset: ")
       print(subsets$currentBudget[subsets$SubsetNumber == worstSubset])
       # we need to update the current budget of the converged subsets
