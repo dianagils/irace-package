@@ -1202,6 +1202,8 @@ irace_run <- function(scenario, parameters)
                     computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
                                               nbIterations)
                   else scenario$nbExperimentsPerIteration
+
+      cat(" Budget for subset ", subsetNumber, ": ", currentSubset$currentBudget, "\n")
       currentBudget <- currentBudget + currentSubset$currentBudget
       subsets[current_indices, ] <- currentSubset
     }
