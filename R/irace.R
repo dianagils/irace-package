@@ -1273,7 +1273,7 @@ irace_run <- function(scenario, parameters)
     }
 
       # Compute the number of configurations for this race.
-    cat('CURRENT BUDGET')
+    cat('Total budget over subsets: ')
     print(currentBudget)
     # If we have too many eliteConfigurations, reduce their number. This can
     # happen before the first race due to the initial budget estimation.
@@ -1371,10 +1371,13 @@ irace_run <- function(scenario, parameters)
       cat("No subset converged in iteration ", indexIteration, "\n")
     } else {
       cat("Converged subsets: ", paste(convergedSubsets, collapse = ", "), "\n")
-      totalBudget <- sum(subsets$remainingBudget[subsets$SubsetNumber %in% convergedSubsets])
+      totalBudget <- sum(subsets$currentBudget[subsets$SubsetNumber %in% convergedSubsets])
+      cat("Total budget to reassign: ", totalBudget, "\n")
       # add it to the budget of worst subset
       subsets$currentBudget[subsets$SubsetNumber == worstSubset] <- 
         subsets$currentBudget[subsets$SubsetNumber == worstSubset] + totalBudget
+      cat("Added budget to worst subset: ")
+      print(subsets$currentBudget[subsets$SubsetNumber == worstSubset])
       # we need to update the current budget of the converged subsets
       for (subset_number in convergedSubsets) {
         subsets$currentBudget[subsets$SubsetNumber == subset_number] <- 0
@@ -1384,7 +1387,7 @@ irace_run <- function(scenario, parameters)
 
     # create a copy of subsets, w/o the subsets that have 0 currentBudget
     subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
-    cat('SUBSETS: ')
+    cat('Current subsets to go into next race: ')
     print(subsets_to_pass)
 
 
