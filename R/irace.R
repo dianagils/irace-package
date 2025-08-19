@@ -1383,6 +1383,7 @@ irace_run <- function(scenario, parameters)
         subset_to_add$remainingBudget + totalBudget
       cat("Added budget to worst subset: ")
       print(subsets$currentBudget[subsets$SubsetNumber == worstSubset])
+      subsets[subsets$SubsetNumber == worstSubset, ] <- subset_to_add
       # we need to update the current budget of the converged subsets
       for (subset_number in convergedSubsets) {
         subset_to_update <- subsets[subsets$SubsetNumber == subset_number, ]
@@ -1392,6 +1393,8 @@ irace_run <- function(scenario, parameters)
       }
     }
     }
+
+    print(subsets)
 
     # create a copy of subsets, w/o the subsets that have 0 currentBudget
     subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
