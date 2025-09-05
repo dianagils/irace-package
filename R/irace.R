@@ -1350,7 +1350,7 @@ irace_run <- function(scenario, parameters)
         }
       }
     }
-
+    print(eliteConfigurations)
     # if all subsets converged, dont assign to worst subset
     if (all(convergenceMatrix[indexIteration, ] == 1)) { 
       cat("All subsets converged in iteration ", indexIteration, "\n")
