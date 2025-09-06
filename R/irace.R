@@ -1495,6 +1495,7 @@ irace_run <- function(scenario, parameters)
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
       # TODO: set increase factor to be an hyperparameter
+      print(model)
       model <- updateModel(parameters, all_elite_configs, model, indexIteration,
                           nbIterations, nbNewConfigurations_per_subset, scenario, 2)
       if (debugLevel >= 2) printModel(model)
