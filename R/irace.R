@@ -1473,7 +1473,7 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- data.frame()
       added_ids <- c()
       unique_configs <- data.frame()
-      for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
+      for (subset_number in unique(subsets$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
@@ -1491,11 +1491,12 @@ irace_run <- function(scenario, parameters)
       
       }
       all_elite_configs <- rbind(all_elite_configs, unique_configs)
+      print('All elite configs before updating model (including the ones with no current budget):')
+      print(all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
       # TODO: set increase factor to be an hyperparameter
-      print(model)
       model <- updateModel(parameters, all_elite_configs, model, indexIteration,
                           nbIterations, nbNewConfigurations_per_subset, scenario, 2)
       if (debugLevel >= 2) printModel(model)
@@ -1503,6 +1504,10 @@ irace_run <- function(scenario, parameters)
       # Iterate over each subset again to sample new configurations and update elite configurations
       newly_generated_configs <- data.frame()
 
+      # remove from elite configs, where s is alive in subset is in subsets_to_pass
+      print('Removing elite configs that are not alive in any of the current subsets')
+      all_elite_configs <- all_elite_configs[sapply(all_elite_configs$isAliveInSubset, function(s) any(s %in% subsets_to_pass$SubsetNumber)), ]
+      print(all_elite_configs)
       # Get raceConfigurations with elites
       all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
       raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]

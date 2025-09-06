@@ -50,7 +50,6 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
   for (idxConfiguration in seq_len(nrow(eliteConfigurations))) {
     idCurrentConfiguration <- eliteConfigurations[idxConfiguration, ".ID."]
     idCurrentConfiguration <- as.character(idCurrentConfiguration)
-    print(idCurrentConfiguration)
 
     for (currentParameter in parameters$names[!parameters$isFixed]) {
       type <- parameters$types[[currentParameter]]
