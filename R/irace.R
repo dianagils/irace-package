@@ -1681,8 +1681,15 @@ irace_run <- function(scenario, parameters)
 
     for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
       currentSubset <- subsets_to_pass[subsets_to_pass$SubsetNumber == subset_number,]
+      print('Current subset before adding instances:')
+      cat('\n')
+      print(currentSubset)
+      cat('\n')
       currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
+      print(currentSubset$NextInstance)
+      cat('\n')
+      print(n)
       if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
         .irace$instanceSubsetList <- generateInstancesForOneSubset(scenario,
@@ -1691,6 +1698,7 @@ irace_run <- function(scenario, parameters)
 
       }
     subsets_to_pass[subsets_to_pass$SubsetNumber == subset_number,] <- currentSubset
+    print(subsets_to_pass)
      }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
