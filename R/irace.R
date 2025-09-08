@@ -388,8 +388,6 @@ generateInstancesForOneSubset <- function(scenario, n, subset_instances, subset_
       # FIXME: We could bound it even further if maxExperiments >> nInstances
       ceiling(n / nrow(subset_instances))
 
-    subset_instances <- subset(instance_data, SubsetNumber == subset_num)
-
     # Repeat each instance according to the specified number of times
     repeated_instances <- rep(subset_instances$UniqueID, each = ntimes)
 
