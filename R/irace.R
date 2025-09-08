@@ -1693,7 +1693,7 @@ irace_run <- function(scenario, parameters)
       if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
         .irace$instanceSubsetList <- generateInstancesForOneSubset(scenario,
-                                                      n = ceiling(remainingBudget / minSurvival),
+                                                      n = ceiling(currentSubset$remainingBudget / minSurvival),
                                                       subset(instanceSubsets, SubsetNumber == subset_number), subset_number)
 
       }
