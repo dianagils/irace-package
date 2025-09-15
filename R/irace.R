@@ -1798,6 +1798,15 @@ irace_run <- function(scenario, parameters)
       iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], eliteConfigurations[[as.character(subset_number)]][[".ID."]][1L])
       iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
     }
+
+    # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
+    for (subset_number in unique(subsets$SubsetNumber)) {
+      if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
+        iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
+        iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], NA)
+        iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- iraceResults$allElites[[as.character(subset_number)]][[indexIteration - 1]]
+      }
+    }
     
     
     if (firstRace) {
@@ -1832,7 +1841,6 @@ irace_run <- function(scenario, parameters)
       subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
     }
 
-      
     if (debugLevel >= 1)  {
       irace.note("End of iteration ", indexIteration, "\n")
       if (debugLevel >= 3) {
