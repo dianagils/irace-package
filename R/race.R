@@ -1267,6 +1267,7 @@ elitist_race <- function(maxExp = 0,
     experimentLog <- rbind(experimentLog,
                            cbind(currentInstance,
                                  currentSubsetConfigs[which.exe, ".ID."],
+                                 currentSubset,
                                  vtimes, 
                                  if (is.null(final.bounds)) NA else final.bounds[which.exe]))
     # irace.assert(anyDuplicated(experimentLog[, c("instance", "configuration")]) == 0,
