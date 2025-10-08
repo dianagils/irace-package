@@ -689,8 +689,8 @@ elitist_race <- function(maxExp = 0,
   elitist <- scenario$elitist
   capping <- scenario$capping
   no.configurations <- nrow(configurations)
-  experimentLog <- matrix(nrow = 0, ncol = 4,
-                          dimnames = list(NULL, c("instance", "configuration", "time", "bound")))
+  experimentLog <- matrix(nrow = 0, ncol = 5,
+                          dimnames = list(NULL, c("instance", "configuration", "subset", "time", "bound")))
 
   alive_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
   rejected_list <- vector("list", length = max(unlist(configurations$isAliveInSubset)))
