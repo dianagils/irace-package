@@ -388,8 +388,6 @@ generateInstancesForOneSubset <- function(scenario, n, subset_instances, subset_
       # FIXME: We could bound it even further if maxExperiments >> nInstances
       ceiling(n / nrow(subset_instances))
 
-    subset_instances <- subset(instance_data, SubsetNumber == subset_num)
-
     # Repeat each instance according to the specified number of times
     repeated_instances <- rep(subset_instances$UniqueID, each = ntimes)
 
@@ -1350,7 +1348,7 @@ irace_run <- function(scenario, parameters)
         }
       }
     }
-
+    print(eliteConfigurations)
     # if all subsets converged, dont assign to worst subset
     if (all(convergenceMatrix[indexIteration, ] == 1)) { 
       cat("All subsets converged in iteration ", indexIteration, "\n")
@@ -1383,6 +1381,7 @@ irace_run <- function(scenario, parameters)
         subset_to_add$remainingBudget + totalBudget
       cat("Added budget to worst subset: ")
       print(subsets$currentBudget[subsets$SubsetNumber == worstSubset])
+      subsets[subsets$SubsetNumber == worstSubset, ] <- subset_to_add
       # we need to update the current budget of the converged subsets
       for (subset_number in convergedSubsets) {
         subset_to_update <- subsets[subsets$SubsetNumber == subset_number, ]
@@ -1392,6 +1391,8 @@ irace_run <- function(scenario, parameters)
       }
     }
     }
+
+    print(subsets)
 
     # create a copy of subsets, w/o the subsets that have 0 currentBudget
     subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
@@ -1470,7 +1471,7 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- data.frame()
       added_ids <- c()
       unique_configs <- data.frame()
-      for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
+      for (subset_number in unique(subsets$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
@@ -1488,6 +1489,8 @@ irace_run <- function(scenario, parameters)
       
       }
       all_elite_configs <- rbind(all_elite_configs, unique_configs)
+      print('All elite configs before updating model (including the ones with no current budget):')
+      print(all_elite_configs)
 
       # Update the model based on all elite configurations
       if (debugLevel >= 1) irace.note("Update model\n")
@@ -1499,6 +1502,10 @@ irace_run <- function(scenario, parameters)
       # Iterate over each subset again to sample new configurations and update elite configurations
       newly_generated_configs <- data.frame()
 
+      # remove from elite configs, where s is alive in subset is in subsets_to_pass
+      print('Removing elite configs that are not alive in any of the current subsets')
+      all_elite_configs <- all_elite_configs[sapply(all_elite_configs$isAliveInSubset, function(s) any(s %in% subsets_to_pass$SubsetNumber)), ]
+      print(all_elite_configs)
       # Get raceConfigurations with elites
       all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
       raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
@@ -1672,16 +1679,24 @@ irace_run <- function(scenario, parameters)
 
     for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
       currentSubset <- subsets_to_pass[subsets_to_pass$SubsetNumber == subset_number,]
+      print('Current subset before adding instances:')
+      cat('\n')
+      print(currentSubset)
+      cat('\n')
       currentSubset$NextInstance <- nrow(iraceResults$experiments[[subset_number]]) + 1
       n <- nrow(.irace$instanceSubsetList[[as.character(subset_number)]])
+      print(currentSubset$NextInstance)
+      cat('\n')
+      print(n)
       if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
-        .irace$instanceSubsetList <- generateInstancesForOneSubset(scenario,
-                                                      n = ceiling(remainingBudget / minSurvival),
+        .irace$instanceSubsetList[[as.character(subset_number)]] <- generateInstancesForOneSubset(scenario,
+                                                      n = ceiling(currentSubset$remainingBudget / minSurvival),
                                                       subset(instanceSubsets, SubsetNumber == subset_number), subset_number)
 
       }
     subsets_to_pass[subsets_to_pass$SubsetNumber == subset_number,] <- currentSubset
+    print(subsets_to_pass)
      }
 
     if (debugLevel >= 1) irace.note("Launch race\n")
@@ -1783,6 +1798,15 @@ irace_run <- function(scenario, parameters)
       iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], eliteConfigurations[[as.character(subset_number)]][[".ID."]][1L])
       iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
     }
+
+    # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
+    for (subset_number in unique(subsets$SubsetNumber)) {
+      if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
+        iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
+        iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], NA)
+        iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- iraceResults$allElites[[as.character(subset_number)]][[indexIteration - 1]]
+      }
+    }
     
     
     if (firstRace) {
@@ -1817,7 +1841,6 @@ irace_run <- function(scenario, parameters)
       subsets[subsets$SubsetNumber == subset_number,] <- currentSubset
     }
 
-      
     if (debugLevel >= 1)  {
       irace.note("End of iteration ", indexIteration, "\n")
       if (debugLevel >= 3) {

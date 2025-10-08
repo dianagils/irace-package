@@ -101,7 +101,6 @@ updateModel <- function (parameters, eliteConfigurations, oldModel,
 
           # Prevent probabilities from growing too much.
           if (scenario$elitist) {
-            cat("Preventing Probb. to grow")
             # probVector <- probVector / sum(probVector)
             # probMax    <- 0.2^(1 / parameters$nbVariable)
             # probVector <- pmin(probVector, probMax)

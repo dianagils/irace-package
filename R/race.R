@@ -305,13 +305,17 @@ elitrace.init.instances.subsets <- function(race.env, subsets, deterministic, sa
   for (subset_num in subsets.numbers) {
     next_instance <- subsets[subsets$SubsetNumber == subset_num, "NextInstance"]
     max_instances <- nrow(.irace$instanceSubsetList[[as.character(subset_num)]])
-
+    cat("Next Instance \n")
+    print(next_instance)
+    cat("Max instances \n")
+    print(max_instances)
     if (next_instance == 1) {
       subset_instances <- seq_len(max_instances)
     } else {
       new_instances <- NULL
       last_new <- next_instance - 1L + race.env$elitistNewInstances
-      
+      cat("Last new")
+      print(last_new)
       if (race.env$elitistNewInstances > 0) {
         if (last_new > max_instances) {
           irace.assert(deterministic)
