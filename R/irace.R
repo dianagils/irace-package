@@ -839,6 +839,14 @@ irace_run <- function(scenario, parameters)
   instanceSubsets <- readInstanceSubsets(instanceSubsetFile)
   cat("Instance subset's: ")
   print(instanceSubsets)
+
+  all_instances_subset_number = max(instanceSubsets$SubsetNumber) + 1
+
+  all_instances <- data.frame(UniqueID = seq_along(scenario$instances),
+                              SubsetNumber = all_instances_subset_number,
+                              stringsAsFactors = FALSE)
+  instanceSubsets <- rbind(instanceSubsets, all_instances)
+
   unique_subsets <- unique(instanceSubsets$SubsetNumber)
   #dataframe to store information about the subset
   subsets <- data.frame(
@@ -920,10 +928,11 @@ irace_run <- function(scenario, parameters)
                    else scenario$minNbSurvival
     minSurvival <- floor(minSurvival)
 
-    # divide equally the budget
-    maxExperimentsPerSubset <- scenario$maxExperiments / length(unique_subsets)
-    cat('BUDGET PER SUBSET:')
-    print(maxExperimentsPerSubset)
+    # assign all budget to last subset, or subset with all instances
+    maxExperiments <- scenario$maxExperiments
+    cat('Max experiments: ')
+    print(maxExperiments)
+
 
     # Generate initial instance + seed list
     .irace$instancesList <- generateInstances(scenario,
@@ -932,24 +941,14 @@ irace_run <- function(scenario, parameters)
                                                   else
                                                     max(scenario$firstTest, length(scenario$instances)))
                                                      
-    .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
-                                                    n = ceiling(maxExperimentsPerSubset / minSurvival),
-                                                    instanceSubsets)
-                  
-   
-    indexIteration <- 1L
-    flagForCheck <- FALSE
-    experimentsUsedSoFar <- 0L
-    timeUsed <- 0
-    boundEstimate <- NA 
-    rejectedIDs <- c()
 
     startParallel(scenario)
     on.exit(stopParallel(), add = TRUE)
     
     if (scenario$maxTime == 0) {
       if (is.na(scenario$minExperiments)) {
-        subsets$remainingBudget <- rep(maxExperimentsPerSubset, nrow(subsets))  
+        subsets[SubsetNumber == all_instances_subset_number, "remainingBudget"] <-
+          scenario$maxExperiments
       } else {
         remainingBudget <- max(scenario$minExperiments,
                                computeMinimumBudget(scenario, minSurvival, nbIterations))
@@ -1070,18 +1069,24 @@ irace_run <- function(scenario, parameters)
 
     # Compute the total initial budget, that is, the maximum number of
     # experiments that we can perform.
-    for (subset_num in unique(subsets$SubsetNumber)) {
-       subsets[subsets$SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                       computeComputationalBudget(subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
-                                                  nbIterations)
-                     else scenario$nbExperimentsPerIteration
+
+    subsets[subsets$SubsetNumber == all_instances_subset_number,]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                    computeComputationalBudget(remainingBudget, indexIteration,
+                                               nbIterations)
+                  else scenario$nbExperimentsPerIteration
+
+    # for (subset_num in unique(subsets$SubsetNumber)) {
+    #    subsets[subsets$SubsetNumber == subset_num, ]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+    #                    computeComputationalBudget(subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
+    #                                               nbIterations)
+    #                  else scenario$nbExperimentsPerIteration
+  
 
     # Check that the budget is enough, for the time estimation case we reduce
     # the number of iterations.
     warn_msg <- NULL
-    while (!checkMinimumBudget(scenario, subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
-                               boundEstimate, subsets[subsets$SubsetNumber == subset_num, ]$timeUsed))
-   
+    while (!checkMinimumBudget(scenario, subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget, minSurvival, nbIterations,
+                               boundEstimate, subsets[subsets$SubsetNumber == all_instances_subset_number, ]$timeUsed))
     {
       if (is.null(warn_msg))
         warn_msg <- 
@@ -1180,30 +1185,70 @@ irace_run <- function(scenario, parameters)
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
     # Iterate over each unique SubsetNumber
-    for (subsetNumber in unique(subsets$SubsetNumber)) {
-      # Get the indices of the current subset
-      current_indices <- which(subsets$SubsetNumber == subsetNumber)
-      
-      # Extract the subset rows
-      currentSubset <- subsets[current_indices, ]
-      if (scenario$elitist) {
-        irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == (currentSubset$experimentsUsedSoFar))
-      }
-      # Check the conditions
-      if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
-        cat('SUBSET DONE WITH RACING')
-        print(subsetNumber)
-        rows_to_keep[current_indices] <- FALSE
-        doneSubsets <- rbind(doneSubsets, currentSubset)
-      }
-      currentSubset$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                    computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
-                                              nbIterations)
-                  else scenario$nbExperimentsPerIteration
 
-      cat(" Budget for subset ", subsetNumber, ": ", currentSubset$currentBudget, "\n")
-      currentBudget <- currentBudget + currentSubset$currentBudget
-      subsets[current_indices, ] <- currentSubset
+    if (indexIteration == 2L) {
+      # reassign the subset_all_instances remaining budget to the other subsets
+      total_remaining_budget <- subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget
+      subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget <- 0
+
+      # divide the remaining budget equally among the other subsets
+      num_active_subsets <- nrow(subsets) - 1 # exclude done subsets and all_instances subset
+      budget_per_subset <- floor(total_remaining_budget / num_active_subsets)
+      for (subsetNumber in unique(subsets$SubsetNumber)) {
+        if (subsetNumber != all_instances_subset_number) {
+          subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget <-
+            subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
+        }
+      }
+      # remove the all_instances subset from the instanceSubsets
+      instanceSubsets <- instanceSubsets[instanceSubsets$SubsetNumber != all_instances_subset_number, ]
+      .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
+                                                n = ceiling(budget_per_subset / minSurvival),
+                                                instanceSubsets)   
+      
+      # assign eliteConfigurations from all_instances_subset_number susbet to the others:
+      elite_confs_all_instances <- eliteConfigurations[[as.character(all_instances_subset_number)]]
+      for (subsetNumber in unique(subsets$SubsetNumber)) {
+        if (subsetNumber != all_instances_subset_number) {
+          eliteConfigurations[[as.character(subsetNumber)]] <-
+            elite_confs_all_instances
+        }
+      }
+    }
+
+    if (indexIteration > 1) {
+      for (subsetNumber in unique(subsets$SubsetNumber)) {
+        # Get the indices of the current subset
+        current_indices <- which(subsets$SubsetNumber == subsetNumber)
+        # Extract the subset rows
+        currentSubset <- subsets[current_indices, ]
+        if (scenario$elitist) {
+          irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == (currentSubset$experimentsUsedSoFar))
+        }
+        # Check the conditions
+        if (any(currentSubset$remainingBudget <= 0) || (scenario$maxTime > 0 && any(currentSubset$timeUsed >= scenario$maxTime))) {
+          cat('SUBSET DONE WITH RACING')
+          print(subsetNumber)
+          rows_to_keep[current_indices] <- FALSE
+          doneSubsets <- rbind(doneSubsets, currentSubset)
+        }
+        currentSubset$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                      computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
+                                                nbIterations)
+                    else scenario$nbExperimentsPerIteration
+
+        cat(" Budget for subset ", subsetNumber, ": ", currentSubset$currentBudget, "\n")
+        currentBudget <- currentBudget + currentSubset$currentBudget
+        subsets[current_indices, ] <- currentSubset
+      }
+    } else {
+      # compute computational budget for all_instances_subset_number
+      current_indices <- which(subsets$SubsetNumber == all_instances_subset_number)
+      currentSubset <- subsets[current_indices, ]
+      currentSubset$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
+                      computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
+                                                nbIterations)
+                    else scenario$nbExperimentsPerIteration
     }
 
     # Keep only the rows that meet the criteria
@@ -1307,7 +1352,7 @@ irace_run <- function(scenario, parameters)
       return(irace_finish(iraceResults, scenario, reason = "Not enough budget to race all configurations up to the first test (or mu)"))
     }
 
-    if (indexIteration == checkConvergence) {
+    if (indexIteration > checkConvergence) {
         cat("Reached the convergence check point")
       # Check convergence
       flagForCheck <- TRUE
@@ -1358,12 +1403,15 @@ irace_run <- function(scenario, parameters)
       for (subset_number in unique(subsets$SubsetNumber)) {
         # get configs for the current subset
         configs <- eliteConfigurations[[as.character(subset_number)]]
+        if (length(configs) > 0) {
         subset_ranks <- getSumOfRanks(configs)
         if (subset_ranks > maxSubsetRank) {
           maxSubsetRank <- subset_ranks
           worstSubset <- subset_number
         }
       }
+      }
+
     ## sum all of the current buget of the subsets that converged on this iteration
     convergedSubsets <- unique(subsets$SubsetNumber[convergenceMatrix[indexIteration, ] == 1])
     # if no subset converged, then we do not need to do anything
