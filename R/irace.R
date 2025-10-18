@@ -1077,7 +1077,7 @@ irace_run <- function(scenario, parameters)
     # experiments that we can perform.
 
     subsets[subsets$SubsetNumber == all_instances_subset_number,]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                    computeComputationalBudget(remainingBudget, indexIteration,
+                    computeComputationalBudget(remainingBudget, 1,
                                                nbIterations)
                   else scenario$nbExperimentsPerIteration
 
