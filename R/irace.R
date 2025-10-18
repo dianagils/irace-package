@@ -1411,6 +1411,7 @@ irace_run <- function(scenario, parameters)
         }
       }
       }
+    }
 
     ## sum all of the current buget of the subsets that converged on this iteration
     convergedSubsets <- unique(subsets$SubsetNumber[convergenceMatrix[indexIteration, ] == 1])
