@@ -810,9 +810,6 @@ irace_run <- function(scenario, parameters)
       cat ("# Iteration: ", indexIteration, "\n",
            "# nbIterations: ", nbIterations, "\n",
            "# experimentsUsedSoFar: ", experimentsUsedSoFar, "\n",
-           "# timeUsed: ", subsets$timeUsed, "\n",
-           "# remainingBudget: ", subsets$remainingBudget, "\n",
-           "# currentBudget: ", subsets$currentBudget, "\n",
            "# number of elites: ", nrow(eliteConfigurations), "\n",
            "# nbConfigurations: ", nbConfigurations, "\n",
            sep = "")
@@ -1131,7 +1128,7 @@ irace_run <- function(scenario, parameters)
           "# minNbSurvival: ", minSurvival, "\n",
           "# nbParameters: ", parameters$nbVariable, "\n",
           for (subset_number in unique(subsets$SubsetNumber)) {
-            catInfo(paste0("# Subset ", subset_number, ":\n"),
+            cat(paste0("# Subset ", subset_number, ":\n"),
                     paste0("#   remainingBudget: ", subsets$remainingBudget[subsets$SubsetNumber == subset_number], "\n")
             )
           },
@@ -1261,6 +1258,7 @@ irace_run <- function(scenario, parameters)
                       computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
                                                 nbIterations)
                     else scenario$nbExperimentsPerIteration
+      currentBudget <- currentSubset$currentBudget
     }
 
     # Keep only the rows that meet the criteria
