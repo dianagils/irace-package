@@ -1104,7 +1104,7 @@ irace_run <- function(scenario, parameters)
                                      min(minSurvival * 2L, scenario$nbConfigurations)
                                    else minSurvival * 2L
     }
-        }
+        
     if (!is.null(warn_msg)) irace.warning(warn_msg)
     
   } #end of do not recover
@@ -1653,8 +1653,6 @@ irace_run <- function(scenario, parameters)
           }
         }
 
-      }
-
     
     if (debugLevel >= 2) {
       irace.note("Configurations for the race n ", indexIteration,
@@ -1906,4 +1904,5 @@ irace_run <- function(scenario, parameters)
     }
     print(convergenceMatrix)
   } # end of repeat
+  
 }
