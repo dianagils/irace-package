@@ -954,6 +954,7 @@ irace_run <- function(scenario, parameters)
         subsets[subsets$SubsetNumber == all_instances_subset_number, "remainingBudget"] <-
           scenario$maxExperiments
         print(subsets)
+        remainingBudget <- scenario$maxExperiments
       } else {
         remainingBudget <- max(scenario$minExperiments,
                                computeMinimumBudget(scenario, minSurvival, nbIterations))
