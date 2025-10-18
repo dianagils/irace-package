@@ -891,9 +891,9 @@ irace_run <- function(scenario, parameters)
       iterationElitesPerSubset = list(),
       allElites = list(),
       experiments = matrix(nrow = 0, ncol = 0),
-      experimentLog = matrix(nrow = 0, ncol = 5,
+      experimentLog = matrix(nrow = 0, ncol = 6,
                               dimnames = list(NULL,
-                                              c("iteration", "instance", "configuration", "time", "bound")))
+                                              c("iteration", "instance", "configuration", "subset", "time", "bound")))
     )
     blockSize <- scenario$blockSize
     model <- NULL
