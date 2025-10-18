@@ -950,6 +950,8 @@ irace_run <- function(scenario, parameters)
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
     boundEstimate <- NA 
+    rejectedIDs <- c()
+
     startParallel(scenario)
     on.exit(stopParallel(), add = TRUE)
     
