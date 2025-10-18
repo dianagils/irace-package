@@ -948,6 +948,7 @@ irace_run <- function(scenario, parameters)
     timeUsed <- 0
     boundEstimate <- NA 
     rejectedIDs <- c()
+    flagForCheck <- FALSE
 
     startParallel(scenario)
     on.exit(stopParallel(), add = TRUE)
