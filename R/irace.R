@@ -847,7 +847,7 @@ irace_run <- function(scenario, parameters)
                               SubsetNumber = all_instances_subset_number,
                               InstanceName = instanceSubsets$InstanceName,
                               stringsAsFactors = FALSE)
-                              
+
   print(all_instances)
   instanceSubsets <- rbind(instanceSubsets, all_instances)
 
@@ -951,8 +951,9 @@ irace_run <- function(scenario, parameters)
     
     if (scenario$maxTime == 0) {
       if (is.na(scenario$minExperiments)) {
-        subsets[SubsetNumber == all_instances_subset_number, "remainingBudget"] <-
+        subsets[subsets$SubsetNumber == all_instances_subset_number, "remainingBudget"] <-
           scenario$maxExperiments
+        print(subsets)
       } else {
         remainingBudget <- max(scenario$minExperiments,
                                computeMinimumBudget(scenario, minSurvival, nbIterations))
