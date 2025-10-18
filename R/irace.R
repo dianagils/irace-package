@@ -842,9 +842,13 @@ irace_run <- function(scenario, parameters)
 
   all_instances_subset_number = max(instanceSubsets$SubsetNumber) + 1
 
-  all_instances <- data.frame(UniqueID = seq_along(scenario$instances),
+  # create a data frame from the same InstanceName and UniqueID but with subset number equal to all_instances_subset_number
+  all_instances <- data.frame(UniqueID = instanceSubsets$UniqueID,
                               SubsetNumber = all_instances_subset_number,
+                              InstanceName = instanceSubsets$InstanceName,
                               stringsAsFactors = FALSE)
+                              
+  print(all_instances)
   instanceSubsets <- rbind(instanceSubsets, all_instances)
 
   unique_subsets <- unique(instanceSubsets$SubsetNumber)
