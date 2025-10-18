@@ -946,6 +946,10 @@ irace_run <- function(scenario, parameters)
                                                     max(scenario$firstTest, length(scenario$instances)))
                                                      
 
+    indexIteration <- 1L
+    experimentsUsedSoFar <- 0L
+    timeUsed <- 0
+    boundEstimate <- NA 
     startParallel(scenario)
     on.exit(stopParallel(), add = TRUE)
     
@@ -1077,7 +1081,7 @@ irace_run <- function(scenario, parameters)
     # experiments that we can perform.
 
     subsets[subsets$SubsetNumber == all_instances_subset_number,]$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
-                    computeComputationalBudget(remainingBudget, 1,
+                    computeComputationalBudget(remainingBudget, indexIteration,
                                                nbIterations)
                   else scenario$nbExperimentsPerIteration
 
