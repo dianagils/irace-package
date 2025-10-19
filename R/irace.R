@@ -1854,6 +1854,7 @@ irace_run <- function(scenario, parameters)
     }
 
     # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
+    if (firstRace) {
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
         iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
@@ -1861,7 +1862,7 @@ irace_run <- function(scenario, parameters)
         iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- iraceResults$allElites[[as.character(subset_number)]][[indexIteration - 1]]
       }
     }
-    
+    }
     
     if (firstRace) {
       all_elite_configs <- data.frame()
