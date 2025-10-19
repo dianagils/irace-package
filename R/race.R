@@ -750,7 +750,8 @@ elitist_race <- function(maxExp = 0,
     race.subsets_instances <- elitrace.init.instances.subsets (race.env,
                                               subsets = subset.data,
                                               scenario$deterministic,
-                                              sampleInstances = scenario$sampleInstances)                                 
+                                              sampleInstances = scenario$sampleInstances)  
+    print(race.subsets_instances)
   }
   else {
   # TODO> DETERMINISTIC 
