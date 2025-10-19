@@ -1001,7 +1001,8 @@ elitist_race <- function(maxExp = 0,
     if (currentSubset %in% done_subsets) next
     currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
     print(currentSubsetRow)
-    currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask
+    currentSubsetTask <- currentSubsetRow$currentSubsetTask
+    print(paste0('Current subset: ', currentSubset, ' Current task: ', currentSubsetTask))
     alive <- alive_list[[currentSubset]]
     which.alive <- which(alive)
     nbAlive     <- length(which.alive)
