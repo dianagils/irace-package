@@ -832,6 +832,7 @@ elitist_race <- function(maxExp = 0,
 
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
+    print(subset_number)
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     subset_configs <- configurations[indexes,]
     print('subset configs: ')
