@@ -830,13 +830,7 @@ elitist_race <- function(maxExp = 0,
   # Initialize a list to store matrices for results separated by subsets
   result_list <- list()
 
-  print("Unique SubsetNumber values:")
-  print(unique(subset.data$SubsetNumber))
-  print("Structure:")
-  str(subset.data)
-  print("Any NAs?")
-  print(any(is.na(subset.data$SubsetNumber)))
-
+  subset.data <- subset.data[!is.na(subset.data$SubsetNumber), ]
 
   # Iterate over each subset
   for (subset_number in unique(subset.data$SubsetNumber)) {
@@ -1128,8 +1122,11 @@ elitist_race <- function(maxExp = 0,
       #        break
       #      }
 
-    
-                                
+
+    print(result_list)
+    print(nrow(result_list[[as.character(currentSubset)]]))
+    print(currentSubsetTask)
+    print(race.subsets_instances[[currentSubset]])
     if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
       result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
       cat('rows are less: ')
