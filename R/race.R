@@ -1440,7 +1440,7 @@ elitist_race <- function(maxExp = 0,
     cat('cc6\n')
     if (elitist) {
       # Compute number of statistical tests without eliminations.
-      irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+      irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[as.character(currentSubset)]))
       if (!any(is.elite[[as.character(currentSubset)]] > 0)
           && currentSubsetTask > first.test && (currentSubsetTask %% each.test) == 0) {
         if (length(which.alive) == length(prev.alive)) {
