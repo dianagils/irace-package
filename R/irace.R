@@ -832,10 +832,7 @@ irace_run <- function(scenario, parameters)
   debugLevel <- scenario$debugLevel
     #Read instance subsets
   instanceSubsetFile <- scenario$instanceSubsetsFile
-  print(instanceSubsetFile)
   instanceSubsets <- readInstanceSubsets(instanceSubsetFile)
-  cat("Instance subset's: ")
-  print(instanceSubsets)
 
   all_instances_subset_number = max(instanceSubsets$SubsetNumber) + 1
 
@@ -845,8 +842,9 @@ irace_run <- function(scenario, parameters)
                               InstanceName = instanceSubsets$InstanceName,
                               stringsAsFactors = FALSE)
 
-  print(all_instances)
   instanceSubsets <- rbind(instanceSubsets, all_instances)
+  cat("Instance subset's: ")
+  print(instanceSubsets)
 
   unique_subsets <- unique(instanceSubsets$SubsetNumber)
   #dataframe to store information about the subset
@@ -1211,7 +1209,6 @@ irace_run <- function(scenario, parameters)
         }
       }
       # remove the all_instances subset from the instanceSubsets
-      instanceSubsets <- instanceSubsets[instanceSubsets$SubsetNumber != all_instances_subset_number, ]
       .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
                                                 n = ceiling(budget_per_subset / minSurvival),
                                                 instanceSubsets)   
@@ -1483,7 +1480,7 @@ irace_run <- function(scenario, parameters)
     # Sample for the first time.
     if (firstRace) {
       # If we need more configurations, sample uniformly.
-      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)) / length(unique(subsets$SubsetNumber))
+      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)) / length(unique(subsets_to_pass$SubsetNumber))
       if (nbNewConfigurations > 0) {
         # Sample new configurations.
         if (debugLevel >= 1) {
@@ -1530,7 +1527,7 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- data.frame()
       added_ids <- c()
       unique_configs <- data.frame()
-      for (subset_number in unique(subsets$SubsetNumber)) {
+      for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
@@ -1747,7 +1744,7 @@ irace_run <- function(scenario, parameters)
       print(n)
       if (n - (currentSubset$NextInstance  - 1)
           < ceiling(currentSubset$remainingBudget / minSurvival)) {
-        .irace$instanceSubsetList[[as.character(subset_number)]] <- generateInstancesForOneSubset(scenario,
+          .irace$instanceSubsetList[[as.character(subset_number)]] <- generateInstancesForOneSubset(scenario,
                                                       n = ceiling(currentSubset$remainingBudget / minSurvival),
                                                       subset(instanceSubsets, SubsetNumber == subset_number), subset_number)
 
