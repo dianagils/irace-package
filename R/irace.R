@@ -1450,7 +1450,6 @@ irace_run <- function(scenario, parameters)
         subsets[subsets$SubsetNumber == subset_number, ] <- subset_to_update
       }
     }
-    }
 
     print(subsets)
 
@@ -1914,6 +1913,6 @@ irace_run <- function(scenario, parameters)
       convergenceMatrix <- rbind(convergenceMatrix, rep(0, ncol(convergenceMatrix)))
     }
     print(convergenceMatrix)
-  } # end of repeat
-  
+    } # end of repeat
+  }
 }
