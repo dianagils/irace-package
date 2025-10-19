@@ -1189,6 +1189,11 @@ irace_run <- function(scenario, parameters)
       }
     }
 
+    # remove the all_instances subset from the instanceSubsets
+    .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
+                                              n = remainingBudget,
+                                              instanceSubsets)   
+
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
     currentBudget <- 0L
@@ -1208,10 +1213,6 @@ irace_run <- function(scenario, parameters)
             subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
         }
       }
-      # remove the all_instances subset from the instanceSubsets
-      .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
-                                                n = ceiling(budget_per_subset / minSurvival),
-                                                instanceSubsets)   
       
       # assign eliteConfigurations from all_instances_subset_number susbet to the others:
       elite_confs_all_instances <- eliteConfigurations[[as.character(all_instances_subset_number)]]
