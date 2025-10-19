@@ -1787,6 +1787,25 @@ irace_run <- function(scenario, parameters)
                                               subsetResults)
     }
 
+    if (firstRace) {
+      # update iraceResults$experiments to have missing subsets results only for instances of each subset
+      for (subset_number in unique(subsets$SubsetNumber)) {
+        if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
+          iraceResults$experiments[[subset_number]] <- data.frame(matrix(ncol = nrow(allConfigurations), nrow = 0))
+          colnames(iraceResults$experiments[[subset_number]]) <- as.character(allConfigurations$.ID.)
+          # filter rows to have only instances of that subset
+          experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
+          instance_ids <- rownames(experimentsAllInstances)
+          subset_instance_ids <- .irace$instanceSubsetList[[as.character(subset_number)]][, "InstanceID"]
+          filtered_experiments <- experimentsAllInstances[instance_ids %in% subset_instance_ids, , drop = FALSE]
+          iraceResults$experiments[[subset_number]] <- rbind(iraceResults$experiments[[subset_number]], filtered_experiments)
+        }
+        print(paste("Experiments for subset ", subset_number, ":"))
+        print(iraceResults$experiments[[subset_number]])
+      }
+      print(iraceResults$experiments)
+    }
+
     # if (length(raceResults$rejectedIDs) > 0) {
     #   rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
     #   iraceResults$rejectedConfigurations <- rejectedIDs
