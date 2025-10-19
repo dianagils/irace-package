@@ -1245,10 +1245,10 @@ elitist_race <- function(maxExp = 0,
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
     cat("HERE OK\n")
-    print(subset.data[currentSubset,])
-    subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
-    print(subset.data[currentSubset,])
-    
+    print(subset.data[subset.data$SubsetNumber == as.character(currentSubset),])
+    subset.data[subset.data$SubsetNumber == as.character(currentSubset),]$currentSubsetTask <- subset.data[subset.data$SubsetNumber == as.character(currentSubset),]$currentSubsetTask + 1
+    print(subset.data[subset.data$SubsetNumber == as.character(currentSubset),])
+
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))
     cat('vcost\n')
@@ -1293,7 +1293,7 @@ elitist_race <- function(maxExp = 0,
     #                  eval.after = {
     #                    print(mget(ls()))
     #                  })
-    subset.data[currentSubset,]$experimentsUsed <- subset.data[currentSubset,]$experimentsUsed + length(which.exe)
+    subset.data[subset.data$SubsetNumber == as.character(currentSubset),]$experimentsUsed <- subset.data[subset.data$SubsetNumber == as.character(currentSubset),]$experimentsUsed + length(which.exe)
     totalExperimentsUsed <- totalExperimentsUsed + length(which.exe)
     # We update the elites that have been executed.
     is.elite[[as.character(currentSubset)]] <- update.is.elite(is.elite[[as.character(currentSubset)]], which.elite.exe)
@@ -1440,7 +1440,7 @@ elitist_race <- function(maxExp = 0,
     print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
-               id_best = id_best, best = best_list[[as.character(currentSubset)]], subset.data[currentSubset,]$experimentsUsed, start_time = start_time, 
+               id_best = id_best, best = best_list[[as.character(currentSubset)]], subset.data[subset.data$SubsetNumber == as.character(currentSubset),]$experimentsUsed, start_time = start_time, 
                bound = elite.bound, capping)
     cat('cc6\n')
     if (elitist) {
