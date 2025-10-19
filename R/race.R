@@ -1047,7 +1047,7 @@ elitist_race <- function(maxExp = 0,
         
         id_best <- currentSubsetConfigs[[".ID."]][best_list[[as.character(currentSubset)]]]
         print_task(".", result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
-                   race.subsets_instances[[currentSubset]][currentSubsetTask],
+                   race.subsets_instances[[as.character(currentSubset)]][currentSubsetTask],
                    currentSubsetTask, alive = alive,
                    id_best = id_best,
                    best = best_list[[as.character(currentSubset)]], currentSubsetRow$experimentsUsed, start_time = Sys.time(),
@@ -1127,12 +1127,13 @@ elitist_race <- function(maxExp = 0,
 
     print(result_list)
     print(nrow(result_list[[as.character(currentSubset)]]))
+    print(seq_nrow(result_list[[as.character(currentSubset)]]))
     print(currentSubsetTask)
-    print(race.subsets_instances[[currentSubset]])
+    print(race.subsets_instances)
     if (nrow(result_list[[as.character(currentSubset)]] ) < currentSubsetTask) {
       result_list[[as.character(currentSubset)]]  <- rbind(result_list[[as.character(currentSubset)]] , rep(NA, ncol(result_list[[as.character(currentSubset)]] )))
       cat('rows are less: ')
-      rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[currentSubset]][seq_nrow(result_list[[as.character(currentSubset)]])]
+      rownames(result_list[[as.character(currentSubset)]]) <- race.subsets_instances[[as.character(currentSubset)]][seq_nrow(result_list[[as.character(currentSubset)]])]
       if (capping) {
         experimentsTime <- rbind(experimentsTime, rep(NA, ncol(experimentsTime)))
         rownames(experimentsTime) <- race.instances[seq_nrow(experimentsTime)]
@@ -1230,7 +1231,7 @@ elitist_race <- function(maxExp = 0,
       final.bounds <- rep(scenario$boundMax, no.configurations)
     }
     
-    currentInstance <- race.subsets_instances[[currentSubset]][currentSubsetTask]
+    currentInstance <- race.subsets_instances[[as.character(currentSubset)]][currentSubsetTask]
     #filter configs from that subset only, which alive is for subset
     print(currentSubsetConfigs[which.alive, , drop = FALSE])
     output <- race.wrapper(configurations = currentSubsetConfigs[which.alive, , drop = FALSE],
