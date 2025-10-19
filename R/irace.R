@@ -1662,7 +1662,7 @@ irace_run <- function(scenario, parameters)
                                         raceConfigurations)
           }
         }
-
+    }
     
     if (debugLevel >= 2) {
       irace.note("Configurations for the race n ", indexIteration,
@@ -1914,5 +1914,4 @@ irace_run <- function(scenario, parameters)
     }
     print(convergenceMatrix)
     } # end of repeat
-  }
 }
