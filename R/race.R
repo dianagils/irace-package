@@ -1381,7 +1381,7 @@ elitist_race <- function(maxExp = 0,
     # can be removed only when they have no more previously-executed instances.
     print(is.elite[[as.character(currentSubset)]])
     print(elite.safe_per_subset)
-    irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[currentSubset]))
+    irace.assert(!any(is.elite[[as.character(currentSubset)]] > 0) == (currentSubsetTask >= elite.safe_per_subset[as.character(currentSubset)]))
     if (!is.null(elite.data[[as.character(currentSubset)]]) && any(is.elite[[as.character(currentSubset)]] > 0)) {
       irace.assert (length(alive) == length(is.elite[[as.character(currentSubset)]]))
       alive <- alive | (is.elite[[as.character(currentSubset)]] > 0)
