@@ -831,6 +831,7 @@ elitist_race <- function(maxExp = 0,
   # Initialize a list to store matrices for results separated by subsets
   result_list <- list()
 
+
   subset.data <- subset.data[!is.na(subset.data$SubsetNumber), ]
 
   # Iterate over each subset
@@ -991,6 +992,7 @@ elitist_race <- function(maxExp = 0,
   test_dropped_list <- vector("list", length(nSubsets))
   test_done_list <- vector("list", length(nSubsets))
   for (current.task in seq_len(no.tasks)) {
+    subset.data <- subset.data[!is.na(subset.data$SubsetNumber), ]
     # check ifare any subsets left
     terminated <- all(unique_subset_numbers %in% done_subsets)
     if (terminated) {
@@ -1000,7 +1002,7 @@ elitist_race <- function(maxExp = 0,
     currentSubset <- subsetOrder[current.task]
     # CONTINUE IF SUBSET IS DONE
     if (currentSubset %in% done_subsets) next
-    currentSubsetRow <- subset.data[subset.data$SubsetNumber == currentSubset, ]
+    currentSubsetRow <- subset.data[subset.data$SubsetNumber == as.character(currentSubset), ]
     print(currentSubsetRow)
     currentSubsetTask <- currentSubsetRow$currentSubsetTask
     print(paste0('Current subset: ', currentSubset, ' Current task: ', currentSubsetTask))
@@ -1242,7 +1244,10 @@ elitist_race <- function(maxExp = 0,
                            bounds = final.bounds[which.alive],
                            which.alive = which.alive, which.exe = which.exe,
                            parameters = parameters, scenario = scenario)
+    cat("HERE OK\n")
+    print(subset.data[currentSubset,])
     subset.data[currentSubset,]$currentSubsetTask <- subset.data[currentSubset,]$currentSubsetTask + 1
+    print(subset.data[currentSubset,])
     
     # Extract results
     vcost <- unlist(lapply(output, "[[", "cost"))

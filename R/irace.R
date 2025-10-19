@@ -428,8 +428,6 @@ generateInstancesPerSubset <- function(scenario, n, instance_data = NULL) {
       # FIXME: We could bound it even further if maxExperiments >> nInstances
       ceiling(n / nrow(subset_instances))
 
-    cat('Generating instances for subset number: ', subset_num, '\n')
-    print(ntimes)
     subset_instances <- subset(instance_data, SubsetNumber == subset_num)
 
     # Repeat each instance according to the specified number of times
@@ -1457,7 +1455,6 @@ irace_run <- function(scenario, parameters)
     subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
     cat('Current subsets to go into next race: ')
     print(subsets_to_pass)
-
 
     catInfo("Iteration ", indexIteration, " of ", nbIterations, "\n",
         "# nbConfigurations: ", nbConfigurations,
