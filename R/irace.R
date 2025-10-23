@@ -1829,8 +1829,8 @@ irace_run <- function(scenario, parameters)
         cat('Subset List:')
         print(subsetList)
         # --- Map instance numbers (columns) to their IDs ---
-        instance_numbers <- as.numeric(rownames(experimentsAllInstances))
-        instance_ids <- instanceList$InstanceID[match(instance_numbers, instanceList$InstanceNumber)]
+        instance_indices <- as.numeric(rownames(experimentsAllInstances))
+        instance_ids <- instanceList$InstanceID[instance_indices]
         cat('Instance IDs:')
         print(instance_ids)
         # --- Identify which columns belong to this subset ---
