@@ -1817,22 +1817,25 @@ irace_run <- function(scenario, parameters)
       instanceList <- .irace$instanceList
       
       for (subset_number in unique(subsets$SubsetNumber)) {
+        cat('\nProcessing subset number:', subset_number, '\n')
         # Skip the all-instance subset
         if (subset_number == all_instances_subset_number) next
         
         subsetList <- .irace$instanceSubsetList[[as.character(subset_number)]]
-        
+        cat('Subset List:')
+        print(subsetList)
         # --- Map instance numbers (columns) to their IDs ---
-        instance_numbers <- as.numeric(colnames(experimentsAllInstances))
+        instance_numbers <- as.numeric(rownames(experimentsAllInstances))
         instance_ids <- instanceList$InstanceID[match(instance_numbers, instanceList$InstanceNumber)]
-        
+        cat('Instance IDs:')
+        print(instance_ids)
         # --- Identify which columns belong to this subset ---
         subset_ids <- as.character(subsetList$InstanceID)
-        valid_cols <- colnames(experimentsAllInstances)[instance_ids %in% subset_ids]
-        
+        valid_rows <- rownames(experimentsAllInstances)[instance_ids %in% subset_ids]
+        cat('Valid rows for subset', subset_number, ':')
         # --- Filter experiments matrix ---
-        if (length(valid_cols) > 0) {
-          filtered_experiments <- experimentsAllInstances[, valid_cols, drop = FALSE]
+        if (length(valid_rows) > 0) {
+          filtered_experiments <- experimentsAllInstances[valid_rows, , drop = FALSE]
         } else {
           # Empty matrix with same row structure if no matching instances
           filtered_experiments <- data.frame(matrix(ncol = 0, nrow = nrow(experimentsAllInstances)))
@@ -1841,13 +1844,13 @@ irace_run <- function(scenario, parameters)
 
         # Store the subset-specific experiments matrix
         iraceResults$experiments[[subset_number]] <- filtered_experiments
-        
-        cat("\nSubset", subset_number, "- kept columns:", paste(valid_cols, collapse = ", "), "\n")
+
+        cat("\nSubset", subset_number, "- kept rows:", paste(valid_rows, collapse = ", "), "\n")
       }
 
       cat("\n✅ Finished distributing experiments by subset.\n")
     }
-
+    print(iraceResults$experiments)
 
 
     # if (length(raceResults$rejectedIDs) > 0) {
