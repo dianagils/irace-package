@@ -962,10 +962,11 @@ irace_run <- function(scenario, parameters)
     all_instances_list <- generateInstancesForCombinedSubsets(.irace$instanceSubsetList)
     cat("All instances subset generated:")
     print(all_instances_list)
+    # reset the rownames to 1:nrow
+    rownames(all_instances_list) <- NULL
+
     .irace$instanceSubsetList[[as.character(all_instances_subset_number)]] <- all_instances_list
 
-    cat("Generated instance + seed per subset:")
-    print(.irace$instanceSubsetList)
 
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
@@ -1809,23 +1810,45 @@ irace_run <- function(scenario, parameters)
     }
 
     if (firstRace) {
+      # Experiments matrix for all instances
+      experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
+      
+      # Global instance list (mapping between InstanceNumber and InstanceID)
+      instanceList <- .irace$instanceList
+      
       for (subset_number in unique(subsets$SubsetNumber)) {
-        if (subset_number != all_instances_subset_number) {
-          iraceResults$experiments[[subset_number]] <- data.frame(matrix(ncol = nrow(allConfigurations), nrow = 0))
-          colnames(iraceResults$experiments[[subset_number]]) <- as.character(allConfigurations$.ID.)
-          # filter rows to have only instances of that subset
-          experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
-          # subset
-          instanceList <- .irace$instanceSubsetList[[as.character(subset_number)]]
-          subset_instance_ids <- .irace$instanceSubsetList[[as.character(subset_number)]][, "InstanceID"]
-          filtered_experiments <- experimentsAllInstances[instance_ids %in% subset_instance_ids, , drop = FALSE]
-          iraceResults$experiments[[subset_number]] <- rbind(iraceResults$experiments[[subset_number]], filtered_experiments)
+        # Skip the all-instance subset
+        if (subset_number == all_instances_subset_number) next
+        
+        subsetList <- .irace$instanceSubsetList[[as.character(subset_number)]]
+        
+        # --- Map instance numbers (columns) to their IDs ---
+        instance_numbers <- as.numeric(colnames(experimentsAllInstances))
+        instance_ids <- instanceList$InstanceID[match(instance_numbers, instanceList$InstanceNumber)]
+        
+        # --- Identify which columns belong to this subset ---
+        subset_ids <- as.character(subsetList$InstanceID)
+        valid_cols <- colnames(experimentsAllInstances)[instance_ids %in% subset_ids]
+        
+        # --- Filter experiments matrix ---
+        if (length(valid_cols) > 0) {
+          filtered_experiments <- experimentsAllInstances[, valid_cols, drop = FALSE]
+        } else {
+          # Empty matrix with same row structure if no matching instances
+          filtered_experiments <- data.frame(matrix(ncol = 0, nrow = nrow(experimentsAllInstances)))
+          rownames(filtered_experiments) <- rownames(experimentsAllInstances)
         }
-        print(paste("Experiments for subset ", subset_number, ":"))
-        print(iraceResults$experiments[[subset_number]])
+
+        # Store the subset-specific experiments matrix
+        iraceResults$experiments[[subset_number]] <- filtered_experiments
+        
+        cat("\nSubset", subset_number, "- kept columns:", paste(valid_cols, collapse = ", "), "\n")
       }
-      print(iraceResults$experiments)
+
+      cat("\n✅ Finished distributing experiments by subset.\n")
     }
+
+
 
     # if (length(raceResults$rejectedIDs) > 0) {
     #   rejectedIDs <- c(rejectedIDs, raceResults$rejectedIDs)
