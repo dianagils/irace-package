@@ -751,7 +751,6 @@ elitist_race <- function(maxExp = 0,
                                               subsets = subset.data,
                                               scenario$deterministic,
                                               sampleInstances = scenario$sampleInstances)  
-    print(race.subsets_instances)
   }
   else {
   # TODO> DETERMINISTIC 

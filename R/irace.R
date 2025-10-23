@@ -381,6 +381,26 @@ irace.init <- function(scenario)
   scenario
 }
 
+generateInstancesForCombinedSubsets <- function(instance_list = NULL) {
+  # combine the instances per subset in one stream, alternating between subsets
+  unique_subsets <- names(instance_list)
+  subset_lengths <- sapply(instance_list, nrow)
+  max_length <- max(subset_lengths)
+  
+  combined_instances <- data.frame(instanceID = integer(0), seed = integer(0), stringsAsFactors = FALSE)
+  
+  for (i in seq_len(max_length)) {
+    for (subset_num in unique_subsets) {
+      subset_instances <- instance_list[[subset_num]]
+      if (i <= nrow(subset_instances)) {
+        combined_instances <- rbind(combined_instances, subset_instances[i, , drop = FALSE])
+      }
+    }
+  }
+  
+  combined_instances
+}
+
 generateInstancesForOneSubset <- function(scenario, n, subset_instances, subset_num) {
     # Number of times that we need to repeat the set of instances given by the user.
     ntimes <- if (scenario$deterministic) 1L else
@@ -832,17 +852,17 @@ irace_run <- function(scenario, parameters)
   debugLevel <- scenario$debugLevel
     #Read instance subsets
   instanceSubsetFile <- scenario$instanceSubsetsFile
-  instanceSubsets <- readInstanceSubsets(instanceSubsetFile)
+  originalInstanceSubsets <- readInstanceSubsets(instanceSubsetFile)
 
-  all_instances_subset_number = max(instanceSubsets$SubsetNumber) + 1
+  all_instances_subset_number = max(originalInstanceSubsets$SubsetNumber) + 1
 
   # create a data frame from the same InstanceName and UniqueID but with subset number equal to all_instances_subset_number
-  all_instances <- data.frame(UniqueID = instanceSubsets$UniqueID,
+  all_instances <- data.frame(UniqueID = originalInstanceSubsets$UniqueID,
                               SubsetNumber = all_instances_subset_number,
-                              InstanceName = instanceSubsets$InstanceName,
+                              InstanceName = originalInstanceSubsets$InstanceName,
                               stringsAsFactors = FALSE)
 
-  instanceSubsets <- rbind(instanceSubsets, all_instances)
+  instanceSubsets <- rbind(originalInstanceSubsets, all_instances)
   cat("Instance subset's: ")
   print(instanceSubsets)
 
@@ -932,14 +952,18 @@ irace_run <- function(scenario, parameters)
     cat('Max experiments: ')
     print(maxExperiments)
 
+    budget_per_subset <- floor(maxExperiments / length(unique_subsets) - 1) #substract added subset
 
-    # Generate initial instance + seed list
-    .irace$instancesList <- generateInstances(scenario,
-                                              n = if (scenario$maxExperiments != 0)
-                                                    ceiling(scenario$maxExperiments / minSurvival)
-                                                  else
-                                                    max(scenario$firstTest, length(scenario$instances)))
-                                                     
+    .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
+                                              n = budget_per_subset,
+                                              originalInstanceSubsets)
+                                              
+    ## add to .irace$instanceSubsetList the subset with all instances
+    all_instances_list <- generateInstancesForCombinedSubsets(.irace$instanceSubsetList)
+    .irace$instanceSubsetList[[as.character(all_instances_subset_number)]] <- all_instances_list
+
+    print("Generated instance + seed per subset:")
+    print(.irace$instanceSubsetList)
 
     indexIteration <- 1L
     experimentsUsedSoFar <- 0L
@@ -1188,11 +1212,6 @@ irace_run <- function(scenario, parameters)
         return(irace_finish(iraceResults, scenario, reason = "Limit of iterations reached"))
       }
     }
-
-    # remove the all_instances subset from the instanceSubsets
-    .irace$instanceSubsetList <- generateInstancesPerSubset(scenario,
-                                              n = remainingBudget,
-                                              instanceSubsets)   
 
 
     rows_to_keep <- rep(TRUE, nrow(subsets))
@@ -1788,14 +1807,14 @@ irace_run <- function(scenario, parameters)
     }
 
     if (firstRace) {
-      # update iraceResults$experiments to have missing subsets results only for instances of each subset
       for (subset_number in unique(subsets$SubsetNumber)) {
-        if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
+        if (subset_number != all_instances_subset_number) {
           iraceResults$experiments[[subset_number]] <- data.frame(matrix(ncol = nrow(allConfigurations), nrow = 0))
           colnames(iraceResults$experiments[[subset_number]]) <- as.character(allConfigurations$.ID.)
           # filter rows to have only instances of that subset
           experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
-          instance_ids <- rownames(experimentsAllInstances)
+          # subset
+          instanceList <- .irace$instanceSubsetList[[as.character(subset_number)]]
           subset_instance_ids <- .irace$instanceSubsetList[[as.character(subset_number)]][, "InstanceID"]
           filtered_experiments <- experimentsAllInstances[instance_ids %in% subset_instance_ids, , drop = FALSE]
           iraceResults$experiments[[subset_number]] <- rbind(iraceResults$experiments[[subset_number]], filtered_experiments)
