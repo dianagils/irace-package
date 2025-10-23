@@ -1808,10 +1808,12 @@ irace_run <- function(scenario, parameters)
       iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
     }
+    print('Experiments after merging:')
+    print(iraceResults$experiments)
 
     if (firstRace) {
       # Experiments matrix for all instances
-      experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
+      experimentsAllInstances <- iraceResults$experiments[[all_instances_subset_number]]
       print('Experiments for all instances:')
       print(experimentsAllInstances)
       print(rownames(experimentsAllInstances))
