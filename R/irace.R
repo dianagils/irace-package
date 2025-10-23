@@ -960,9 +960,11 @@ irace_run <- function(scenario, parameters)
                                               
     ## add to .irace$instanceSubsetList the subset with all instances
     all_instances_list <- generateInstancesForCombinedSubsets(.irace$instanceSubsetList)
+    cat("All instances subset generated:")
+    print(all_instances_list)
     .irace$instanceSubsetList[[as.character(all_instances_subset_number)]] <- all_instances_list
 
-    print("Generated instance + seed per subset:")
+    cat("Generated instance + seed per subset:")
     print(.irace$instanceSubsetList)
 
     indexIteration <- 1L
