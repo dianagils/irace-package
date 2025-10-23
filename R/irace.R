@@ -1812,7 +1812,9 @@ irace_run <- function(scenario, parameters)
     if (firstRace) {
       # Experiments matrix for all instances
       experimentsAllInstances <- iraceResults$experiments[[as.character(all_instances_subset_number)]]
-      
+      print('Experiments for all instances:')
+      print(experimentsAllInstances)
+      print(rownames(experimentsAllInstances))
       # Global instance list (mapping between InstanceNumber and InstanceID)
       instanceList <- .irace$instanceList
       
