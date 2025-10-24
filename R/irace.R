@@ -1815,46 +1815,32 @@ irace_run <- function(scenario, parameters)
       iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
     }
-    print('Experiments after merging:')
-    print(iraceResults$experiments)
-
     if (firstRace) {
       # Experiments matrix for all instances
       experimentsAllInstances <- iraceResults$experiments[[all_instances_subset_number]]
-      print('Experiments for all instances:')
-      print(experimentsAllInstances)
-      print(rownames(experimentsAllInstances))
-
       instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
-      cat('Instance List:')
-      print(instanceList)
+
 
       for (subset_number in unique(subsets$SubsetNumber)) {
-        cat('\nProcessing subset number:', subset_number, '\n')
         # Skip the all-instance subset
         if (subset_number == all_instances_subset_number) next
 
         subsetList <- .irace$instanceSubsetList[[as.character(subset_number)]]
-
-        # --- Map instance numbers (columns) to their IDs ---
         instance_indices <- as.numeric(rownames(experimentsAllInstances))
-        cat('Instance indices:')
-        print(instance_indices)
 
         instance_ids <- instanceList$instanceID[instance_indices]
-        cat('Instance IDs:')
-        print(instance_ids)
+
         # --- Identify which columns belong to this subset ---
         subset_ids <- as.character(subsetList$instanceID)
         valid_rows <- rownames(experimentsAllInstances)[instance_ids %in% subset_ids]
-        cat('Valid rows for subset', subset_number, ':')
-        # --- Filter experiments matrix ---
+
         if (length(valid_rows) > 0) {
           filtered_experiments <- experimentsAllInstances[valid_rows, , drop = FALSE]
         } else {
           # Empty matrix with same row structure if no matching instances
           filtered_experiments <- data.frame(matrix(ncol = 0, nrow = nrow(experimentsAllInstances)))
-          rownames(filtered_experiments) <- rownames(experimentsAllInstances)
+          # dont preserve rownames since there are no valid rows
+          rownames(filtered_experiments) <- seq_len(nrow(filtered_experiments))
         }
 
         # Store the subset-specific experiments matrix
