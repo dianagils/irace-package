@@ -797,9 +797,13 @@ elitist_race <- function(maxExp = 0,
       
       # Calculate elite.safe for the current subset
       elite.safe <- race.env$elitistNewInstances + nrow(elite_data_subset)
+      cat('ELITE SAFE FOR SUBSET ')
+      print(subset_number)
       elite.safe_per_subset[[as.character(subset_number)]] <- elite.safe
       # Generate elite.instances.ID for the current subset
       elite.instances.ID <- as.character(race.subsets_instances[[as.character(subset_number)]][seq_len(elite.safe)])
+      cat('ELITE INSTANCES ID FOR SUBSET ', subset_number, ':\n')
+      print(elite.instances.ID)
       elite.instances.ID_per_subset[[as.character(subset_number)]] <- elite.instances.ID
     }
   }
