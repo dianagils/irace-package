@@ -1236,10 +1236,10 @@ irace_run <- function(scenario, parameters)
           subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
           subset_experiments <- iraceResults$experiments[[subsetNumber]]
           num_experiments <- sum(!is.na(iraceResults$experiments[[subsetNumber]]))
-          currentSubset$experimentsUsed <- num_experiments
-          currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
-          cat("Subset ", subsetNumber, " remaining budget: ",
-              subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget, "\n")
+          subsets[subsets$SubsetNumber == subsetNumber, ]$experimentsUsed <- num_experiments
+          subsets[subsets$SubsetNumber == subsetNumber, ]$experimentsUsedSoFar <- subsets[subsets$SubsetNumber == subsetNumber, ]$experimentsUsedSoFar + subsets[subsets$SubsetNumber == subsetNumber, ]$experimentsUsed
+          cat("Subset ", subsetNumber, " experiments used: ",
+              subsets[subsets$SubsetNumber == subsetNumber, ]$experimentsUsedSoFar, "\n")
         }
       }
       
