@@ -838,8 +838,6 @@ elitist_race <- function(maxExp = 0,
     if (is.na(subset_number)) next 
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     subset_configs <- configurations[indexes,]
-    print(elite.safe_per_subset[[as.character(subset_number)]])
-    # Attempt to create the matrix
     subset_results <- matrix(NA, 
                             nrow = elite.safe_per_subset[[as.character(subset_number)]], 
                             ncol = nrow(subset_configs),
@@ -848,8 +846,6 @@ elitist_race <- function(maxExp = 0,
     # Store the matrix in the result_list
     result_list[[as.character(subset_number)]] <- subset_results
   }
-  cat('first res list: ')
-  print(result_list)  
 
   if (capping)
     experimentsTime <- matrix(NA,
@@ -858,10 +854,13 @@ elitist_race <- function(maxExp = 0,
                               dimnames = list(elite.instances.ID, configurations.ID))
 
     is.elite <- list()
+    print(elite.data)
     for (subset_num in unique(subset.data$SubsetNumber)) {
-      if (! is.null(elite.data[[as.character(subset_num)]])) {
+      if (!is.null(elite.data[[as.character(subset_num)]])) {
       subset_elite_data <- elite.data[[as.character(subset_num)]]
       subset_results <- result_list[[as.character(subset_num)]]
+      print(rownames(subset_elite_data))
+      print(colnames(subset_elite_data))
       subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
       result_list[[as.character(subset_num)]] <- subset_results
       cat('modifying result list data:')
