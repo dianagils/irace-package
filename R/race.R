@@ -846,6 +846,7 @@ elitist_race <- function(maxExp = 0,
     # Store the matrix in the result_list
     result_list[[as.character(subset_number)]] <- subset_results
   }
+  print(result_list)
 
   if (capping)
     experimentsTime <- matrix(NA,
@@ -861,6 +862,12 @@ elitist_race <- function(maxExp = 0,
       subset_results <- result_list[[as.character(subset_num)]]
       print(rownames(subset_elite_data))
       print(colnames(subset_elite_data))
+      cat("Rows missing in subset_results:\n")
+      print(setdiff(rownames(subset_elite_data), rownames(subset_results)))
+
+      cat("Cols missing in subset_results:\n")
+      print(setdiff(colnames(subset_elite_data), colnames(subset_results)))
+
       subset_results[rownames(subset_elite_data), colnames(subset_elite_data)] <- subset_elite_data
       result_list[[as.character(subset_num)]] <- subset_results
       cat('modifying result list data:')
