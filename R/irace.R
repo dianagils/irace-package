@@ -1817,14 +1817,14 @@ irace_run <- function(scenario, parameters)
       print('Experiments for all instances:')
       print(experimentsAllInstances)
       print(rownames(experimentsAllInstances))
-      # Global instance list (mapping between InstanceNumber and InstanceID)
-      instanceList <- .irace$instanceList
-      
+
+      instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
+
       for (subset_number in unique(subsets$SubsetNumber)) {
         cat('\nProcessing subset number:', subset_number, '\n')
         # Skip the all-instance subset
         if (subset_number == all_instances_subset_number) next
-        
+
         subsetList <- .irace$instanceSubsetList[[as.character(subset_number)]]
         cat('Subset List:')
         print(subsetList)
@@ -1832,7 +1832,7 @@ irace_run <- function(scenario, parameters)
         instance_indices <- as.numeric(rownames(experimentsAllInstances))
         cat('Instance indices:')
         print(instance_indices)
-        instance_ids <- instanceList$InstanceID[instance_indices, ]
+        instance_ids <- instanceList$InstanceID[instance_indices]
         cat('Instance IDs:')
         print(instance_ids)
         # --- Identify which columns belong to this subset ---
