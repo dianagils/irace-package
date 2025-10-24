@@ -1819,6 +1819,8 @@ irace_run <- function(scenario, parameters)
       print(rownames(experimentsAllInstances))
 
       instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
+      cat('Instance List:')
+      print(instanceList)
 
       for (subset_number in unique(subsets$SubsetNumber)) {
         cat('\nProcessing subset number:', subset_number, '\n')
@@ -1826,12 +1828,12 @@ irace_run <- function(scenario, parameters)
         if (subset_number == all_instances_subset_number) next
 
         subsetList <- .irace$instanceSubsetList[[as.character(subset_number)]]
-        cat('Subset List:')
-        print(subsetList)
+
         # --- Map instance numbers (columns) to their IDs ---
         instance_indices <- as.numeric(rownames(experimentsAllInstances))
         cat('Instance indices:')
         print(instance_indices)
+        
         instance_ids <- instanceList$InstanceID[instance_indices]
         cat('Instance IDs:')
         print(instance_ids)
