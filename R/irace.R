@@ -1836,6 +1836,7 @@ irace_run <- function(scenario, parameters)
 
         if (length(valid_rows) > 0) {
           filtered_experiments <- experimentsAllInstances[valid_rows, , drop = FALSE]
+          rownames(filtered_experiments) <- seq_len(nrow(filtered_experiments))
         } else {
           # Empty matrix with same row structure if no matching instances
           filtered_experiments <- data.frame(matrix(ncol = 0, nrow = nrow(experimentsAllInstances)))
