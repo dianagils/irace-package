@@ -1833,12 +1833,12 @@ irace_run <- function(scenario, parameters)
         instance_indices <- as.numeric(rownames(experimentsAllInstances))
         cat('Instance indices:')
         print(instance_indices)
-        
-        instance_ids <- instanceList$InstanceID[instance_indices]
+
+        instance_ids <- instanceList$instanceID[instance_indices]
         cat('Instance IDs:')
         print(instance_ids)
         # --- Identify which columns belong to this subset ---
-        subset_ids <- as.character(subsetList$InstanceID)
+        subset_ids <- as.character(subsetList$instanceID)
         valid_rows <- rownames(experimentsAllInstances)[instance_ids %in% subset_ids]
         cat('Valid rows for subset', subset_number, ':')
         # --- Filter experiments matrix ---
