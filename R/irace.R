@@ -1230,9 +1230,16 @@ irace_run <- function(scenario, parameters)
       num_active_subsets <- nrow(subsets) - 1 # exclude done subsets and all_instances subset
       budget_per_subset <- floor(total_remaining_budget / num_active_subsets)
       for (subsetNumber in unique(subsets$SubsetNumber)) {
+        print(subsetNumber)
         if (subsetNumber != all_instances_subset_number) {
           subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget <-
-            subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
+          subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
+          subset_experiments <- iraceResults$experiments[[subsetNumber]]
+          num_experiments <- sum(!is.na(iraceResults$experiments[[subsetNumber]]))
+          currentSubset$experimentsUsed <- num_experiments
+          currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
+          cat("Subset ", subsetNumber, " remaining budget: ",
+              subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget, "\n")
         }
       }
       
@@ -1878,25 +1885,13 @@ irace_run <- function(scenario, parameters)
       boundEstimate <- mean(iraceResults$experimentLog[, "time"], na.rm=TRUE)
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
     } else {
-      if (firstRace) {
-        ## distribute experimentsUsed over subsets
-        totalExperimentsUsed <- raceResults$experimentsUsed
-        for (subset_number in unique(new_subsets$SubsetNumber)) {
-          currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
-          # get the total of experiments from experimentMatrix for this subset
-          subset_experiments <- iraceResults$experiments[[subset_number]]
-          num_experiments <- sum(!is.na(iraceResults$experiments[[subset_number]]))
-          currentSubset$experimentsUsed <- num_experiments
-          currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
-        }
-      } else {
       for (subset_number in unique(new_subsets$SubsetNumber)) {
         currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
         currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
         new_subsets[new_subsets$SubsetNumber == subset_number,] <- currentSubset
         }
-      }
+      
     }
 
     if (debugLevel >= 3) {
