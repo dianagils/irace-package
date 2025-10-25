@@ -1907,6 +1907,7 @@ irace_run <- function(scenario, parameters)
       # index the column .RANK_SUBSETNUMBER. and assign it the values of column .RANK.
       rank_col <- paste0(".RANK_", subset_number)
       aliveSubsetConfigs$.RANK. <- aliveSubsetConfigs[[rank_col]]
+      print(aliveSubsetConfigs)
 
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
