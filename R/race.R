@@ -1492,7 +1492,10 @@ elitist_race <- function(maxExp = 0,
   alivePerSubset <- vector("list", length(unique_subset_numbers))
   names(alivePerSubset) <- unique_subset_numbers
   configurations_copy <- configurations 
-  configurations$.RANK. <- vector("list", nrow(configurations))
+  for (subset_number in unique_subset_numbers) {
+    rank_col <- paste0(".RANK_", subset_number)
+    configurations[[rank_col]] <- vector("list", nrow(configurations))
+  }
   configurations$isAliveInSubset <- lapply(seq_len(nrow(configurations)), function(i) { list() })
 
   for (subset_number in unique_subset_numbers) {
@@ -1543,13 +1546,23 @@ elitist_race <- function(maxExp = 0,
     
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     configs <- configurations[indexes,]
+
     if (nrow(configs) > 0) {
+      rank_col <- paste0(".RANK_", subset_number)
+
+      # Create the column if it doesn't exist yet
+      if (!(rank_col %in% colnames(configurations))) {
+        configurations[[rank_col]] <- NA
+      }
+
+      # Assign the ranks to the correct configurations
       for (i in seq_len(nrow(configs))) {
         config_index <- which(rownames(configurations) == rownames(configs)[i])
         current_rank <- race.ranks[[as.character(subset_number)]][i]
-        configurations$.RANK.[[config_index]] <- c(configurations$.RANK.[[config_index]], current_rank)
+        configurations[[rank_col]][config_index] <- current_rank
       }
     }
+
   
     # Now we can sort the data.frame by the rank.
     # configurations <- configurations[order(as.numeric(configurations[[".RANK."]])), ]

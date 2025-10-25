@@ -1592,7 +1592,12 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- all_elite_configs[sapply(all_elite_configs$isAliveInSubset, function(s) any(s %in% subsets_to_pass$SubsetNumber)), ]
       print(all_elite_configs)
       # Get raceConfigurations with elites
-      all_elite_configs <- subset(all_elite_configs, select = -c(.RANK., .WEIGHT.))
+      cols_to_remove <- grep("^\\.RANK|^\\.WEIGHT\\.$", colnames(all_elite_configs), value = TRUE)
+
+      if (length(cols_to_remove) > 0) {
+        all_elite_configs <- all_elite_configs[, !(colnames(all_elite_configs) %in% cols_to_remove), drop = FALSE]
+      }
+
       raceConfigurations <- all_elite_configs[!duplicated(all_elite_configs$.ID.), ]
       
       for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
@@ -1890,14 +1895,6 @@ irace_run <- function(scenario, parameters)
 
     if (debugLevel >= 1) irace.note("Extracting elites\n")
 
-    # to ger current subsets RANK
-    update_rank_for_subset <- function(rank_list, subset_number) {
-      if (length(rank_list) >= subset_number) {
-        return(rank_list[subset_number])
-      } else {
-        return(NA)
-      }
-    }
 
     # FIXME: Since we only actually keep the alive ones, we don't need
     # to carry around rejected ones in raceResults$configurations. This
@@ -1907,8 +1904,8 @@ irace_run <- function(scenario, parameters)
     for (subset_number in unique(new_subsets$SubsetNumber)) {
       indexes <- sapply(configs$isAliveInSubset, function(lst) subset_number %in% lst)
       aliveSubsetConfigs <- configs[indexes,]
-      aliveSubsetConfigs$.RANK. <- lapply(aliveSubsetConfigs$.RANK., update_rank_for_subset, subset_number = subset_number)
-      aliveSubsetConfigs$.RANK. <- as.numeric(aliveSubsetConfigs$.RANK.)
+      # create the column .RANK_SUBSETNUMBER. and assign it the values of .RANK.
+      aliveSubsetConfigs$.RANK. <- aliveSubsetConfigs$.RANK_{{as.character(subset_number)}}
 
       eliteConfigurations[[as.character(subset_number)]] <- extractElites(scenario, aliveSubsetConfigs,
                                           min(raceResults$nbAlive[[as.character(subset_number)]], minSurvival))
