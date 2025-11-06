@@ -1443,6 +1443,7 @@ irace_run <- function(scenario, parameters)
         configs <- eliteConfigurations[[as.character(subset_number)]]
         if (length(configs) > 0) {
         subset_ranks <- getSumOfRanks(configs)
+        cat("Subset ", subset_number, " has sum of ranks: ", subset_ranks, "\n")
         if (subset_ranks > maxSubsetRank) {
           maxSubsetRank <- subset_ranks
           worstSubset <- subset_number
