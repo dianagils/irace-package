@@ -1253,7 +1253,7 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    if (indexIteration > 1) {
+    if (indexIteration > 2L) {
       for (subsetNumber in unique(subsets$SubsetNumber)) {
         # Get the indices of the current subset
         current_indices <- which(subsets$SubsetNumber == subsetNumber)
@@ -1820,7 +1820,7 @@ irace_run <- function(scenario, parameters)
       iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
     }
-    if (firstRace) {
+    if (indexIteration == 2L) {
       # Experiments matrix for all instances
       experimentsAllInstances <- iraceResults$experiments[[all_instances_subset_number]]
       instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
@@ -1922,7 +1922,7 @@ irace_run <- function(scenario, parameters)
     }
 
     # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
-    if (!firstRace) {
+    if (indexIteration > 2L) {
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
         iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
@@ -1931,8 +1931,8 @@ irace_run <- function(scenario, parameters)
       }
     }
     }
-    
-    if (firstRace) {
+
+    if (indexIteration == 2L) {
       all_elite_configs <- data.frame()
       added_ids <- c()
 
