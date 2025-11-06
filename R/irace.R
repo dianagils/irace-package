@@ -1279,6 +1279,7 @@ irace_run <- function(scenario, parameters)
         subsets[current_indices, ] <- currentSubset
       }
     } else {
+      cat('FIRST OR SECOND ITERATION\n')
       # compute computational budget for all_instances_subset_number
       current_indices <- which(subsets$SubsetNumber == all_instances_subset_number)
       currentSubset <- subsets[current_indices, ]
@@ -1287,6 +1288,7 @@ irace_run <- function(scenario, parameters)
                                                 nbIterations)
                     else scenario$nbExperimentsPerIteration
       currentBudget <- currentSubset$currentBudget
+      print(currentBudget)
     }
 
     # Keep only the rows that meet the criteria
@@ -1325,6 +1327,7 @@ irace_run <- function(scenario, parameters)
                                 blockSize = blockSize,
                                 nElites = 0, nOldInstances = 0,
                                 newInstances = 0)
+      print(paste0("Computed nbConfigurations: ", nbConfigurations))
     }
     
     # If a value was given as a parameter, then this value limits the maximum,
