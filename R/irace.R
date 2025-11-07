@@ -1280,6 +1280,7 @@ irace_run <- function(scenario, parameters)
       }
     } else {
       cat('FIRST OR SECOND ITERATION\n')
+      print(subsets)
       # compute computational budget for all_instances_subset_number
       current_indices <- which(subsets$SubsetNumber == all_instances_subset_number)
       currentSubset <- subsets[current_indices, ]
@@ -1287,6 +1288,7 @@ irace_run <- function(scenario, parameters)
                       computeComputationalBudget(currentSubset$remainingBudget, indexIteration,
                                                 nbIterations)
                     else scenario$nbExperimentsPerIteration
+      
       currentBudget <- currentSubset$currentBudget
       print(currentBudget)
     }
@@ -1926,7 +1928,7 @@ irace_run <- function(scenario, parameters)
     }
 
     # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
-    if (indexIteration > 2L) {
+    if (indexIteration == 2L) {
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
         iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
