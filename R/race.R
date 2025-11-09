@@ -782,7 +782,7 @@ elitist_race <- function(maxExp = 0,
     elite_data_subset <- elite.data[[as.character(subset_number)]]
     print(elite_data_subset)
     next_instance <- subset.data[subset.data$SubsetNumber == subset_number, "NextInstance"]
-    print(next_instance)
+    next_instance <- next_instance[!is.na(next_instance)]
     # Check if elite data is NULL
     if (is.null(elite_data_subset)) {
       # If elite data is NULL, set elite.safe to elitistNewInstances and elite.instances.ID to NULL
