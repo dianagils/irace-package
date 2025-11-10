@@ -1259,6 +1259,8 @@ irace_run <- function(scenario, parameters)
         current_indices <- which(subsets$SubsetNumber == subsetNumber)
         # Extract the subset rows
         currentSubset <- subsets[current_indices, ]
+        print(sum(!is.na(iraceResults$experiments[[subsetNumber]])))
+        print(currentSubset$experimentsUsedSoFar)
         if (scenario$elitist) {
           irace.assert(sum(!is.na(iraceResults$experiments[[subsetNumber]])) == (currentSubset$experimentsUsedSoFar))
         }
@@ -1744,10 +1746,6 @@ irace_run <- function(scenario, parameters)
         } else {
           cat("All IDs are valid.")
         }
-          cat('iraceResults$experiments')
-          print(iraceResults$experiments[[subset_number]])
-          print(colnames(iraceResults$experiments[[subset_number]]))
-          print(elite_configs_subset[[".ID."]])
           iraceResults$experiments[[subset_number]][, elite_configs_subset[[".ID."]], drop = FALSE]
       } else {
         NULL
@@ -1830,8 +1828,6 @@ irace_run <- function(scenario, parameters)
       # Experiments matrix for all instances
       experimentsAllInstances <- iraceResults$experiments[[all_instances_subset_number]]
       instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
-
-
       for (subset_number in unique(subsets$SubsetNumber)) {
         # Skip the all-instance subset
         if (subset_number == all_instances_subset_number) next
