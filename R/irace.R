@@ -1927,15 +1927,29 @@ irace_run <- function(scenario, parameters)
       iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- eliteConfigurations[[as.character(subset_number)]][[".ID."]] 
     }
 
-    # for all subsets NOT in new_subsets, add past iteration elites to allElites, iterationElitesPerSubset and iterationElites
-    if (indexIteration == 2L) {
+    # for all subsets NOT in new_subsets add the current iteration elites of all_instance_subset_numbers to allElites, iterationElitesPerSubset and iterationElites
+    if (indexIteration < 3L) {
+    last_new_subset_elites <- iraceResults$allElites[[as.character(all_instances_subset_number)]][[indexIteration]]
+    }
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
-        iraceResults$iterationElites <- c(iraceResults$iterationElites, NA)
-        iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], NA)
-        iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- iraceResults$allElites[[as.character(subset_number)]][[indexIteration - 1]]
+        iraceResults$iterationElites <- c(iraceResults$iterationElites, last_new_subset_elites)
+        iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], last_new_subset_elites)
+        iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- last_new_subset_elites
       }
     }
+
+    # if subsets converged, add the past iteration elites to allElites, iterationElitesPerSubset and iterationElites
+    if (indexIteration > 2L) {
+      converged_subsests = convergenceMatrix[indexIteration, ][convergenceMatrix[indexIteration, ] == 1]
+      print('Converged subsets to add past elites:')
+      print(converged_subsests)
+      for (subset_number in names(converged_subsests)) {
+        past_elites <- iraceResults$allElites[[as.character(subset_number)]][[indexIteration - 1L]]
+        iraceResults$iterationElites <- c(iraceResults$iterationElites, past_elites)
+        iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], past_elites)
+        iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- past_elites
+      }
     }
 
     if (indexIteration == 2L) {
