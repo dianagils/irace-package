@@ -41,11 +41,24 @@ recoverFromFile <- function(filename)
     options(.irace.debug.level = scenario$debugLevel)
   }))
 }
-
 # check convergence in iteration elites
+# Returns the convergence rate (percentage of persistence) of configurations in allElites
+# returns a number between 0 and 100
 checkConvergenceInSubset <- function(allElites) {
-  first <- sort(allElites[[1]])
-  all(sapply(allElites, function(x) identical(sort(x), first)))
+  n_iters <- length(allElites)
+  if (n_iters < 2) return(0)
+
+  # Flatten all elites to get unique configs that ever appeared
+  all_configs <- unique(unlist(allElites))
+
+  # Count how many times each config appeared
+  counts <- table(unlist(allElites))
+
+  # Compute persistence proportion for each configuration
+  rates <- counts / n_iters * 100
+
+  # Return the mean persistence across all configurations
+  mean(rates)
 }
 
 ##
@@ -1253,7 +1266,7 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    if (indexIteration > 2L) {
+    if (indexIteration > 1L) {
       for (subsetNumber in unique(subsets$SubsetNumber)) {
         if (subsetNumber == all_instances_subset_number) {
           next
@@ -1422,7 +1435,7 @@ irace_run <- function(scenario, parameters)
         print(iterationElites)
         if (length(iterationElites) > 1) {
           # Check if all elite configurations in this subset are identical (converged)
-          if (checkConvergenceInSubset(iterationElites)) {
+          if (checkConvergenceInSubset(iterationElites) > 70) {
             # If this is not the first iteration and the previous iteration was converged
             if (convergenceMatrix[indexIteration - 1, as.character(subset_number)] == 1) {
               cat("Can't converge in subset ", subset_number, " because it was already converged in the previous iteration\n")
@@ -1827,7 +1840,7 @@ irace_run <- function(scenario, parameters)
       iraceResults$experiments[[subset_number]] <- merge.matrix (iraceResults$experiments[[subset_number]],
                                               subsetResults)
     }
-    if (indexIteration == 2L) {
+    if (indexIteration == 1L) {
       # Experiments matrix for all instances
       experimentsAllInstances <- iraceResults$experiments[[all_instances_subset_number]]
       instanceList <- .irace$instanceSubsetList[[as.character(all_instances_subset_number)]]
@@ -1927,7 +1940,7 @@ irace_run <- function(scenario, parameters)
     }
 
     # for all subsets NOT in new_subsets add the current iteration elites of all_instance_subset_numbers to allElites, iterationElitesPerSubset and iterationElites
-    if (indexIteration < 3L) {
+    if (indexIteration < 2L) {
     last_new_subset_elites <- iraceResults$allElites[[as.character(all_instances_subset_number)]][[indexIteration]]
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
@@ -1942,7 +1955,7 @@ irace_run <- function(scenario, parameters)
     }
 
     # if subsets converged, add the past iteration elites to allElites, iterationElitesPerSubset and iterationElites
-    if (indexIteration > 2L) {
+    if (indexIteration > 1L) {
       converged_subsests = convergenceMatrix[indexIteration, ][convergenceMatrix[indexIteration, ] == 1]
       print('Converged subsets to add past elites:')
       print(converged_subsests)
@@ -1954,7 +1967,7 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    if (indexIteration == 2L) {
+    if (indexIteration == 1L) {
       all_elite_configs <- data.frame()
       added_ids <- c()
 
