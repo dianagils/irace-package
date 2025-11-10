@@ -1930,13 +1930,16 @@ irace_run <- function(scenario, parameters)
     # for all subsets NOT in new_subsets add the current iteration elites of all_instance_subset_numbers to allElites, iterationElitesPerSubset and iterationElites
     if (indexIteration < 3L) {
     last_new_subset_elites <- iraceResults$allElites[[as.character(all_instances_subset_number)]][[indexIteration]]
-    }
     for (subset_number in unique(subsets$SubsetNumber)) {
       if (!(subset_number %in% unique(new_subsets$SubsetNumber))) {
         iraceResults$iterationElites <- c(iraceResults$iterationElites, last_new_subset_elites)
         iraceResults$iterationElitesPerSubset[[as.character(subset_number)]] <- c(iraceResults$iterationElitesPerSubset[[as.character(subset_number)]], last_new_subset_elites)
         iraceResults$allElites[[as.character(subset_number)]][[indexIteration]] <- last_new_subset_elites
       }
+    }
+    cat('Added last elites to non participating subsets in iteration ')
+    print(indexIteration)
+    print(iraceResults$allElites)
     }
 
     # if subsets converged, add the past iteration elites to allElites, iterationElitesPerSubset and iterationElites
