@@ -1980,8 +1980,12 @@ irace_run <- function(scenario, parameters)
 
       cat('All elite configs: \n')
       print(all_elite_configs)
+ 
+    }
+
+    if (firstRace) {
       if (debugLevel >= 1) irace.note("Initialise model\n")
-      model <- initialiseModel(parameters, all_elite_configs)
+      model <- initialiseModel(parameters, eliteConfigurations)
       if (debugLevel >= 2) printModel (model)
       firstRace <- FALSE
     }
