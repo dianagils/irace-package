@@ -1522,7 +1522,7 @@ elitist_race <- function(maxExp = 0,
     #              old_best_id  = if (old_best == best_list[[as.character(currentSubset)]] || is.na(old_best)) NULL else id_best)
     }
 
-    nbAlive <- sum(alive)rejected_ids_by_subset
+    nbAlive <- sum(alive)
     alivePerSubset[[as.character(subset_number)]] <- nbAlive
     print(alivePerSubset)
     for (i in 1:length(alive)) {
