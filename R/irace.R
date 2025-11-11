@@ -1234,7 +1234,7 @@ irace_run <- function(scenario, parameters)
     currentBudget <- 0L
     # Iterate over each unique SubsetNumber
 
-    if (indexIteration == 3L) {
+    if (indexIteration == 2L) {
       # reassign the subset_all_instances remaining budget to the other subsets
       total_remaining_budget <- subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget
       subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget <- 0
