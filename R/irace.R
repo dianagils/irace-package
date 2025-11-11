@@ -1959,11 +1959,12 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    if (indexIteration == 2L) {
+    
+    if (firstRace) {
       all_elite_configs <- data.frame()
       added_ids <- c()
 
-      for (subset_number in unique(new_subsets$SubsetNumber)) {
+      for (subset_number in unique(subsets$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         unique_configs <- data.frame()
         for (i in seq_len(nrow(elite_configs_subset))) {
@@ -1980,15 +1981,12 @@ irace_run <- function(scenario, parameters)
 
       cat('All elite configs: \n')
       print(all_elite_configs)
-     
-    }
-
-    if (firstRace) {
+      # SUBSETS: all model calls should be per subset
       if (debugLevel >= 1) irace.note("Initialise model\n")
       model <- initialiseModel(parameters, all_elite_configs)
       if (debugLevel >= 2) printModel (model)
       firstRace <- FALSE
-  }
+    }
 
     for (subset_number in unique(new_subsets$SubsetNumber)) {
       currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
