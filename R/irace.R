@@ -1980,15 +1980,15 @@ irace_run <- function(scenario, parameters)
 
       cat('All elite configs: \n')
       print(all_elite_configs)
- 
+     
     }
 
     if (firstRace) {
       if (debugLevel >= 1) irace.note("Initialise model\n")
-      model <- initialiseModel(parameters, eliteConfigurations)
+      model <- initialiseModel(parameters, all_elite_configs)
       if (debugLevel >= 2) printModel (model)
       firstRace <- FALSE
-    }
+  }
 
     for (subset_number in unique(new_subsets$SubsetNumber)) {
       currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
