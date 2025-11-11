@@ -972,7 +972,8 @@ irace_run <- function(scenario, parameters)
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
     boundEstimate <- NA 
-    rejectedIDs <- c()
+    # rejected ids per subset
+    rejectedIDs <- list()
     flagForCheck <- FALSE
 
     startParallel(scenario)
@@ -1041,12 +1042,15 @@ irace_run <- function(scenario, parameters)
         iraceResults$experiments <- merge.matrix (iraceResults$experiments,
                                                   output$experiments)
         rownames(iraceResults$experiments) <- seq_nrow(iraceResults$experiments)
-        rejectedIDs <- c(rejectedIDs, output$rejectedIDs)
-        iraceResults$rejectedConfigurations <- rejectedIDs
-        parameters$forbidden <- c(parameters$forbidden,
+        for (subset in seq_along(rejectedIDs)) {
+          rejectedIDs[[subset]] <- unique(c(rejectedIDs[[subset]], output$rejectedIDs))
+          parameters$forbidden <- c(parameters$forbidden,
                                   buildForbiddenExp(configurations = allConfigurations[
-                                                      allConfigurations[[".ID."]] %in% output$rejectedIDs, , drop = FALSE],
+                                                      allConfigurations[[".ID."]] %in% rejectedIDs[[subset]], , drop = FALSE],
                                                     parameters = parameters))
+        }
+        iraceResults$rejectedConfigurations <- unique(c(iraceResults$rejectedConfigurations,
+                                                     output$rejectedIDs))
                 
         # For the used time, we count the time reported in all configurations
         # including rejected ones. 
@@ -1071,12 +1075,13 @@ irace_run <- function(scenario, parameters)
           nconfigurations <- min(1024L, nconfigurations + new.conf)
         }
       } # end of repeat
-      
-      if (length(rejectedIDs) > 0) {
-        irace.note ("Immediately rejected configurations: ",
-                    paste0(rejectedIDs, collapse = ", ") , "\n")
+
+      for (subset in seq_along(rejectedIDs)) {
+        if (length(rejectedIDs[[subset]]) > 0) {
+          irace.note ("Immediately rejected configurations: ",
+                      paste0(rejectedIDs[[subset]], collapse = ", ") , "\n")
+        }
       }
-  
       # Update budget
       remainingBudget <- round((scenario$maxTime - timeUsed) / boundEstimate)
       experimentsUsedSoFar <- experimentsUsedSoFar + nrow(iraceResults$experimentLog)
@@ -1517,7 +1522,8 @@ irace_run <- function(scenario, parameters)
     # Sample for the first time.
     if (firstRace) {
       # If we need more configurations, sample uniformly.
-      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)) / length(unique(subsets_to_pass$SubsetNumber))
+      allRejectedIDs <- unique(unlist(rejectedIDs))
+      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% allRejectedIDs)) / length(unique(subsets_to_pass$SubsetNumber))
       cat('Number of new configurations to sample per subset: ')
       print(nbNewConfigurations)
       if (nbNewConfigurations > 0) {
@@ -1534,7 +1540,7 @@ irace_run <- function(scenario, parameters)
         allConfigurations <- rbind(allConfigurations, newConfigurations)
         rownames(allConfigurations) <- allConfigurations[[".ID."]]
         # Add a new column to 'raceConfigurations' with lists of unique subsets
-        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
+        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% allRejectedIDs, , drop = FALSE]
         raceConfigurations$isAliveInSubset <- lapply(seq_len(nrow(raceConfigurations)), function(i) {
           unique_subsets
         })

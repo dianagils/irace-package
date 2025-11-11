@@ -1522,7 +1522,7 @@ elitist_race <- function(maxExp = 0,
     #              old_best_id  = if (old_best == best_list[[as.character(currentSubset)]] || is.na(old_best)) NULL else id_best)
     }
 
-    nbAlive <- sum(alive)
+    nbAlive <- sum(alive)rejected_ids_by_subset
     alivePerSubset[[as.character(subset_number)]] <- nbAlive
     print(alivePerSubset)
     for (i in 1:length(alive)) {
@@ -1535,13 +1535,16 @@ elitist_race <- function(maxExp = 0,
         } 
     }
     
-    rejected_ids_by_subset <- vector("list", length(rejected))
-      
-    for (i in 1:length(rejected)) {
-      rejected_indices <- which(!rejected[[i]])
-      rejected_ids <- configurations[rejected_indices, ".ID."]
-      # Store the rejected IDs in the result list
-      rejected_ids_by_subset[[i]] <- rejected_ids
+    rejected_ids_by_subset <- vector("list", length(unique_subset_numbers))
+    for (i in 1:length(unique_subset_numbers)) {
+      subset_num <- unique_subset_numbers[i]
+      indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_num %in% lst)
+      subsetConfigs <- configurations_copy[indexes,]
+      rejected_indexes <- which(rejected_list[[as.character(subset_num)]])
+      rejected_configs <- subsetConfigs[rejected_indexes, ]
+      rejected_ids <- rejected_configs$.ID.
+      rejected_ids_by_subset[[as.character(subset_num)]] <- rejected_ids
+   
     }
 
     
