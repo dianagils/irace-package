@@ -1238,12 +1238,10 @@ irace_run <- function(scenario, parameters)
       # reassign the subset_all_instances remaining budget to the other subsets
       total_remaining_budget <- subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget
       subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget <- 0
-
       # divide the remaining budget equally among the other subsets
       num_active_subsets <- nrow(subsets) - 1 # exclude done subsets and all_instances subset
       budget_per_subset <- floor(total_remaining_budget / num_active_subsets)
       for (subsetNumber in unique(subsets$SubsetNumber)) {
-        print(subsetNumber)
         if (subsetNumber != all_instances_subset_number) {
           subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget <-
           subsets[subsets$SubsetNumber == subsetNumber, ]$remainingBudget + budget_per_subset
@@ -1294,9 +1292,7 @@ irace_run <- function(scenario, parameters)
         subsets[current_indices, ] <- currentSubset
       }
     } else {
-      cat('FIRST OR SECOND ITERATION\n')
-      print(subsets)
-      # compute computational budget for all_instances_subset_number
+      cat('FIRST ITERATION\n')
       current_indices <- which(subsets$SubsetNumber == all_instances_subset_number)
       currentSubset <- subsets[current_indices, ]
       currentSubset$currentBudget <- if (scenario$nbExperimentsPerIteration == 0)
@@ -1895,8 +1891,8 @@ irace_run <- function(scenario, parameters)
       for (subset_number in unique(new_subsets$SubsetNumber)) {
         currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
-        currentSubset$experimentsUsed <- 0L
         currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
+        currentSubset$experimentsUsed <- 0L
         new_subsets[new_subsets$SubsetNumber == subset_number,] <- currentSubset
         }
       
