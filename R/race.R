@@ -1535,16 +1535,6 @@ elitist_race <- function(maxExp = 0,
         } 
     }
     
-    rejected_ids_by_subset <- vector("list", length(rejected))
-      
-    for (i in 1:length(rejected)) {
-      rejected_indices <- which(!rejected[[i]])
-      rejected_ids <- configurations[rejected_indices, ".ID."]
-      # Store the rejected IDs in the result list
-      rejected_ids_by_subset[[i]] <- rejected_ids
-    }
-
-    
     indexes <- sapply(configurations$isAliveInSubset, function(lst) subset_number %in% lst)
     configs <- configurations[indexes,]
 
@@ -1571,6 +1561,21 @@ elitist_race <- function(maxExp = 0,
     # irace.assert (all(configurations[seq_len(nbAlive), ".ALIVE."]))
     # if (nbAlive < nrow(configurations))
     #   irace.assert(!any(configurations[(nbAlive + 1L):nrow(configurations), ".ALIVE."]))
+  }
+  print(rejected_list)
+  rejected_ids_by_subset <- vector("list", length(unique_subset_numbers))
+
+  for (i in 1:length(unique_subset_numbers)) {
+    subset_num <- unique_subset_numbers[i]
+    indexes <- sapply(configurations_copy$isAliveInSubset, function(lst) subset_num %in% lst)
+    subsetConfigs <- configurations_copy[indexes,]
+    
+    # FIX HERE: use numeric index, not character
+    rejected_indexes <- which(rejected_list[[subset_num]])
+    
+    rejected_configs <- subsetConfigs[rejected_indexes, ]
+    rejected_ids <- rejected_configs$.ID.
+    rejected_ids_by_subset[[as.character(subset_num)]] <- rejected_ids
   }
   print(configurations)
 
