@@ -985,7 +985,7 @@ irace_run <- function(scenario, parameters)
     experimentsUsedSoFar <- 0L
     timeUsed <- 0
     boundEstimate <- NA 
-    rejectedIDs <- c()
+    rejectedIDs <- list()
     flagForCheck <- FALSE
 
     startParallel(scenario)
@@ -1532,8 +1532,8 @@ irace_run <- function(scenario, parameters)
     iraceResults$softRestart[indexIteration] <- FALSE
     # Sample for the first time.
     if (firstRace) {
-      # If we need more configurations, sample uniformly.
-      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% rejectedIDs)) / length(unique(subsets_to_pass$SubsetNumber))
+      all_rejected_ids <- unlist(rejected_ids_by_subset)
+      nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% all_rejected_ids)) / length(unique(subsets_to_pass$SubsetNumber))
       if (nbNewConfigurations > 0) {
         # Sample new configurations.
         if (debugLevel >= 1) {
@@ -1548,7 +1548,7 @@ irace_run <- function(scenario, parameters)
         allConfigurations <- rbind(allConfigurations, newConfigurations)
         rownames(allConfigurations) <- allConfigurations[[".ID."]]
         # Add a new column to 'raceConfigurations' with lists of unique subsets
-        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% rejectedIDs, , drop = FALSE]
+        raceConfigurations <- allConfigurations[allConfigurations[[".ID."]] %not_in% all_rejected_ids, , drop = FALSE]
         raceConfigurations$isAliveInSubset <- lapply(seq_len(nrow(raceConfigurations)), function(i) {
           unique_subsets
         })
