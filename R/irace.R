@@ -1532,7 +1532,7 @@ irace_run <- function(scenario, parameters)
     iraceResults$softRestart[indexIteration] <- FALSE
     # Sample for the first time.
     if (firstRace) {
-      all_rejected_ids <- unlist(rejected_ids_by_subset)
+      all_rejected_ids <- unique(unlist(rejectedIDs))
       nbNewConfigurations <- (nbConfigurations - sum(allConfigurations[[".ID."]] %not_in% all_rejected_ids)) / length(unique(subsets_to_pass$SubsetNumber))
       if (nbNewConfigurations > 0) {
         # Sample new configurations.
