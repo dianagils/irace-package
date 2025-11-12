@@ -1268,9 +1268,6 @@ irace_run <- function(scenario, parameters)
 
     if (indexIteration > 1L) {
       for (subsetNumber in unique(subsets$SubsetNumber)) {
-        if (subsetNumber == all_instances_subset_number) {
-          next
-        }
         # Get the indices of the current subset
         current_indices <- which(subsets$SubsetNumber == subsetNumber)
         # Extract the subset rows
@@ -1898,6 +1895,7 @@ irace_run <- function(scenario, parameters)
       for (subset_number in unique(new_subsets$SubsetNumber)) {
         currentSubset <- new_subsets[new_subsets$SubsetNumber == subset_number,]
         currentSubset$remainingBudget <- currentSubset$remainingBudget - currentSubset$experimentsUsed
+        currentSubset$experimentsUsed <- 0L
         currentSubset$experimentsUsedSoFar <- currentSubset$experimentsUsedSoFar + currentSubset$experimentsUsed
         new_subsets[new_subsets$SubsetNumber == subset_number,] <- currentSubset
         }
