@@ -1100,13 +1100,12 @@ irace_run <- function(scenario, parameters)
                        computeComputationalBudget(subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, indexIteration,
                                                   nbIterations)
                      else scenario$nbExperimentsPerIteration
-    }
 
     # Check that the budget is enough, for the time estimation case we reduce
     # the number of iterations.
     warn_msg <- NULL
-    while (!checkMinimumBudget(scenario, subsets[subsets$SubsetNumber == all_instances_subset_number, ]$remainingBudget, minSurvival, nbIterations,
-                               boundEstimate, subsets[subsets$SubsetNumber == all_instances_subset_number, ]$timeUsed))
+    while (!checkMinimumBudget(scenario, subsets[subsets$SubsetNumber == subset_num, ]$remainingBudget, minSurvival, nbIterations,
+                               boundEstimate, subsets[subsets$SubsetNumber == subset_num, ]$timeUsed))
     {
       if (is.null(warn_msg))
         warn_msg <- 
@@ -1124,7 +1123,7 @@ irace_run <- function(scenario, parameters)
                                      min(minSurvival * 2L, scenario$nbConfigurations)
                                    else minSurvival * 2L
     }
-        
+  }
     if (!is.null(warn_msg)) irace.warning(warn_msg)
     
   } #end of do not recover
