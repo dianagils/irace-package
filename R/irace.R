@@ -1431,7 +1431,6 @@ irace_run <- function(scenario, parameters)
       }
     }
 
-    print(subsets)
 
     # create a copy of subsets, w/o the subsets that have 0 currentBudget
     subsets_to_pass <- subsets[subsets$currentBudget > 0, ]
@@ -1509,8 +1508,11 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- data.frame()
       added_ids <- c()
       unique_configs <- data.frame()
+
       for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
+        rank_cols <- grep("^\\.RANK_\\d+$", names(elite_configs_subset), value = TRUE)
+        elite_configs_subset <- elite_configs_subset[order(rowSums(elite_configs_subset[, rank_cols, drop = FALSE])), ]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
           config$isAliveInSubset <- list(subset_number)
@@ -1545,7 +1547,6 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- all_elite_configs[sapply(all_elite_configs$isAliveInSubset, function(s) any(s %in% subsets_to_pass$SubsetNumber)), ]
       print(all_elite_configs)
       # Get raceConfigurations with elites
-      cols_to_remove <- grep("^\\.RANK|^\\.WEIGHT\\.$", colnames(all_elite_configs), value = TRUE)
 
       if (length(cols_to_remove) > 0) {
         all_elite_configs <- all_elite_configs[, !(colnames(all_elite_configs) %in% cols_to_remove), drop = FALSE]
