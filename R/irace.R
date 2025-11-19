@@ -1547,6 +1547,7 @@ irace_run <- function(scenario, parameters)
       all_elite_configs <- all_elite_configs[sapply(all_elite_configs$isAliveInSubset, function(s) any(s %in% subsets_to_pass$SubsetNumber)), ]
       print(all_elite_configs)
       # Get raceConfigurations with elites
+      cols_to_remove <- grep("^\\.RANK|^\\.WEIGHT\\.$", colnames(all_elite_configs), value = TRUE)
 
       if (length(cols_to_remove) > 0) {
         all_elite_configs <- all_elite_configs[, !(colnames(all_elite_configs) %in% cols_to_remove), drop = FALSE]
