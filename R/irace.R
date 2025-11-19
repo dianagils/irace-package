@@ -41,24 +41,24 @@ recoverFromFile <- function(filename)
     options(.irace.debug.level = scenario$debugLevel)
   }))
 }
-# check convergence in iteration elites
-# Returns the convergence rate (percentage of persistence) of configurations in allElites
+# check convergence in the last two iterations
+# Returns the convergence rate (percentage of persistence) of configurations in the elite set
 # returns a number between 0 and 100
 checkConvergenceInSubset <- function(allElites) {
   n_iters <- length(allElites)
   if (n_iters < 2) return(0)
 
-  # Flatten all elites to get unique configs that ever appeared
-  all_configs <- unique(unlist(allElites))
+  # Elite set of last iteration (t)
+  last <- unique(allElites[[n_iters]])
 
-  # Count how many times each config appeared
-  counts <- table(unlist(allElites))
+  # Elite set of previous iteration (t-1)
+  prev <- unique(allElites[[n_iters - 1]])
 
-  # Compute persistence proportion for each configuration
-  rates <- counts / n_iters * 100
+  # Count how many elites repeat
+  matches <- sum(last %in% prev)
 
-  # Return the mean persistence across all configurations
-  mean(rates)
+  # Percentage of overlap
+  (matches / length(last)) * 100
 }
 
 ##
