@@ -1511,6 +1511,8 @@ irace_run <- function(scenario, parameters)
       unique_configs <- data.frame()
       for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
+        rank_cols <- grep("^\\.RANK_\\d+$", names(elite_configs_subset), value = TRUE)
+        elite_configs_subset <- elite_configs_subset[order(rowSums(elite_configs_subset[, rank_cols, drop = FALSE])), ]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
           config$isAliveInSubset <- list(subset_number)
