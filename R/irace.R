@@ -1364,7 +1364,7 @@ irace_run <- function(scenario, parameters)
         print(iterationElites)
         if (length(iterationElites) > 1) {
           # Check if all elite configurations in this subset are identical (converged)
-          if (checkConvergenceInSubset(iterationElites) > 70) {
+          if (checkConvergenceInSubset(iterationElites) > 60) {
             # If this is not the first iteration and the previous iteration was converged
             if (convergenceMatrix[indexIteration - 1, as.character(subset_number)] == 1) {
               cat("Can't converge in subset ", subset_number, " because it was already converged in the previous iteration\n")
