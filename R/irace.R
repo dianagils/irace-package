@@ -42,11 +42,26 @@ recoverFromFile <- function(filename)
   }))
 }
 
-# check convergence in iteration elites
+# check convergence in the last two iterations
+# Returns the convergence rate (percentage of persistence) of configurations in the elite set
+# returns a number between 0 and 100
 checkConvergenceInSubset <- function(allElites) {
-  first <- sort(allElites[[1]])
-  all(sapply(allElites, function(x) identical(sort(x), first)))
+  n_iters <- length(allElites)
+  if (n_iters < 2) return(0)
+
+  # Elite set of last iteration (t)
+  last <- unique(allElites[[n_iters]])
+
+  # Elite set of previous iteration (t-1)
+  prev <- unique(allElites[[n_iters - 1]])
+
+  # Count how many elites repeat
+  matches <- sum(last %in% prev)
+
+  # Percentage of overlap
+  (matches / length(last)) * 100
 }
+
 
 ##
 ## Numerical configurations similarity function
