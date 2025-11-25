@@ -1511,7 +1511,7 @@ irace_run <- function(scenario, parameters)
       unique_configs <- data.frame()
       for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
-        rank_cols <- grep("^\\.RANK_\\d+$", names(elite_configs_subset), value = TRUE)
+        rank_cols <- grep("^\\.RANK\\d+$", names(elite_configs_subset), value = TRUE)
         elite_configs_subset <- elite_configs_subset[order(rowSums(elite_configs_subset[, rank_cols, drop = FALSE])), ]
         for (i in seq_len(nrow(elite_configs_subset))) {
           config <- elite_configs_subset[i, ]
@@ -1520,6 +1520,15 @@ irace_run <- function(scenario, parameters)
           if (!(config_id %in% added_ids)) {
             cat('New elite\n')
             added_ids <- c(added_ids, config_id)
+            # before binding, drop all columns that not in unique_configs
+            if (nrow(unique_configs) > 0) {
+              cols_to_drop <- setdiff(names(config), names(unique_configs))
+              cat('Dropping columns: ')
+              print(cols_to_drop)
+              if (length(cols_to_drop) > 0) {
+                config <- config[, !(names(config) %in% cols_to_drop), drop = FALSE]
+              }
+            }
             unique_configs <- rbind(unique_configs, config)
           } else {
             index <- which(unique_configs$.ID. == as.character(config_id))
