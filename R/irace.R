@@ -1512,24 +1512,51 @@ irace_run <- function(scenario, parameters)
       for (subset_number in unique(subsets_to_pass$SubsetNumber)) {
         elite_configs_subset <- eliteConfigurations[[as.character(subset_number)]]
         rank_cols <- grep("^\\.RANK\\d+$", names(elite_configs_subset), value = TRUE)
-        if (length(rank_cols) > 0) {
-          elite_configs_subset <- elite_configs_subset[, !(names(elite_configs_subset) %in% rank_cols), drop = FALSE]
-        }
+        elite_configs_subset <- elite_configs_subset[order(rowSums(elite_configs_subset[, rank_cols, drop = FALSE])), ]
         for (i in seq_len(nrow(elite_configs_subset))) {
-          config <- elite_configs_subset[i, ]
+          config <- elite_configs_subset[i, , drop = FALSE]
+
+          # make sure .ID. is character for safe comparisons
+          config$.ID. <- as.character(config$.ID.)
+
+          # make isAliveInSubset a list-column (single-element list for this row)
           config$isAliveInSubset <- list(subset_number)
+
           config_id <- config$.ID.
+
           if (!(config_id %in% added_ids)) {
             cat('New elite\n')
             added_ids <- c(added_ids, config_id)
+
+            if (nrow(unique_configs) > 0) {
+              # add to config any columns that unique_configs has but config lacks
+              missing_in_config <- setdiff(names(unique_configs), names(config))
+              if (length(missing_in_config) > 0) {
+                for (col in missing_in_config) config[[col]] <- NA
+              }
+              # drop any columns in config that are not in unique_configs (opcional; tu versión ya lo hacía)
+              cols_to_drop <- setdiff(names(config), names(unique_configs))
+              if (length(cols_to_drop) > 0) {
+                cat('Dropping columns: ')
+                print(cols_to_drop)
+                config <- config[, !(names(config) %in% cols_to_drop), drop = FALSE]
+              }
+              # reordenar columnas para que coincidan exactamente con unique_configs
+              config <- config[names(unique_configs)]
+            } 
             unique_configs <- rbind(unique_configs, config)
           } else {
-            index <- which(unique_configs$.ID. == as.character(config_id))
-            unique_configs$isAliveInSubset[[index]] <- c(unique_configs$isAliveInSubset[[index]], subset_number)
+            # actualizar list-column de isAliveInSubset (coerce .ID. a character antes)
+            index <- which(as.character(unique_configs$.ID.) == as.character(config_id))
+            if (length(index) == 1) {
+              unique_configs$isAliveInSubset[[index]] <- c(unique_configs$isAliveInSubset[[index]], subset_number)
+            } else {
+              warning("ID repetido o no encontrado: ", config_id)
+            }
           }
         }
-      
       }
+
       all_elite_configs <- rbind(all_elite_configs, unique_configs)
       print('All elite configs before updating model (including the ones with no current budget):')
       print(all_elite_configs)
