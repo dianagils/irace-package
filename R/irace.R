@@ -45,21 +45,10 @@ recoverFromFile <- function(filename)
 # Returns the convergence rate (percentage of persistence) of configurations in allElites
 # returns a number between 0 and 100
 checkConvergenceInSubset <- function(allElites) {
-  n_iters <- length(allElites)
-  if (n_iters < 2) return(0)
-
-  # Flatten all elites to get unique configs that ever appeared
-  all_configs <- unique(unlist(allElites))
-
-  # Count how many times each config appeared
-  counts <- table(unlist(allElites))
-
-  # Compute persistence proportion for each configuration
-  rates <- counts / n_iters * 100
-
-  # Return the mean persistence across all configurations
-  mean(rates)
+  first <- sort(allElites[[1]])
+  all(sapply(allElites, function(x) identical(sort(x), first)))
 }
+
 
 ##
 ## Numerical configurations similarity function
@@ -1364,7 +1353,7 @@ irace_run <- function(scenario, parameters)
         print(iterationElites)
         if (length(iterationElites) > 1) {
           # Check if all elite configurations in this subset are identical (converged)
-          if (checkConvergenceInSubset(iterationElites) > 60) {
+          if (checkConvergenceInSubset(iterationElites)) {
             # If this is not the first iteration and the previous iteration was converged
             if (convergenceMatrix[indexIteration - 1, as.character(subset_number)] == 1) {
               cat("Can't converge in subset ", subset_number, " because it was already converged in the previous iteration\n")
