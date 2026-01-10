@@ -1452,9 +1452,6 @@ elitist_race <- function(maxExp = 0,
     race.ranks[[as.character(currentSubset)]] <- race.ranks[[as.character(currentSubset)]][which.alive]
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == sum(alive))
     id_best <- currentSubsetConfigs[[".ID."]][best_list[[as.character(currentSubset)]]]
-    print('id best')
-    print(as.character(id_best))
-    print(result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE])
     print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
                currentSubsetTask, alive = alive,
