@@ -409,9 +409,7 @@ race_print_task <- function(res.symb, Results,
   if (capping) {
     if (is.null(bound)) cat("      NA|") else cat(sprintf("%8.2f|", bound))
   }
-  str(sum(alive))
-  str(id_best)
-  str(experimentsUsed)
+  id_best <- as.integer(id_best)
 
   cat(sprintf(paste0("%11d|%11d|", .irace.format.perf, "|%11d|%s"),
               sum(alive), id_best, mean_best, experimentsUsed, time_str))
