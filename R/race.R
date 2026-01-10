@@ -409,6 +409,10 @@ race_print_task <- function(res.symb, Results,
   if (capping) {
     if (is.null(bound)) cat("      NA|") else cat(sprintf("%8.2f|", bound))
   }
+  str(sum(alive))
+  str(id_best)
+  str(experimentsUsed)
+
   cat(sprintf(paste0("%11d|%11d|", .irace.format.perf, "|%11d|%s"),
               sum(alive), id_best, mean_best, experimentsUsed, time_str))
   
@@ -1448,6 +1452,8 @@ elitist_race <- function(maxExp = 0,
     race.ranks[[as.character(currentSubset)]] <- race.ranks[[as.character(currentSubset)]][which.alive]
     irace.assert(length(race.ranks[[as.character(currentSubset)]]) == sum(alive))
     id_best <- currentSubsetConfigs[[".ID."]][best_list[[as.character(currentSubset)]]]
+    print('id best')
+    print(as.character(id_best))
     print(result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE])
     print_task(res.symb, result_list[[as.character(currentSubset)]][seq_len(currentSubsetTask), , drop = FALSE],
                 currentInstance,
