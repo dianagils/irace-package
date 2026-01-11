@@ -405,7 +405,7 @@ race_print_task <- function(res.symb, Results,
   # be the sum of ranks in the case of test == friedman?
   mean_best <- mean(Results[, best])
   time_str <- elapsed_wctime_str(Sys.time(), start_time)
-  id_best = as.integer(id_best)
+  id_best <- as.integer(id_best)
   cat(sprintf("|%s|%11d|", res.symb, instance))
   if (capping) {
     if (is.null(bound)) cat("      NA|") else cat(sprintf("%8.2f|", bound))
