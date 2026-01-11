@@ -1387,6 +1387,8 @@ irace_run <- function(scenario, parameters)
     # if all subsets converged, dont assign to worst subset
     if (all(convergenceMatrix[indexIteration, ] == 1)) { 
       cat("All subsets converged in iteration ", indexIteration, "\n")
+      # reset convergence matrix last row
+      convergenceMatrix[indexIteration, ] <- 0
     } else {
       maxSubsetRank <- 0
       worstSubset <- NULL
